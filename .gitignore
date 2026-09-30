@@ -1,0 +1,5 @@
+# generated at run time; the checked-in logs_* dirs are the evidence
+design/build/
+design/xezim_cov.json
+design/tr_db.log
+schematic/*.raw

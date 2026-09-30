@@ -1,0 +1,541 @@
+%=======================================================================
+% Virtual BMS co-verification whitepaper
+% Build: ~/.local/bin/tectonic whitepaper.tex
+%=======================================================================
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{microtype}
+\usepackage{booktabs}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,fit}
+\usepackage[europeanresistors]{circuitikz}
+\usepackage{caption}
+\usepackage[hidelinks]{hyperref}
+
+\newcommand{\iic}{I\textsuperscript{2}C}
+\newcommand{\reg}[1]{\texttt{#1}}
+
+\tikzset{
+  blk/.style  ={draw, rounded corners=2pt, align=center, inner sep=6pt,
+                minimum height=9mm, font=\small},
+  hot/.style  ={blk, thick, draw=blue!60!black, fill=blue!60!black!8},
+  lbl/.style  ={font=\footnotesize, text=black!60},
+  arr/.style  ={-{Stealth[length=2.2mm]}, semithick},
+  arrh/.style ={arr, blue!60!black},
+}
+
+\title{\bfseries Co-Verifying BMS Firmware Against a Virtual Board:\\
+       SV-RNM, a Behavioural BQ76952-Class AFE, and UVM-MS}
+\author{Vrajesh Prakhya}
+\date{September 28, 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+We verify unmodified battery-management host firmware against a fully
+virtual six-cell battery board --- no silicon, no lab bench.  The
+board's analog electronics are SystemVerilog real-number models
+(SV-RNM), the battery-monitor AFE is a behavioural model of a
+BQ76952-class device with its own register map and hardware protection
+engine, and the host firmware (C, stepped cycle-by-cycle through DPI)
+talks to it over a pin-level, open-drain \iic{} bus.  A UVM-MS
+environment above the board pushes physical scenarios --- cell
+voltages, load current, temperature, component tolerances --- and
+checks both what the firmware reports and what the analog domain
+actually does.  A 13-scenario regression passes with zero failures on
+the xezim simulator, covering measurement accuracy, all four
+protection regions, cell balancing, EMI on the shunt sense line, and a
+full trip-and-recover sequence.  During bring-up the bench caught
+three real defects before any hardware existed, including a one-bit
+protocol error that silently broke every bus transaction.
+\end{abstract}
+
+%=======================================================================
+\section{The problem: bugs that live between firmware and analog}
+%=======================================================================
+
+A battery management system fails in the seam between two worlds.  The
+firmware can be unit-tested against mocked register values, and the
+digital logic can be simulated --- but neither catches the class of bug
+where correct-looking code meets real electrical behaviour: a
+protection threshold written to the wrong register, a reading that
+silently scales wrong at a supply corner, a balancing command that
+measures differently than it acts, or a trip that toggles a GPIO while
+the actual current keeps flowing.
+
+These bugs normally surface on the lab bench, late, one board spin in.
+Firmware mocks cannot find them, because the mock returns whatever the
+test author \emph{believed} the analog chain does.  Digital-only
+simulation cannot find them, because the interesting behaviour --- IR
+sag, sensor tolerance, saturation, EMI --- is analog and lives on the
+PCB, outside the chip.
+
+The approach demonstrated here closes that seam in simulation:
+\begin{enumerate}
+  \item model the board's analog chain as SV-RNM \emph{functional
+        blocks} (not per-passive netlists),
+  \item run the actual firmware against it through the real bus
+        protocol it would use on hardware, and
+  \item put a UVM-MS testbench above both, so physical corners and
+        firmware responses are exercised and checked together, with
+        functional coverage over their cross product.
+\end{enumerate}
+
+%=======================================================================
+\section{System under test}
+%=======================================================================
+
+The demonstrator mirrors a production BMS architecture (cf.\ the open
+6S-BMS project, STM32G0B1 + BQ76952): the measurement and protection
+intelligence sits in a dedicated battery-monitor AFE, and a host MCU
+supervises it over \iic{}.  Figure~\ref{fig:arch} shows the five
+pieces and how they connect.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[node distance=6mm and 10mm]
+  % left column: testbench stack
+  \node[blk, text width=34mm] (env)
+    {\textbf{UVM-MS testbench}\\[1pt]
+     \footnotesize constrained-random +\\[-2pt]
+     \footnotesize directed scenarios,\\[-2pt]
+     \footnotesize scoreboard, coverage};
+  \node[blk, text width=34mm, below=9mm of env] (brg)
+    {\textbf{MS bridge + proxy}\\[1pt]
+     \footnotesize push \texttt{wreal} nets;\\[-2pt]
+     \footnotesize pull registers + taps};
+
+  % board container
+  \node[blk, text width=52mm, right=16mm of env.north east, anchor=north west,
+        yshift=2mm] (pack)
+    {\textbf{6S pack + load + shunt}\\[1pt]
+     \footnotesize IR sag; current flows\\[-2pt]
+     \footnotesize only while DSG is closed};
+  \node[blk, text width=52mm, below=8mm of pack] (afe)
+    {\textbf{BQ76952-class AFE}\\[1pt]
+     \footnotesize measurement engine (250 $\mu$s)\\[-2pt]
+     \footnotesize protection engine + thresholds\\[-2pt]
+     \footnotesize FET drive $\cdot$ cell balancing\\[-2pt]
+     \footnotesize \iic{} register-map slave};
+  \node[draw, rounded corners=3pt, inner sep=4mm,
+        fit={(pack) (afe)},
+        label={[font=\small\bfseries]90:Virtual board (SV-RNM)}]
+        (board) {};
+
+  % MCU
+  \node[hot, text width=44mm, below=15mm of afe] (mcu)
+    {\textbf{Host MCU + firmware}\\[1pt]
+     \footnotesize real C firmware:\\[-2pt]
+     \footnotesize bit-banged \iic{} master};
+
+  % arrows
+  \draw[arr] (env) -- (brg);
+  \draw[arr] ([yshift= 6mm]brg.east) -- node[lbl, above]{push}
+             ([yshift= 6mm]brg.east -| board.west);
+  \draw[arr] ([yshift=-6mm]brg.east -| board.west) --
+             node[lbl, below]{pull} ([yshift=-6mm]brg.east);
+  \draw[arr] ([xshift= 9mm]afe.north) -- node[lbl, right]{control}
+             ([xshift= 9mm]pack.south);
+  \draw[arr] ([xshift=-9mm]pack.south) -- node[lbl, left]{measure}
+             ([xshift=-9mm]afe.north);
+  \draw[arrh] ([xshift=-6mm]board.south) --
+              ([xshift=-6mm]board.south |- mcu.north);
+  \draw[arrh] ([xshift= 6mm]board.south |- mcu.north) --
+              ([xshift= 6mm]board.south);
+  \node[lbl, blue!60!black, anchor=west]
+    at ([xshift=9mm]$(board.south)!.5!(board.south |- mcu.north)$)
+    {\iic{} $\cdot$ open-drain SDA};
+\end{tikzpicture}
+\caption{System architecture.  The firmware's only window into the
+analog world is the \iic{} bus (highlighted); the AFE's FET outputs
+feed back into the pack model, closing the analog loop.}
+\label{fig:arch}
+\end{figure}
+
+The five pieces:
+
+\begin{itemize}
+  \item \textbf{6S pack + load + shunt} (\texttt{pack\_rnm.sv}):
+    per-cell open-circuit voltage, IR sag under load, shunt sense
+    voltage.  Crucially, load current flows only while the AFE's
+    discharge FET is closed --- the protection loop-back.
+  \item \textbf{BQ76952-class AFE} (\texttt{bq76952\_rnm.sv}):
+    a 250\,$\mu$s measurement loop with gain tolerance and noise, its
+    own protection engine (cell under-/overvoltage with hysteresis,
+    latched overcurrent, overtemperature), FET drive, cell balancing
+    with the sense-line read-droop artifact, and a pin-level \iic{}
+    slave over a register map.
+  \item \textbf{\iic{} bus}: open-drain SDA resolved in the testbench
+    top ($\mathit{sda} = \overline{\mathit{pull}_m \lor
+    \mathit{pull}_s}$).  Every threshold, measurement and balancing
+    command crosses it as real bus traffic at ${\sim}400$\,kHz.
+  \item \textbf{Host firmware} (\texttt{firmware.c}): unmodified C,
+    stepped one MCU clock per DPI call --- a queue-based bit-banged
+    \iic{} master, threshold configuration at start-up, a 2\,ms poll
+    loop, a balancing policy with hysteresis, and a fault-recover
+    write.  The tick-shim MCU is the declared swap-in point for a
+    Renode STM32G0B1 machine.
+  \item \textbf{UVM-MS layer}: bridge + abstract proxy per UVM-MS~1.0
+    clauses 4.2.1/4.2.3.  It pushes scenarios onto \texttt{wreal}
+    control nets and pulls \emph{both} sides of the bus --- the host's
+    beliefs via DPI, and the AFE's actual registers via hierarchical
+    reference --- plus the analog current tap.
+\end{itemize}
+
+%=======================================================================
+\section{The analog board model}
+%=======================================================================
+
+Figure~\ref{fig:schem} shows the electrical circuit being modelled.
+The RNM abstraction keeps the behaviours that can change what firmware
+sees and drops everything else: each cell is an ideal source $V_{ci}$
+behind an internal resistance $R_{\mathrm{int}}$, the load draws a
+commanded current $I_{\mathrm{load}}$ through the discharge FET, and
+the pack current develops a millivolt-level sense voltage across the
+1\,m$\Omega$ shunt.
+
+\begin{figure}[htbp]
+\centering
+\begin{circuitikz}[scale=0.92, transform shape, font=\small]
+  % ---- cell stack (left) ----
+  \draw (0,9.0) node[circ]{} node[above]{\textbf{B+}}
+        (0,9.0) to[battery1, l=$V_{c6}$] (0,7.8)
+                to[R, l=$R_{\mathrm{int}}$] (0,6.9) node[circ]{}
+        (0,6.9) to[battery1, l=$V_{c5}$] (0,5.7)
+                to[R, l=$R_{\mathrm{int}}$] (0,4.8) node[circ]{};
+  \node at (0,4.35) {$\vdots$};
+  \draw (0,3.9) node[circ]{}
+        (0,3.9) to[battery1, l=$V_{c1}$] (0,2.7)
+                to[R, l=$R_{\mathrm{int}}$] (0,1.8) node[circ]{}
+        (0,1.8) -- (0,0.6) node[circ]{} node[below]{\textbf{B$-$}};
+
+  % ---- load branch (middle) ----
+  \draw (0,9.0) -- (3.2,9.0);
+  \draw (3.2,9.0) node[nmos, anchor=D, rotate=90, xscale=-1](dsg){};
+  \node[above=1mm of dsg] {DSG};
+  \draw (dsg.S) -- (5.6,9.0)
+        (5.6,9.0) -- (5.6,3.6)
+        (5.6,3.6) to[I, l=$I_{\mathrm{load}}$] (5.6,2.3)
+        (5.6,2.3) -- (5.6,1.8)
+        (5.6,1.8) to[R, l=$R_{\mathrm{sh}}$, a=1\,m$\Omega$] (2.6,1.8)
+        (2.6,1.8) -- (0,1.8);
+
+  % ---- AFE box (right) ----
+  \draw[rounded corners=3pt] (8.0,1.2) rectangle (11.6,9.4);
+  \node[align=center] at (9.8,8.9) {\textbf{BQ76952-class}\\ \textbf{AFE model}};
+
+  % cell-sense taps
+  \draw (0,6.9) -- node[lbl, above, pos=.5]{VC5} (8.0,6.9);
+  \draw (0,4.8) -- (8.0,4.8);
+  \draw (0,3.9) -- node[lbl, above, pos=.5]{VC1} (8.0,3.9);
+  \draw (0,9.0) -- (1.4,9.0) (1.4,9.0) |- node[lbl, above, pos=.9]{VC6} (8.0,7.7);
+  % shunt sense
+  \draw (5.6,1.8) -- (5.6,1.4) -- (7.0,1.4) -- (7.0,2.4)
+        -- node[lbl, above]{SRP} (8.0,2.4);
+  \draw (2.6,1.8) -- (2.6,1.0) -- (7.4,1.0) -- (7.4,1.7)
+        -- node[lbl, above, pos=.9]{SRN} (8.0,1.7);
+  % thermistor (kept clear of the load branch at x=5.6)
+  \draw (8.0,6.1) to[thR, l_=NTC] (6.6,6.1) -- (6.6,5.5)
+        node[ground]{};
+  \node[lbl, above right] at (8.0,6.15) {TS};
+
+  % FET gate drive
+  \draw[arr] (9.0,9.4) |- node[lbl, above, pos=.8]{gate drive} (dsg.G);
+
+  % I2C to host
+  \draw (11.6,4.6) -- node[lbl, above]{SDA} (13.0,4.6);
+  \draw (11.6,3.7) -- node[lbl, above]{SCL} (13.0,3.7);
+  \node[blk, anchor=west, text width=17mm] at (13.0,4.15)
+        {\textbf{Host}\\ \textbf{MCU}};
+\end{circuitikz}
+\caption{The modelled circuit.  Cells $V_{c1..6}$ with per-cell
+$R_{\mathrm{int}}$ feed the load through the AFE-controlled DSG FET;
+the pack current develops the sense voltage across
+$R_{\mathrm{sh}}$.  The AFE samples the cell taps, shunt pair and NTC,
+and the host reaches everything through two \iic{} wires.  (CHG FET
+and charger path omitted --- out of scope for this version.)}
+\label{fig:schem}
+\end{figure}
+
+Three modelling choices matter to the verification story:
+
+\begin{description}
+  \item[Loop-back is physical.]  $I_{\mathrm{load}}$ flows only while
+    DSG is on: $i_{\mathrm{act}} = \mathrm{DSG} \cdot
+    I_{\mathrm{load}}$, and every cell terminal sits at
+    $V_{ci} - i_{\mathrm{act}} R_{\mathrm{int}}$.  A protection trip
+    therefore changes the very measurements the firmware reads next.
+  \item[The shunt-sense node is a summing net.]  It is declared with a
+    user-defined nettype whose resolution function sums driver
+    contributions (UVM-MS 4.2.3.2): the shunt model and a 20\,kHz
+    DC/DC ripple interferer share the net, and the \emph{net type},
+    not the testbench, decides how they combine.
+  \item[Balancing has its measurement artifact.]  A cell being bled
+    through its sense line reads ${\sim}40$\,mV low --- the well-known
+    BQ-family effect --- so the scoreboard predicts it rather than
+    widening a tolerance.
+\end{description}
+
+%=======================================================================
+\section{The AFE register map and the \iic{} bus}
+%=======================================================================
+
+Table~\ref{tab:regmap} lists the demo register map.  Direct-command
+measurement addresses follow the real BQ76952; the real part's RAM
+configuration (subcommand 0x3E/0x3F plus checksum at 0x60) is
+flattened into directly writable registers, a documented
+simplification.
+
+\begin{table}[htbp]
+\centering\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+Address & Register & Access \\
+\midrule
+\reg{0x03}        & Safety Status A: CUV, COV, OCD, OT bits & RO \\
+\reg{0x14}+2$n$   & Cell $n{+}1$ voltage, mV, little-endian & RO \\
+\reg{0x3A/3B}     & Pack current, mA, signed                & RO \\
+\reg{0x68/69}     & Temperature, 0.1\,$^\circ$C, signed     & RO \\
+\reg{0x7F}        & FET status: DSG, CHG bits               & RO \\
+\reg{0x90/91}     & CUV threshold, mV                       & RW \\
+\reg{0x92/93}     & COV threshold, mV                       & RW \\
+\reg{0x94/95}     & OCD threshold, mA                       & RW \\
+\reg{0x96}        & Protection enable bits                  & RW \\
+\reg{0x97}        & FET allow: DSG, CHG                     & RW \\
+\reg{0x98}        & Cell-balancing active mask              & RW \\
+\reg{0x99}        & Recover: write 1 clears latched OCD     & W  \\
+\bottomrule
+\end{tabular}
+\caption{Demo register map of the AFE model (BQ76952-flavoured).}
+\label{tab:regmap}
+\end{table}
+
+The slave is modelled at pin level: START/STOP detection on SDA edges
+gated by SCL, bit assembly on SCL rising edges, ACK generation, a
+register pointer with burst auto-increment, and write protection on
+the read-only ranges.  Figure~\ref{fig:i2c} shows the start of a
+threshold-write transaction --- and the one-clock-edge subtlety that
+produced the first bring-up bug.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[x=8.5mm, y=8mm, font=\small]
+  % ---- SCL (high = 5, low = 4) ----
+  \node[left] at (-0.2,4.5) {SCL};
+  \draw[semithick]
+    (0,5) -- (2.0,5)
+    -- (2.0,4) -- (3.0,4)
+    -- (3.0,5) -- (4.0,5) -- (4.0,4) -- (5.0,4)
+    -- (5.0,5) -- (6.0,5) -- (6.0,4) -- (7.0,4)
+    -- (7.0,5) -- (8.0,5) -- (8.0,4) -- (8.6,4);
+  \node at (9.1,4.5) {$\cdots$};
+  \draw[semithick]
+    (9.6,4) -- (10.0,4) -- (10.0,5) -- (11.0,5) -- (11.0,4) -- (11.6,4);
+
+  % ---- SDA (high = 2, low = 1) ----
+  \node[left] at (-0.2,1.5) {SDA};
+  \draw[semithick]
+    (0,2) -- (1.2,2)
+    -- (1.2,1) -- (4.6,1)
+    -- (4.6,2) -- (6.6,2)
+    -- (6.6,1) -- (8.6,1);
+  \node at (9.1,1.5) {$\cdots$};
+  \draw[semithick] (9.6,2) -- (9.8,2) -- (9.8,1) -- (11.6,1);
+
+  % bit labels above SCL
+  \node[lbl] at (3.5,5.4) {A6};
+  \node[lbl] at (5.5,5.4) {A5};
+  \node[lbl] at (7.5,5.4) {A4};
+  \node[lbl] at (10.5,5.4) {ACK};
+
+  % START annotation, below SDA
+  \draw[arr] (1.2,0.45) -- (1.2,0.9);
+  \node[lbl] at (2.2,0.2) {START: SDA falls while SCL high};
+
+  % the bug annotation, in the band between the rails
+  \draw[arr, red!70!black] (2.0,3.45) -- (2.0,3.9);
+  \node[lbl, red!70!black, align=center] at (4.1,3.05)
+    {this SCL fall completes the START\\
+     --- it is \emph{not} a bit boundary};
+
+  % sampling convention, right side of the band
+  \draw[arr] (7.6,3.5) -- (7.1,4.1);
+  \node[lbl, anchor=west] at (7.7,3.35) {sampled on rising edges};
+
+  % ACK note, below SDA at the right
+  \node[lbl] at (10.4,0.55) {slave pulls SDA low};
+\end{tikzpicture}
+\caption{Start of an \iic{} transaction (address byte
+\reg{0x10} = device 0x08, write).  The v1 slave model counted the SCL
+falling edge that completes the START condition as a data-bit
+boundary, assembled every address one bit short, and NACKed every
+transaction --- the host read 0xFF everywhere.  The fix: only a
+falling edge that ends a real clock pulse advances the bit counter.}
+\label{fig:i2c}
+\end{figure}
+
+%=======================================================================
+\section{The UVM-MS layer: closing three loops}
+%=======================================================================
+
+The verification value comes from three loops that each cross the
+firmware/analog boundary in both directions
+(Figure~\ref{fig:loop}).
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[font=\small, node distance=7mm and 12mm]
+  \node[hot, text width=30mm] (fw)  {\textbf{Firmware}\\
+        \footnotesize writes thresholds,\\[-2pt]
+        \footnotesize reads data over \iic{}};
+  \node[blk, text width=36mm, right=of fw] (prot) {\textbf{AFE protection}\\
+        \footnotesize compares measurements\\[-2pt]
+        \footnotesize to \emph{written} thresholds};
+  \node[blk, text width=26mm, right=of prot] (fet) {\textbf{DSG / CHG}\\
+        \footnotesize FET outputs};
+  \node[blk, text width=30mm, below=of fet] (pack) {\textbf{Pack}\\
+        \footnotesize current stops,\\[-2pt]
+        \footnotesize IR sag vanishes};
+  \node[blk, text width=36mm, below=of prot] (meas) {\textbf{AFE measurements}\\
+        \footnotesize cells, current, temp\\[-2pt]
+        \footnotesize into the register map};
+
+  \draw[arr] (fw) -- node[lbl, above]{\iic{}} (prot);
+  \draw[arr] (prot) -- (fet);
+  \draw[arr] (fet) -- (pack);
+  \draw[arr] (pack) -- (meas);
+  \draw[arr] (meas) -- (prot);
+  \draw[arr] (meas) -| node[lbl, below, pos=.25]{\iic{} reads} (fw);
+\end{tikzpicture}
+\caption{The closed verification loop: a protection decision changes
+the analog state, which changes the next measurements, which the
+firmware reads back over the same bus it configured the protection
+through.}
+\label{fig:loop}
+\end{figure}
+
+\begin{enumerate}
+  \item \textbf{Configuration integrity.}  The host writes CUV
+    2800\,mV, COV 4250\,mV, OCD 3000\,mA at start-up.  The scoreboard
+    does not trust the write: it reads the AFE's threshold registers
+    directly and fails any scenario where the values the protection
+    engine actually uses differ from the host's intent.  A byte-order
+    bug, a wrong register address, or a broken bus all fail here.
+  \item \textbf{Protection loop-back.}  When the AFE trips, the
+    scoreboard checks the \emph{analog} consequence --- shunt current
+    exactly 0\,mA --- not just the status bit, plus a trip-latency
+    bound of three host control loops.
+  \item \textbf{Balancing closed-loop.}  When the cell spread exceeds
+    50\,mV, the host must write the balancing mask for exactly the
+    highest cell; the scoreboard checks the AFE register, and that the
+    cell's reading droops the predicted 40\,mV.
+\end{enumerate}
+
+Prediction is white-box and two-pass: first compute what the AFE will
+measure assuming the discharge path is closed
+($V_{ci} - I_{\mathrm{load}}R_{\mathrm{int}}$ scaled by gain
+tolerance; current scaled and offset), decide from those values which
+protections must trip, then recompute the final measurements with the
+resulting current.  Checks are skipped only in narrow bands around
+each threshold, where noise legitimately makes the outcome go either
+way.
+
+%=======================================================================
+\section{Results}
+%=======================================================================
+
+The regression (seed~1) runs 13 scenarios in ${\sim}291$\,ms of
+simulated time and passes with zero failures
+(Table~\ref{tab:results}).
+
+\begin{table}[htbp]
+\centering\small
+\begin{tabular}{@{}p{34mm}p{44mm}p{62mm}@{}}
+\toprule
+Scenario & Setup & Observed \\
+\midrule
+Safe corners (4, random) & cells 3.29--3.66\,V, load $\le$1.2\,A,
+  16--47\,$^\circ$C, tolerances randomized &
+  readings match prediction to ${\sim}1$\,mV per cell and tens of mA;
+  both FETs closed \\
+Cell undervoltage & all cells 2.65\,V &
+  status 0x1; DSG opens; current stops; cells read unloaded \\
+Cell overvoltage & all cells 4.32\,V &
+  status 0x2; CHG opens; DSG stays closed \\
+Overcurrent & 4.2\,A load &
+  status 0x4; trip in 0 host loops, latched; shunt current 0\,mA \\
+Overtemperature & 70\,$^\circ$C &
+  status 0x8; both FETs open \\
+Imbalance & cell~4 at $+90$\,mV &
+  host writes CB mask 0x8; AFE register confirms; cell~4 droops the
+  predicted 40\,mV \\
+DC/DC ripple & 20\,kHz interferer on the shunt net &
+  current wobbles inside the widened tolerance; no false trip \\
+Hero (3 phases) & 1\,A $\to$ 4.2\,A (no reset) $\to$ 1\,A (host reset) &
+  normal $\to$ OCD latches, current physically stops $\to$ recover
+  write over \iic{} restores 1\,A operation \\
+\bottomrule
+\end{tabular}
+\caption{The 13-scenario regression, seed 1.  Functional coverage
+crosses physical corner against firmware response (load band $\times$
+DSG, voltage band $\times$ CHG, imbalance $\times$ balancing).}
+\label{tab:results}
+\end{table}
+
+\subsection*{The bench caught its own bring-up bugs}
+
+The strongest evidence that the checks have teeth: three real defects
+surfaced before the first passing run, each found by a specific check.
+
+\begin{enumerate}
+  \item \textbf{The START-edge protocol bug}
+    (Figure~\ref{fig:i2c}): every host read returned 0xFF; found by
+    the configuration-integrity check (``thresholds never arrived'').
+  \item \textbf{Empty array arguments}: cell voltages pushed through
+    an unpacked-array argument on the virtual proxy method arrived
+    empty (a simulator edge case), so the AFE measured 0\,V and its
+    own undervoltage protection latched the pack off; found by the
+    loop-back check.  The push path now uses scalars throughout.
+  \item \textbf{A units error} (A vs.\ mA) in the AFE current path
+    made every current reading $1000\times$ low; found by the
+    current-accuracy check on the very first smoke run.
+\end{enumerate}
+
+%=======================================================================
+\section{Limitations and next steps}
+%=======================================================================
+
+Deliberate simplifications, each with a clear upgrade path:
+
+\begin{itemize}
+  \item \textbf{Register map.}  The subcommand-plus-checksum RAM
+    configuration protocol of the real part is flattened into direct
+    registers; temperature is reported in 0.1\,$^\circ$C rather than
+    0.1\,K.
+  \item \textbf{MCU.}  The firmware runs as a tick-stepped state
+    machine through DPI rather than on an instruction-set simulator.
+    The MCU shim module is the declared swap-in point for a Renode
+    STM32G0B1 machine, whose \iic{} peripheral would drive the same
+    two pins with the firmware unchanged.
+  \item \textbf{Scope.}  Charge-side current, coulomb counting,
+    \iic{} clock stretching and multi-master, and CAN are out of
+    scope for this version.
+\end{itemize}
+
+Because the bus is modelled at pin level, bus fault injection --- a
+stuck SDA, NACK storms, corrupted bytes --- is now a cheap extension,
+and the natural next test dimension: does the host firmware fail safe
+when its only window into the analog world degrades?
+
+This demonstrator is the fourth in a series built on one architecture
+(RNM board / \texttt{wreal} scenario nets / MS bridge with an
+Annex-A proxy / DPI-tick firmware): a TCD1304 CCD sensor channel, an
+HX717 load-cell chain, an STM32 internal-ADC BMS, and this one ---
+each adding one integration step, ending here with a configurable
+smart AFE behind a real bus.
+
+\end{document}

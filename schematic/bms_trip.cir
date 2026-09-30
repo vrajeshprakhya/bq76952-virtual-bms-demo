@@ -1,0 +1,27 @@
+Whitepaper evidence: transient protection trip (6S BMS board)
+* Supports: the hero-sequence claim.  A 4.2 A overload is flowing;
+* at t = 5 ms the DSG gate opens (the AFE's OCD decision).  The shunt
+* voltage must collapse to 0 and every cell tap must recover its IR
+* sag -- the analog consequence the UVM-MS scoreboard checks.
+
+.include bms_core.inc
+
+Vdsg ctl 0 PULSE(1 0 5m 1u 1u 50m 100m)
+Vcmd cmd 0 DC 4.2
+
+.control
+set noaskquit
+tran 20u 12m
+echo ============================================================
+echo Transient trip: DSG opens at t = 5 ms with 4.2 A commanded
+echo ============================================================
+meas tran vsh_before  FIND v(nsh) AT=4m
+meas tran vsh_after   FIND v(nsh) AT=8m
+meas tran c1_before   FIND v(t1)  AT=4m
+meas tran c1_after    FIND v(t1)  AT=8m
+let i_before_mA = vsh_before/1e-3*1000
+let i_after_mA  = vsh_after /1e-3*1000
+print i_before_mA i_after_mA
+wrdata ../logs_ngspice/tran_trip.dat v(nsh) v(t1)
+.endc
+.end

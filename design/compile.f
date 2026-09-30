@@ -1,0 +1,11 @@
+rnm/bq_types_pkg.sv
+tb/uvm_ms_pkg.sv
+tb/bq_proxy_pkg.sv
+rnm/pack_rnm.sv
+rnm/ripple_interferer.sv
+rnm/bq76952_rnm.sv
+rnm/bq_board.sv
+mcu/mcu_virtual.sv
+tb/bq_bridge.sv
+tb/bq_pkg.sv
+tb/top.sv

@@ -1,0 +1,123 @@
+==== bms_op.cir (operating points + load sweep) ====
+
+Note: No compatibility mode selected!
+
+
+Circuit: whitepaper evidence: operating points + load sweep (6s bms board)
+
+============================================================
+OP1: DSG closed commanded load 1 A (matches xezim smoke)
+============================================================
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+c1 = 3.688000e+00
+c2 = 3.688000e+00
+c3 = 3.688000e+00
+c4 = 3.688000e+00
+c5 = 3.688000e+00
+c6 = 3.688000e+00
+v(t6) = 2.212800e+01
+v(nsh) = 1.000000e-03
+i_act_ma = 1.000000e+03
+v(tsn) = 1.650000e+00
+============================================================
+OP2: DSG OPEN load still commanding 1 A (loop-back claim)
+============================================================
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 1
+c1o = 3.700000e+00
+v(nsh) = 0.000000e+00
+i_act_ma_o = 0.000000e+00
+============================================================
+DC sweep: commanded load 0..4.2 A DSG closed
+columns: I_cmd v(nsh) [shunt] v(t1) [cell1 tap] v(t6) [B+]
+============================================================
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+No. of Data Rows : 15
+       whitepaper evidence: operating points + load sweep (6s bms board)
+       DC transfer characteristic  Tue Sep 29 00:13:11  2026
+--------------------------------------------------------------------------------
+Index   v-sweep         v(nsh)          v(t1)           v(t6)           
+--------------------------------------------------------------------------------
+0	0.000000e+00	0.000000e+00	3.700000e+00	2.220000e+01	
+1	3.000000e-01	3.000000e-04	3.696400e+00	2.217840e+01	
+2	6.000000e-01	6.000000e-04	3.692800e+00	2.215680e+01	
+3	9.000000e-01	9.000000e-04	3.689200e+00	2.213520e+01	
+4	1.200000e+00	1.200000e-03	3.685600e+00	2.211360e+01	
+5	1.500000e+00	1.500000e-03	3.682000e+00	2.209200e+01	
+6	1.800000e+00	1.800000e-03	3.678400e+00	2.207040e+01	
+7	2.100000e+00	2.100000e-03	3.674800e+00	2.204880e+01	
+8	2.400000e+00	2.400000e-03	3.671200e+00	2.202720e+01	
+9	2.700000e+00	2.700000e-03	3.667600e+00	2.200560e+01	
+10	3.000000e+00	3.000000e-03	3.664000e+00	2.198400e+01	
+11	3.300000e+00	3.300000e-03	3.660400e+00	2.196240e+01	
+12	3.600000e+00	3.600000e-03	3.656800e+00	2.194080e+01	
+13	3.900000e+00	3.900000e-03	3.653200e+00	2.191920e+01	
+14	4.200000e+00	4.200000e-03	3.649600e+00	2.189760e+01	
+Note: Simulation executed from .control section 
+
+==== bms_trip.cir (transient DSG trip at 5 ms) ====
+
+Note: No compatibility mode selected!
+
+
+Circuit: whitepaper evidence: transient protection trip (6s bms board)
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+Initial Transient Solution
+--------------------------
+
+Node                                   Voltage
+----                                   -------
+m1                                         3.7
+t1                                      3.6496
+m2                                      7.3496
+t2                                      7.2992
+m3                                     10.9992
+t3                                     10.9488
+m4                                     14.6488
+t4                                     14.5984
+m5                                     18.2984
+t5                                      18.248
+m6                                      21.948
+t6                                     21.8976
+nload                                  21.8934
+ctl                                          1
+nsh                                     0.0042
+cmd                                        4.2
+vdd                                        3.3
+tsn                                       1.65
+vcmd#branch                                  0
+vdsg#branch                                  0
+vdd3#branch                          -0.000165
+v6#branch                                 -4.2
+v5#branch                                 -4.2
+v4#branch                                 -4.2
+v3#branch                                 -4.2
+v2#branch                                 -4.2
+v1#branch                                 -4.2
+
+
+No. of Data Rows : 624
+============================================================
+Transient trip: DSG opens at t = 5 ms with 4.2 A commanded
+============================================================
+vsh_before          =  4.20000e-03
+vsh_after           =  0.00000e+00
+c1_before           =  3.64960e+00
+c1_after            =  3.70000e+00
+i_before_ma = 4.200000e+03
+i_after_ma = 0.000000e+00
+Note: Simulation executed from .control section 

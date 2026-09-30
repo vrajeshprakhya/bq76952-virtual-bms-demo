@@ -1,0 +1,87 @@
+=== xezim 0.10.5 ===
+git 531e42a (2026-09-11T07:58:43-07:00)
+Max time: 800000000 ns
+------------------------------
+[PHASE] compilation: 584.4ms
+[EVENT-EDGE] ARMED mode ON: 16 input signals, 17 fanout edges
+[EVENT-EDGE] measure (timestamp): 5 edge blocks, 4 gateable, 0 gateable-with-EMPTY-data-reads, avg data-reads/gateable=4.25
+[EVENT-EDGE] SKIP mode ON (sim_time >= 0) — skipping gateable flop fires with no data-input change
+[xezim][warning] a #delay evaluated to a pathological real value 9.2000e15 at /home/vraje/iverilog-unified/uvm-core/src/uvm_pkg.sv:41590 [preprocessed line; the file has 79 lines, so this code came from an `include or a multi-line macro] at time 0 — the process is parked far in the future, so a clock driven by it will appear to stop. This usually means the delay expression produced NaN/inf or IEEE-754 bit garbage.
+[PROF] settle=0.0ms edges=0.0ms nba=0.0ms process=0.0ms snap=0.0ms sched=0.0ms
+[PROF] edge_waiters=0.0ms edge_cg=0.0ms waiter_iters=839213
+[PROF] clocks_only_detect=0 nba_elided=0 (iters with clocks-only scan / NBAs dropped at eval because value matched signal_table)
+[PROF] edge_detect=0.0ms edge_exec=0.0ms edges_fired=7202 insns=552251 ns_per_insn=0.0 fallbacks=19
+[FUSE] array-read-NBA fusions (static sites): 0
+[FUSE] packed-loop NBA copies (static sites): 0
+[FUSE] packed blocking fills (dynamic executions): 0
+[FUSE] const-operand ALU fusions (static sites): Add=0 Eq=1 CaseEq=5 Xor=0 total=6
+[FUSE] Move-into-assign forwards (static sites): 0
+[FUSE] provably-unsigned scrubs elided (static sites): 3
+[FUSE] AddC2 superinstructions (static sites): 0
+[EVENT-EDGE] would-skip 1134/4328 gateable main-clk flop-fires (26.2%) had NO data-input change since last posedge => event-driven edge could skip them
+[EVENT-EDGE] adaptive epoch-fast-exec=0 snapshot-checks=4324 healed=24
+[EVENT-EDGE] armed-fast-skips=0 shadow-checks=0
+[PROF] fallback_reason               Expr_Call_impure: count=      19 total=     0.0ms avg=    0.0µs
+[PROF] settle_dc=0.0ms(23114) settle_ca=0.0ms(0) settle_ab=0.0ms(0)
+[PROF] engine=event
+[PROF] clock_tree: roots=0 entries=0 eager_evals=0
+[PROF] settle_calls=106658 settle_iters=106528 max_iters=1 entry_evals=23114 unresolved_entries=1/56
+[PROF] settle_writes=9995 (43.2% of evals changed a signal, 13119 quiet) dep_edges=2753 (0.3 per write)
+[PROF] two_state_evals=2174 (1 entries lowered)
+[PROF] two_state_bail warn_x=0 forced_write=0 x_read=2 run_abort=0
+[PROF] simulation_loop=35131.8ms iters=419545 avg=83.74µs/iter
+[COV] assertions: 0 sites (assert=0, assume=0, cover=0) — 0 passes, 0 fails
+[COV] coverage: 2 covergroup instances, 421 samples, 13 unique coverpoint values, 4 unique cross tuples
+[COV] wrote coverage DB to xezim_cov.json
+UVM_INFO @ 0: reporter [UVM/RELNOTES] 
+  ***********       IMPORTANT RELEASE NOTES         ************
+
+  This implementation of the UVM Library deviates from the 1800.2-2020
+  standard.  See the DEVIATIONS.md file contained in the release
+  for more details.
+
+----------------------------------------------------------------
+Accellera:1800.2:UVM:2020.3.1
+
+All copyright owners for this kit are listed in NOTICE.txt
+All Rights Reserved Worldwide
+----------------------------------------------------------------
+
+      (Specify +UVM_NO_RELNOTES to turn off this notice)
+
+UVM_INFO @ 0: reporter [TOP] virtual 6S BMS: pack RNM + BQ76952-class AFE + pin-level I2C + real host firmware via DPI + UVM-MS
+UVM_WARNING @ 0: reporter [NO_DPI_USED] We are thinking of removing support for UVM_NO_DPI.  Please try this test without it and evaluate the impact
+UVM_INFO @ 0: reporter [NO_DPI_TSTNAME] UVM_NO_DPI defined--getting UVM_TESTNAME directly, without DPI
+UVM_INFO @ 0: reporter [RNTST] Running test bq_smoke_test...
+UVM_INFO @ 0: reporter [UVM/COMP/NAMECHECK] This implementation of the component name checks requires DPI to be enabled
+UVM_WARNING @ 0: reporter [NO_VISIT_CHECK] Because UVM_REGEX_NO_DPI is defined, no uvm component name constraints will be checked
+UVM_INFO @ 0: uvm_test_top.env.drv [DRV] scenario: base=3700mV imbal=0mV@c2 iload=1000mA T=25C rint=12mR vgt=0 ctol=0 intf=0 rst=1
+UVM_INFO @ 20975400000: uvm_test_top.env.sb [SB] scen 1: base=3700mV imbal=0mV@c2 iload=1000mA T=25C rint=12mR vgt=0 ctol=0 intf=0 rst=1 | c1=3688/3688 cmax=3688 I=1002 T=25.0 ss=0x0/0x0 fets=0x3 cb=0x0/0x0 i_act=1000 OK
+UVM_INFO @ 20975400000: uvm_test_top.env.sb [SB] scenarios=1 failed=0
+UVM_INFO @ 20975400000: uvm_test_top [TEST] TEST-VERDICT: PASS
+UVM_INFO @ 20975400000: reporter [UVM/REPORT/SERVER] 
+--- UVM Report Summary ---
+
+** Report counts by severity
+UVM_INFO :    9
+UVM_WARNING :    2
+UVM_ERROR :    0
+UVM_FATAL :    0
+** Report counts by id
+[DRV]     1
+[NO_DPI_TSTNAME]     1
+[NO_DPI_USED]     1
+[NO_VISIT_CHECK]     1
+[RNTST]     1
+[SB]     2
+[TEST]     1
+[TOP]     1
+[UVM/COMP/NAMECHECK]     1
+[UVM/RELNOTES]     1
+
+[PHASE] simulation: 35132.1ms
+[PHASE] total: 35716.6ms
+------------------------------
+------------------------------
+Simulation finished at time 20975400000
+($finish called)

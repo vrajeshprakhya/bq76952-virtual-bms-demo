@@ -1,0 +1,114 @@
+=== xezim 0.10.5 ===
+git 531e42a (2026-09-11T07:58:43-07:00)
+Max time: 800000000 ns
+------------------------------
+[PHASE] compilation: 480.3ms
+[EVENT-EDGE] ARMED mode ON: 16 input signals, 17 fanout edges
+[EVENT-EDGE] measure (timestamp): 5 edge blocks, 4 gateable, 0 gateable-with-EMPTY-data-reads, avg data-reads/gateable=4.25
+[EVENT-EDGE] SKIP mode ON (sim_time >= 0) — skipping gateable flop fires with no data-input change
+[xezim][warning] a #delay evaluated to a pathological real value 9.2000e15 at /home/vraje/iverilog-unified/uvm-core/src/uvm_pkg.sv:41590 [preprocessed line; the file has 79 lines, so this code came from an `include or a multi-line macro] at time 0 — the process is parked far in the future, so a clock driven by it will appear to stop. This usually means the delay expression produced NaN/inf or IEEE-754 bit garbage.
+[PROF] settle=0.0ms edges=0.0ms nba=0.0ms process=0.0ms snap=0.0ms sched=0.0ms
+[PROF] edge_waiters=0.0ms edge_cg=0.0ms waiter_iters=11636177
+[PROF] clocks_only_detect=0 nba_elided=0 (iters with clocks-only scan / NBAs dropped at eval because value matched signal_table)
+[PROF] edge_detect=0.0ms edge_exec=0.0ms edges_fired=87874 insns=7052975 ns_per_insn=0.0 fallbacks=139
+[FUSE] array-read-NBA fusions (static sites): 0
+[FUSE] packed-loop NBA copies (static sites): 0
+[FUSE] packed blocking fills (dynamic executions): 0
+[FUSE] const-operand ALU fusions (static sites): Add=0 Eq=1 CaseEq=5 Xor=0 total=6
+[FUSE] Move-into-assign forwards (static sites): 0
+[FUSE] provably-unsigned scrubs elided (static sites): 3
+[FUSE] AddC2 superinstructions (static sites): 0
+[EVENT-EDGE] would-skip 13963/52852 gateable main-clk flop-fires (26.4%) had NO data-input change since last posedge => event-driven edge could skip them
+[EVENT-EDGE] adaptive epoch-fast-exec=0 snapshot-checks=52848 healed=335
+[EVENT-EDGE] armed-fast-skips=0 shadow-checks=0
+[PROF] fallback_reason               Expr_Call_impure: count=     139 total=     0.0ms avg=    0.0µs
+[PROF] settle_dc=0.0ms(323627) settle_ca=0.0ms(0) settle_ab=0.0ms(0)
+[PROF] engine=event
+[PROF] clock_tree: roots=0 entries=0 eager_evals=0
+[PROF] settle_calls=555982 settle_iters=555852 max_iters=1 entry_evals=323627 unresolved_entries=1/56
+[PROF] settle_writes=164913 (51.0% of evals changed a signal, 158714 quiet) dep_edges=65726 (0.4 per write)
+[PROF] two_state_evals=26171 (1 entries lowered)
+[PROF] two_state_bail warn_x=0 forced_write=0 x_read=2 run_abort=0
+[PROF] simulation_loop=699581.2ms iters=5818045 avg=120.24µs/iter
+[COV] assertions: 0 sites (assert=0, assume=0, cover=0) — 0 passes, 0 fails
+[COV] coverage: 2 covergroup instances, 40920 samples, 44 unique coverpoint values, 29 unique cross tuples
+[COV] wrote coverage DB to xezim_cov.json
+UVM_INFO @ 0: reporter [UVM/RELNOTES] 
+  ***********       IMPORTANT RELEASE NOTES         ************
+
+  This implementation of the UVM Library deviates from the 1800.2-2020
+  standard.  See the DEVIATIONS.md file contained in the release
+  for more details.
+
+----------------------------------------------------------------
+Accellera:1800.2:UVM:2020.3.1
+
+All copyright owners for this kit are listed in NOTICE.txt
+All Rights Reserved Worldwide
+----------------------------------------------------------------
+
+      (Specify +UVM_NO_RELNOTES to turn off this notice)
+
+UVM_INFO @ 0: reporter [TOP] virtual 6S BMS: pack RNM + BQ76952-class AFE + pin-level I2C + real host firmware via DPI + UVM-MS
+UVM_WARNING @ 0: reporter [NO_DPI_USED] We are thinking of removing support for UVM_NO_DPI.  Please try this test without it and evaluate the impact
+UVM_INFO @ 0: reporter [NO_DPI_TSTNAME] UVM_NO_DPI defined--getting UVM_TESTNAME directly, without DPI
+UVM_INFO @ 0: reporter [RNTST] Running test bq_regress_test...
+UVM_INFO @ 0: reporter [UVM/COMP/NAMECHECK] This implementation of the component name checks requires DPI to be enabled
+UVM_WARNING @ 0: reporter [NO_VISIT_CHECK] Because UVM_REGEX_NO_DPI is defined, no uvm component name constraints will be checked
+UVM_INFO @ 0: uvm_test_top.env.drv [DRV] scenario: base=3659mV imbal=0mV@c2 iload=804mA T=16C rint=19mR vgt=-2 ctol=-4 intf=0 rst=1
+UVM_INFO @ 20975400000: uvm_test_top.env.sb [SB] scen 1: base=3659mV imbal=0mV@c2 iload=804mA T=16C rint=19mR vgt=-2 ctol=-4 intf=0 rst=1 | c1=3641/3640 cmax=3640 I=796 T=16.0 ss=0x0/0x0 fets=0x3 cb=0x0/0x0 i_act=804 OK
+UVM_INFO @ 20975400000: uvm_test_top.env.drv [DRV] scenario: base=3543mV imbal=0mV@c2 iload=1164mA T=38C rint=18mR vgt=0 ctol=9 intf=0 rst=1
+UVM_INFO @ 43474800000: uvm_test_top.env.sb [SB] scen 2: base=3543mV imbal=0mV@c2 iload=1164mA T=38C rint=18mR vgt=0 ctol=9 intf=0 rst=1 | c1=3525/3524 cmax=3529 I=1181 T=38.0 ss=0x0/0x0 fets=0x3 cb=0x0/0x0 i_act=1164 OK
+UVM_INFO @ 43474800000: uvm_test_top.env.drv [DRV] scenario: base=3290mV imbal=0mV@c6 iload=625mA T=39C rint=14mR vgt=-3 ctol=-7 intf=0 rst=1
+UVM_INFO @ 65974200000: uvm_test_top.env.sb [SB] scen 3: base=3290mV imbal=0mV@c6 iload=625mA T=39C rint=14mR vgt=-3 ctol=-7 intf=0 rst=1 | c1=3267/3266 cmax=3279 I=629 T=39.0 ss=0x0/0x0 fets=0x3 cb=0x0/0x0 i_act=625 OK
+UVM_INFO @ 65974200000: uvm_test_top.env.drv [DRV] scenario: base=3352mV imbal=0mV@c2 iload=715mA T=47C rint=10mR vgt=3 ctol=8 intf=0 rst=1
+UVM_INFO @ 88473600000: uvm_test_top.env.sb [SB] scen 4: base=3352mV imbal=0mV@c2 iload=715mA T=47C rint=10mR vgt=3 ctol=8 intf=0 rst=1 | c1=3363/3362 cmax=3363 I=725 T=47.0 ss=0x0/0x0 fets=0x3 cb=0x0/0x0 i_act=715 OK
+UVM_INFO @ 88473600000: uvm_test_top.env.drv [DRV] scenario: base=2650mV imbal=0mV@c6 iload=300mA T=25C rint=9mR vgt=0 ctol=-9 intf=0 rst=1
+UVM_INFO @ 110973000000: uvm_test_top.env.sb [SB] scen 5: base=2650mV imbal=0mV@c6 iload=300mA T=25C rint=9mR vgt=0 ctol=-9 intf=0 rst=1 | c1=2646/2646 cmax=2651 I=-4 T=25.0 ss=0x1/0x1 fets=0x2 cb=0x0/0x0 i_act=0 OK
+UVM_INFO @ 110973000000: uvm_test_top.env.drv [DRV] scenario: base=4320mV imbal=0mV@c3 iload=0mA T=25C rint=17mR vgt=-3 ctol=-10 intf=0 rst=1
+UVM_INFO @ 133472400000: uvm_test_top.env.sb [SB] scen 6: base=4320mV imbal=0mV@c3 iload=0mA T=25C rint=17mR vgt=-3 ctol=-10 intf=0 rst=1 | c1=4307/4307 cmax=4314 I=2 T=25.0 ss=0x2/0x2 fets=0x1 cb=0x0/0x0 i_act=0 OK
+UVM_INFO @ 133472400000: uvm_test_top.env.drv [DRV] scenario: base=3700mV imbal=0mV@c3 iload=4200mA T=25C rint=13mR vgt=0 ctol=-10 intf=0 rst=1
+UVM_INFO @ 155971800000: uvm_test_top.env.sb [SB] PROTECTION CLOSED-LOOP: AFE tripped OCD in 0 host loop(s); current now 0 mA
+UVM_INFO @ 155971800000: uvm_test_top.env.sb [SB] scen 7: base=3700mV imbal=0mV@c3 iload=4200mA T=25C rint=13mR vgt=0 ctol=-10 intf=0 rst=1 | c1=3702/3703 cmax=3653 I=4 T=25.0 ss=0x4/0x4 fets=0x2 cb=0x0/0x0 i_act=0 OK
+UVM_INFO @ 155971800000: uvm_test_top.env.drv [DRV] scenario: base=3700mV imbal=0mV@c3 iload=800mA T=70C rint=7mR vgt=-1 ctol=8 intf=0 rst=1
+UVM_INFO @ 178471200000: uvm_test_top.env.sb [SB] scen 8: base=3700mV imbal=0mV@c3 iload=800mA T=70C rint=7mR vgt=-1 ctol=8 intf=0 rst=1 | c1=3697/3696 cmax=3695 I=-4 T=70.0 ss=0x8/0x8 fets=0x0 cb=0x0/0x0 i_act=0 OK
+UVM_INFO @ 178471200000: uvm_test_top.env.drv [DRV] scenario: base=3700mV imbal=90mV@c4 iload=500mA T=25C rint=6mR vgt=5 ctol=-8 intf=0 rst=1
+UVM_INFO @ 200970600000: uvm_test_top.env.sb [SB] BALANCING CLOSED-LOOP: host targeted cell 4 over I2C; its reading droops the predicted 40 mV
+UVM_INFO @ 200970600000: uvm_test_top.env.sb [SB] scen 9: base=3700mV imbal=90mV@c4 iload=500mA T=25C rint=6mR vgt=5 ctol=-8 intf=0 rst=1 | c1=3716/3715 cmax=3806 I=504 T=25.0 ss=0x0/0x0 fets=0x3 cb=0x8/0x8 i_act=500 OK
+UVM_INFO @ 200970600000: uvm_test_top.env.drv [DRV] scenario: base=3700mV imbal=0mV@c4 iload=1500mA T=25C rint=12mR vgt=-3 ctol=6 intf=1 rst=1
+UVM_INFO @ 223470000000: uvm_test_top.env.sb [SB] scen 10: base=3700mV imbal=0mV@c4 iload=1500mA T=25C rint=12mR vgt=-3 ctol=6 intf=1 rst=1 | c1=3663/3664 cmax=3678 I=1678 T=25.0 ss=0x0/0x0 fets=0x3 cb=0x0/0x0 i_act=1500 OK
+UVM_INFO @ 223470000000: uvm_test_top.env.drv [DRV] scenario: base=3700mV imbal=0mV@c6 iload=1000mA T=25C rint=12mR vgt=-2 ctol=9 intf=0 rst=1
+UVM_INFO @ 245969400000: uvm_test_top.env.sb [SB] scen 11: base=3700mV imbal=0mV@c6 iload=1000mA T=25C rint=12mR vgt=-2 ctol=9 intf=0 rst=1 | c1=3681/3682 cmax=3689 I=1004 T=25.0 ss=0x0/0x0 fets=0x3 cb=0x0/0x0 i_act=1000 OK
+UVM_INFO @ 245969400000: uvm_test_top.env.drv [DRV] scenario: base=3700mV imbal=0mV@c6 iload=4200mA T=25C rint=12mR vgt=-5 ctol=-3 intf=0 rst=0
+UVM_INFO @ 268400400000: uvm_test_top.env.sb [SB] PROTECTION CLOSED-LOOP: AFE tripped OCD in 0 host loop(s); current now 0 mA
+UVM_INFO @ 268400400000: uvm_test_top.env.sb [SB] scen 12: base=3700mV imbal=0mV@c6 iload=4200mA T=25C rint=12mR vgt=-5 ctol=-3 intf=0 rst=0 | c1=3679/3680 cmax=3639 I=5 T=25.0 ss=0x4/0x4 fets=0x2 cb=0x0/0x0 i_act=0 OK
+UVM_INFO @ 268400400000: uvm_test_top.env.drv [DRV] scenario: base=3700mV imbal=0mV@c5 iload=1000mA T=25C rint=12mR vgt=1 ctol=-7 intf=0 rst=1
+UVM_INFO @ 290899800000: uvm_test_top.env.sb [SB] scen 13: base=3700mV imbal=0mV@c5 iload=1000mA T=25C rint=12mR vgt=1 ctol=-7 intf=0 rst=1 | c1=3691/3691 cmax=3697 I=986 T=25.0 ss=0x0/0x0 fets=0x3 cb=0x0/0x0 i_act=1000 OK
+UVM_INFO @ 290899800000: uvm_test_top.env.sb [SB] scenarios=13 failed=0
+UVM_INFO @ 290899800000: uvm_test_top [TEST] TEST-VERDICT: PASS
+UVM_INFO @ 290899800000: reporter [UVM/REPORT/SERVER] 
+--- UVM Report Summary ---
+
+** Report counts by severity
+UVM_INFO :   36
+UVM_WARNING :    2
+UVM_ERROR :    0
+UVM_FATAL :    0
+** Report counts by id
+[DRV]    13
+[NO_DPI_TSTNAME]     1
+[NO_DPI_USED]     1
+[NO_VISIT_CHECK]     1
+[RNTST]     1
+[SB]    17
+[TEST]     1
+[TOP]     1
+[UVM/COMP/NAMECHECK]     1
+[UVM/RELNOTES]     1
+
+[PHASE] simulation: 699582.1ms
+[PHASE] total: 700062.5ms
+------------------------------
+------------------------------
+Simulation finished at time 290899800000
+($finish called)

@@ -1,0 +1,57 @@
+# bq_vboard_evidence — everything behind the whitepaper, in one place
+
+Self-contained evidence package for
+`whitepaper/whitepaper.pdf` ("Co-Verifying BMS Firmware Against a
+Virtual Board").  Every claim in the paper traces to a file here, and
+every log was produced by the sources in this directory.
+
+```
+whitepaper/    whitepaper.tex + .pdf (the document being supported)
+design/        the complete simulated design, verbatim:
+                 rnm/   SV-RNM board: pack, BQ76952-class AFE
+                        (I2C slave + protection engine), ripple
+                 fw/    the real C firmware (bit-banged I2C master)
+                 mcu/   DPI tick shim (Renode swap-in point)
+                 tb/    UVM-MS: proxy, bridge, env, tests
+                 run.sh / compile.f
+schematic/     the Figure-2 circuit as SPICE:
+                 bms_core.inc   netlist (cells+Rint, DSG switch,
+                                gated load, shunt, NTC divider)
+                 bms_op.cir     operating points + 0..4.2 A sweep
+                 bms_trip.cir   transient DSG trip at 5 ms
+                 run_ngspice.sh
+logs_ngspice/  ngspice.log, sweep_load.dat, tran_trip.dat, version
+logs_xezim/    smoke.log, regress.log (13 scenarios, seed 1),
+               xezim_cov.json (functional coverage), version
+CROSSCHECK.md  the two simulators put side by side, number by number
+```
+
+## Reproduce
+
+```sh
+# analog schematic (ngspice, ~1 s)
+(cd schematic && ./run_ngspice.sh)
+
+# RNM + firmware + UVM-MS (xezim; smoke ~2 min, regress ~20 min)
+./run_xezim_evidence.sh
+```
+
+Tool versions are recorded in `logs_*/**version*`.
+
+## What supports which claim
+
+| Whitepaper claim | Evidence |
+| --- | --- |
+| Fig. 2 circuit is simulable and its numbers are real | `schematic/*.cir` + `logs_ngspice/ngspice.log` (OP1/OP2/sweep) |
+| Smoke numbers (3688 mV cells, ~1000 mA, 25.0 C) | `logs_xezim/smoke.log` + ngspice OP1 (exact match, see CROSSCHECK) |
+| 13-scenario regression, 0 failures | `logs_xezim/regress.log` (search `TEST-VERDICT`, `scen`) |
+| Config integrity over I2C | `regress.log`: no `never arrived` errors; check exists in `design/tb/bq_pkg.sv` |
+| Protection loop-back (trip stops real current) | `regress.log` `PROTECTION CLOSED-LOOP` lines + ngspice OP2 and `bms_trip.cir` (4200 -> 0 mA) |
+| Balancing closed-loop (right cell, 40 mV droop) | `regress.log` `BALANCING CLOSED-LOOP` line, scenario 9 |
+| Functional coverage over corner x response | `logs_xezim/xezim_cov.json` |
+| Bring-up bugs (START edge, array args, A-vs-mA) | fix-site comments in `design/rnm/bq76952_rnm.sv`, `design/tb/bq_proxy_pkg.sv`/`bq_bridge.sv`, and the whitepaper's Results section |
+
+Provenance note: the design was authored for this demonstrator; the
+architecture is modelled on the open 6S-BMS project (STM32G0B1 +
+BQ76952) and TI's BQ76952, with the register-map simplifications the
+whitepaper documents.  No external code is included.

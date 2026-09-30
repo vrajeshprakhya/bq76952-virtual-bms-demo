@@ -1,0 +1,47 @@
+Whitepaper evidence: operating points + load sweep (6S BMS board)
+* Supports: Figure 2, the smoke-test numbers (cells 3688 mV at 1 A,
+* shunt 1 mV -> 1000 mA, TS mid-rail at 25 C), the loop-back claim
+* (DSG open => 0 A, sag vanishes), and the linear analog chain the
+* two-pass RNM prediction assumes.
+
+.include bms_core.inc
+
+Vdsg ctl 0 DC 1
+Vcmd cmd 0 DC 1
+
+.control
+set noaskquit
+echo ============================================================
+echo OP1: DSG closed, commanded load 1 A  (matches xezim smoke)
+echo ============================================================
+op
+let c1 = v(t1)
+let c2 = v(t2)-v(t1)
+let c3 = v(t3)-v(t2)
+let c4 = v(t4)-v(t3)
+let c5 = v(t5)-v(t4)
+let c6 = v(t6)-v(t5)
+let i_act_mA = v(nsh)/1e-3*1000
+print c1 c2 c3 c4 c5 c6
+print v(t6) v(nsh) i_act_mA
+print v(tsn)
+
+echo ============================================================
+echo OP2: DSG OPEN, load still commanding 1 A  (loop-back claim)
+echo ============================================================
+alter vdsg 0
+op
+let c1o = v(t1)
+let i_act_mA_o = v(nsh)/1e-3*1000
+print c1o v(nsh) i_act_mA_o
+
+echo ============================================================
+echo DC sweep: commanded load 0..4.2 A, DSG closed
+echo columns: I_cmd  v(nsh) [shunt]  v(t1) [cell1 tap]  v(t6) [B+]
+echo ============================================================
+alter vdsg 1
+dc vcmd 0 4.2 0.3
+wrdata ../logs_ngspice/sweep_load.dat v(nsh) v(t1) v(t6)
+print v(nsh) v(t1) v(t6)
+.endc
+.end

@@ -1,0 +1,12 @@
+{
+  "sim_time": 290899800000,
+  "assertion_sites": 0,
+  "assertion_pass_total": 0,
+  "assertion_fail_total": 0,
+  "assertions": [
+  ],
+  "covergroups": [
+    {"name": "bq_driver::cg_fwstate", "samples": 40907, "coverpoints": {"cp_state": 5}, "crosses": {}, "bins": {"cp_state.poll": 10820, "cp_state.wait_": 29096, "cp_state.config_": 984}},
+    {"name": "bq_scoreboard::cg_scenario", "samples": 13, "coverpoints": {"cp_imbal": 2, "cp_cb": 2, "cp_iband": 11, "cp_dsg": 2, "cp_intf": 2, "cp_vband": 7, "cp_chg": 2, "cp_tband": 6, "cp_safety": 5}, "crosses": {"x_v_dsg": 8, "x_v_chg": 8, "x_imb_cb": 2, "x_i_dsg": 11}, "bins": {"cp_vband.uv": 1, "cp_cb.off": 12, "cp_dsg.off": 4, "cp_tband.nom": 12, "cp_tband.ot": 1, "cp_imbal.imbalanced": 1, "cp_safety.cov_": 1, "cp_dsg.on": 9, "cp_vband.low": 2, "cp_intf.off": 12, "cp_chg.on": 11, "cp_iband.normal": 10, "cp_safety.ocd": 2, "cp_safety.ot": 1, "cp_cb.on": 1, "cp_iband.idle": 1, "cp_intf.on": 1, "cp_chg.off": 2, "cp_imbal.balanced": 12, "cp_safety.cuv": 1, "cp_vband.ov": 1, "cp_vband.nom": 9, "cp_safety.none": 8, "cp_iband.oc": 2}}
+  ]
+}

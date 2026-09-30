@@ -1,0 +1,60 @@
+== firmware DPI library ==
+   ok
+== xezim: bq_smoke_test (seed 1) ==
+=== xezim 0.10.5 ===
+git 531e42a (2026-09-11T07:58:43-07:00)
+Max time: 800000000 ns
+------------------------------
+[xezim][warning] a #delay evaluated to a pathological real value 9.2000e15 at /home/vraje/iverilog-unified/uvm-core/src/uvm_pkg.sv:41590 [preprocessed line; the file has 79 lines, so this code came from an `include or a multi-line macro] at time 0 — the process is parked far in the future, so a clock driven by it will appear to stop. This usually means the delay expression produced NaN/inf or IEEE-754 bit garbage.
+UVM_INFO @ 0: reporter [UVM/RELNOTES] 
+  ***********       IMPORTANT RELEASE NOTES         ************
+
+  This implementation of the UVM Library deviates from the 1800.2-2020
+  standard.  See the DEVIATIONS.md file contained in the release
+  for more details.
+
+----------------------------------------------------------------
+Accellera:1800.2:UVM:2020.3.1
+
+All copyright owners for this kit are listed in NOTICE.txt
+All Rights Reserved Worldwide
+----------------------------------------------------------------
+
+      (Specify +UVM_NO_RELNOTES to turn off this notice)
+
+UVM_INFO @ 0: reporter [TOP] virtual 6S BMS: pack RNM + BQ76952-class AFE + pin-level I2C + real host firmware via DPI + UVM-MS
+UVM_WARNING @ 0: reporter [NO_DPI_USED] We are thinking of removing support for UVM_NO_DPI.  Please try this test without it and evaluate the impact
+UVM_INFO @ 0: reporter [NO_DPI_TSTNAME] UVM_NO_DPI defined--getting UVM_TESTNAME directly, without DPI
+UVM_INFO @ 0: reporter [RNTST] Running test bq_smoke_test...
+UVM_INFO @ 0: reporter [UVM/COMP/NAMECHECK] This implementation of the component name checks requires DPI to be enabled
+UVM_WARNING @ 0: reporter [NO_VISIT_CHECK] Because UVM_REGEX_NO_DPI is defined, no uvm component name constraints will be checked
+UVM_INFO @ 0: uvm_test_top.env.drv [DRV] scenario: base=3700mV imbal=0mV@c2 iload=1000mA T=25C rint=12mR vgt=0 ctol=0 intf=0 rst=1
+UVM_INFO @ 20975400000: uvm_test_top.env.sb [SB] scen 1: base=3700mV imbal=0mV@c2 iload=1000mA T=25C rint=12mR vgt=0 ctol=0 intf=0 rst=1 | c1=3688/3688 cmax=3688 I=1002 T=25.0 ss=0x0/0x0 fets=0x3 cb=0x0/0x0 i_act=1000 OK
+UVM_INFO @ 20975400000: uvm_test_top.env.sb [SB] scenarios=1 failed=0
+UVM_INFO @ 20975400000: uvm_test_top [TEST] TEST-VERDICT: PASS
+UVM_INFO @ 20975400000: reporter [UVM/REPORT/SERVER] 
+--- UVM Report Summary ---
+
+** Report counts by severity
+UVM_INFO :    9
+UVM_WARNING :    2
+UVM_ERROR :    0
+UVM_FATAL :    0
+** Report counts by id
+[DRV]     1
+[NO_DPI_TSTNAME]     1
+[NO_DPI_USED]     1
+[NO_VISIT_CHECK]     1
+[RNTST]     1
+[SB]     2
+[TEST]     1
+[TOP]     1
+[UVM/COMP/NAMECHECK]     1
+[UVM/RELNOTES]     1
+
+------------------------------
+------------------------------
+Simulation finished at time 20975400000
+($finish called)
+
+RESULT: PASS
