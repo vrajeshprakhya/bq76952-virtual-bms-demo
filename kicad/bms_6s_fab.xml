@@ -2,7 +2,7 @@
 <export version="E">
   <design>
     <source>\\wsl.localhost\Ubuntu\home\vraje\bq_vboard_evidence\kicad\bms_6s_fab.kicad_sch</source>
-    <date>2026-09-30T09:44:09</date>
+    <date>2026-09-30T13:10:00</date>
     <tool>Eeschema 10.0.6</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
@@ -793,7 +793,7 @@
       </units>
     </comp>
     <comp ref="R8">
-      <value>10k</value>
+      <value>1M</value>
       <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
       <fields>
         <field name="Footprint">Resistor_SMD:R_0603_1608Metric</field>
@@ -841,7 +841,7 @@
       </units>
     </comp>
     <comp ref="R10">
-      <value>10k</value>
+      <value>1M</value>
       <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
       <fields>
         <field name="Footprint">Resistor_SMD:R_0603_1608Metric</field>

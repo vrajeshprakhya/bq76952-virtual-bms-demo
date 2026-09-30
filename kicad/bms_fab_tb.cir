@@ -27,7 +27,9 @@ if abs(c1 - 3.688) > 0.004
   echo FAIL OP1 cell1 tap (want 3.688)
   let ok = 0
 end
-if abs(i_mA - 1000) > 15
+* +-2 mA: with 1M gate pull-downs the residual bleed is ~20 uA; a
+* return to 10k-class pull-downs (+2 mA offset) fails this check
+if abs(i_mA - 1000) > 2
   echo FAIL OP1 shunt current (want 1000 mA)
   let ok = 0
 end
