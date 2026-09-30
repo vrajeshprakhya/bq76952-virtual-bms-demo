@@ -79,6 +79,15 @@ G = 1.27
 def snap(v):
     return round(round(v / G) * G, 2)
 
+# design-space extents are ~x[4,252], y[14,242]; A2 is 594 x 420.
+# This offset, applied only at emission, centres the drawing on the
+# sheet (multiples of 1.27 so everything stays on-grid).
+OX, OY = 165.1, 81.28
+def ox(v):
+    return round(v + OX, 2)
+def oy(v):
+    return round(v + OY, 2)
+
 parts, graph = [], []
 def esc(s):
     return s.replace('"', '\\"')
@@ -112,16 +121,16 @@ class Part:
         vy = ry + 4 if big else self.y - self.ldy
         rx = self.x - 10 if big else self.x + 2.2
         return f'''
-  (symbol (lib_id "{self.libid}") (at {self.x} {self.y} {self.rot}) (unit 1)
+  (symbol (lib_id "{self.libid}") (at {ox(self.x)} {oy(self.y)} {self.rot}) (unit 1)
     (exclude_from_sim no) (in_bom yes) (on_board yes) (dnp no)
     (uuid "{uid()}")
-    (property "Reference" "{self.ref}" (at {rx} {ry} 0)
+    (property "Reference" "{self.ref}" (at {ox(rx)} {oy(ry)} 0)
       (effects (font (size 1.27 1.27)) (justify left){hid}))
-    (property "Value" "{esc(self.value)}" (at {rx} {vy} 0)
+    (property "Value" "{esc(self.value)}" (at {ox(rx)} {oy(vy)} 0)
       (effects (font (size 1.27 1.27)) (justify left){hid}))
-    (property "Footprint" "{self.fp}" (at {self.x} {self.y} 0)
+    (property "Footprint" "{self.fp}" (at {ox(self.x)} {oy(self.y)} 0)
       (effects (font (size 1.27 1.27)) (hide yes)))
-    (property "Datasheet" "" (at {self.x} {self.y} 0)
+    (property "Datasheet" "" (at {ox(self.x)} {oy(self.y)} 0)
       (effects (font (size 1.27 1.27)) (hide yes))){pins}
     (instances (project "{PROJ}"
       (path "/{ROOT_UUID}" (reference "{self.ref}") (unit 1)))))'''
@@ -130,7 +139,8 @@ def wseg(a, b):
     if a == b:
         return
     assert a[0] == b[0] or a[1] == b[1], f"diagonal {a}->{b}"
-    graph.append(f'\n  (wire (pts (xy {a[0]} {a[1]}) (xy {b[0]} {b[1]}))'
+    graph.append(f'\n  (wire (pts (xy {ox(a[0])} {oy(a[1])})'
+                 f' (xy {ox(b[0])} {oy(b[1])}))'
                  f' (stroke (width 0) (type default)) (uuid "{uid()}"))')
 
 def route(*pts):
@@ -139,18 +149,19 @@ def route(*pts):
         wseg(a, b)
 
 def jn(x, y):
-    graph.append(f'\n  (junction (at {x} {y}) (diameter 0) (color 0 0 0 0)'
-                 f' (uuid "{uid()}"))')
+    graph.append(f'\n  (junction (at {ox(x)} {oy(y)}) (diameter 0)'
+                 f' (color 0 0 0 0) (uuid "{uid()}"))')
 
 def tag(name, x, y, rot=0):
     """net NAME riding on an existing wire point"""
-    graph.append(f'\n  (label "{name}" (at {x} {y} {rot})'
+    graph.append(f'\n  (label "{name}" (at {ox(x)} {oy(y)} {rot})'
                  f' (effects (font (size 1.27 1.27)) (justify left bottom))'
                  f' (uuid "{uid()}"))')
 
 def nc(part, pinno):
     p = part.pin(pinno)
-    graph.append(f'\n  (no_connect (at {p[0]} {p[1]}) (uuid "{uid()}"))')
+    graph.append(f'\n  (no_connect (at {ox(p[0])} {oy(p[1])})'
+                 f' (uuid "{uid()}"))')
 
 def pwr(sym, x, y):
     libid = f"power:{sym}"
@@ -169,7 +180,8 @@ def v3(x, y, rise=0):
     pwr("+3V3", x, y - rise)
 
 def text(s, x, y, size=1.5):
-    graph.append(f'\n  (text "{esc(s)}" (exclude_from_sim no) (at {x} {y} 0)'
+    graph.append(f'\n  (text "{esc(s)}" (exclude_from_sim no)'
+                 f' (at {ox(x)} {oy(y)} 0)'
                  f' (effects (font (size {size} {size})) (justify left bottom))'
                  f' (uuid "{uid()}"))')
 
