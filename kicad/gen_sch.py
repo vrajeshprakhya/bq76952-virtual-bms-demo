@@ -93,10 +93,13 @@ def esc(s):
     return s.replace('"', '\\"')
 
 class Part:
-    def __init__(self, libid, ref, value, x, y, rot=0, footprint="", label_dy=-4):
+    def __init__(self, libid, ref, value, x, y, rot=0, footprint="", label_dy=-4,
+                 spice=None, spins=None):
         self.libid, self.ref, self.value, self.rot = libid, ref, value, rot
         self.x, self.y, self.fp = snap(x), snap(y), footprint
         self.ldy = label_dy
+        self.spice = spice          # subckt name -> exported as X-card
+        self.spins = spins          # explicit Sim.Pins mapping
         parts.append(self)
 
     def pin(self, num):
@@ -111,6 +114,22 @@ class Part:
         else:
             dx, dy = py, px
         return (round(self.x + dx, 2), round(self.y + dy, 2))
+
+    def sim_props(self):
+        """SPICE binding: every smart/discrete part is a SUBCKT whose
+        definition lives in bms_fab_models.lib, so the kicad-cli SPICE
+        export of THIS sheet is directly simulatable."""
+        if not self.spice:
+            return ""
+        out = ""
+        kv = [("Sim.Device", "SUBCKT"), ("Sim.Name", self.spice),
+              ("Sim.Library", "${KIPRJMOD}/bms_fab_models.lib")]
+        if self.spins:
+            kv.append(("Sim.Pins", self.spins))
+        for k, v in kv:
+            out += (f'\n    (property "{k}" "{v}" (at {ox(self.x)} {oy(self.y)} 0)'
+                    f' (effects (font (size 1.27 1.27)) (hide yes)))')
+        return out
 
     def emit(self):
         pins = "".join(f'\n    (pin "{n}" (uuid "{uid()}"))'
@@ -131,7 +150,7 @@ class Part:
     (property "Footprint" "{self.fp}" (at {ox(self.x)} {oy(self.y)} 0)
       (effects (font (size 1.27 1.27)) (hide yes)))
     (property "Datasheet" "" (at {ox(self.x)} {oy(self.y)} 0)
-      (effects (font (size 1.27 1.27)) (hide yes))){pins}
+      (effects (font (size 1.27 1.27)) (hide yes))){self.sim_props()}{pins}
     (instances (project "{PROJ}"
       (path "/{ROOT_UUID}" (reference "{self.ref}") (unit 1)))))'''
 
@@ -197,9 +216,10 @@ def C(ref, val, x, y, rot=0, fp="Capacitor_SMD:C_0603_1608Metric"):
 # =====================================================================
 U1 = Part("Battery_Management:BQ76930DBT", "U1",
           "BQ76930DBT (3.3V REGOUT)", 152.4, 121.92, 0,
-          "Package_SO:TSSOP-30_4.4x7.8mm_P0.5mm")
+          "Package_SO:TSSOP-30_4.4x7.8mm_P0.5mm", spice="BQ76930_BEH")
 U2 = Part("MCU_ST_STM32G0:STM32G0B1C_B-C-E_Tx", "U2", "STM32G0B1CBT6",
-          55.88, 121.92, 0, "Package_QFP:LQFP-48_7x7mm_P0.5mm")
+          55.88, 121.92, 0, "Package_QFP:LQFP-48_7x7mm_P0.5mm",
+          spice="STM32_STUB")
 
 U1R, U1L = 165.1, 139.7
 def xr(s):            # right-corridor slot x
@@ -265,7 +285,8 @@ for ref, up, dn, x in CF:
 
 # trunks down to J1 (placed below the row zone)
 J1 = Part("Connector_Generic:Conn_01x07", "J1", "Cell taps", 243.84, 175.26, 0,
-          "Connector_PinHeader_2.54mm:PinHeader_1x07_P2.54mm_Vertical")
+          "Connector_PinHeader_2.54mm:PinHeader_1x07_P2.54mm_Vertical",
+          spice="PACK6S")     # the virtual 6S pack plugs in here
 J1E = {n: J1.pin(n) for n in map(str, range(1, 8))}
 ORDER = ["GNDT", "B1", "B2", "B3", "B4", "B5", "B6"]
 for i, trunk in enumerate(ORDER):
@@ -364,7 +385,7 @@ tag("CAP2", snap(xl(5) + 1.27), u1p("14")[1])
 # TS1: NTC + C6
 ts1 = u1p("6")
 th1 = Part("Device:Thermistor_NTC", "TH1", "10k B=3435", xl(3), ts1[1] + 6.35,
-           0, "Resistor_SMD:R_0603_1608Metric")
+           0, "Resistor_SMD:R_0603_1608Metric", spice="NTC10K")
 route(ts1, (xl(3), ts1[1]), th1.pin(1))
 gnd(*th1.pin(2), drop=1.27)
 tag("TS1", snap(xl(3) + 1.27), ts1[1])
@@ -395,7 +416,7 @@ for p in ("11", "12", "13"):
 
 # ---------------- shunt + FETs + PACK ----------------------------
 RS1 = Part("Device:R_Shunt", "RS1", "1m 3W", 152.4, 205.74, 0,
-           "Resistor_SMD:R_2512_6332Metric")
+           "Resistor_SMD:R_2512_6332Metric", spice="SHUNT_1M")
 gnd(*RS1.pin("1"), drop=-0)
 pwr("PWR_FLAG", *RS1.pin("1"))
 # kelvin: SRP senses the FET-side terminal (RS1.3), SRN the battery
@@ -423,9 +444,9 @@ jn(171.45, s3[1])
 # gate feeds approach from the LEFT via a bypass row, so the series
 # gate resistors sit in-line and nothing overlaps the feed wire
 Q1 = Part("Device:Q_NMOS", "Q1", "NMOS 40V", 137.16, DSGY, 0,
-          "Package_TO_SOT_SMD:TO-252-2")
+          "Package_TO_SOT_SMD:TO-252-2", spice="NFET40", spins="D=1 G=2 S=3")
 Q2 = Part("Device:Q_NMOS", "Q2", "NMOS 40V", 114.3, DSGY, 0,
-          "Package_TO_SOT_SMD:TO-252-2")
+          "Package_TO_SOT_SMD:TO-252-2", spice="NFET40", spins="D=1 G=2 S=3")
 SRBY = 228.6
 q1s, q1d, q1g = Q1.pin("S"), Q1.pin("D"), Q1.pin("G")
 q2s, q2d, q2g = Q2.pin("S"), Q2.pin("D"), Q2.pin("G")
@@ -465,7 +486,8 @@ route(r10.pin(2), (106.68, PMY))
 tag("CHG_G", 107.6, DSGY)
 # PACK- run and J2
 J2 = Part("Connector_Generic:Conn_01x02", "J2", "PACK", 233.68, 231.14, 0,
-          "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical")
+          "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical",
+          spice="LOADBOX")    # the commanded load plugs in here
 wseg((106.68, PMY), (J2.pin("2")[0] - 5.08, PMY))
 wseg((J2.pin("2")[0] - 5.08, PMY), J2.pin("2"))
 route(q2s, (q2s[0], PMY))
@@ -511,7 +533,8 @@ route(nrst, (13.97, nrst[1]), c12.pin(1))
 gnd(*c12.pin(2), drop=1.27)
 tag("NRST", 16.51, nrst[1])
 J3 = Part("Connector_Generic:Conn_01x05", "J3", "SWD", 113.03, 180.34, 0,
-          "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical")
+          "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical",
+          spice="SWD_OPEN")
 j3 = {n: J3.pin(n) for n in "12345"}
 # +3V3 via R14
 r14 = R("R14", "0", 97.79, j3["1"][1], 90)
@@ -535,7 +558,7 @@ pa5 = U2.pin("16")
 r15 = R("R15", "1k", 105.41, pa5[1], 90)
 wseg(pa5, r15.pin(1))
 d1 = Part("Device:LED", "D1", "green", 116.84, pa5[1], 180,
-          "LED_SMD:LED_0603_1608Metric")
+          "LED_SMD:LED_0603_1608Metric", spice="LED_G")
 wseg(r15.pin(2), d1.pin("2"))
 tag("LED", 96.52, pa5[1])
 tag("LEDK", 110.49, pa5[1])

@@ -1,0 +1,173 @@
+* bms_fab_models.lib -- behavioural SPICE models for every non-passive
+* on bms_6s_fab.kicad_sch, so kicad-cli's SPICE export of the FAB SHEET
+* ITSELF is directly simulatable with ngspice.
+*
+* The testbench lives inside the connector models: PACK6S (J1) is the
+* six-cell stack + per-cell Rint, LOADBOX (J2) is the commanded load.
+* Scenario knobs are global .params, changed at runtime with
+* ngspice's  alterparam <name>=<val>  +  reset.
+*
+* Honest scope: BQ76930_BEH models only what the board exercises
+* (REGOUT rail, DSG/CHG gate drive, one group-B balancing channel,
+* high-impedance measurement inputs); the protection ENGINE and the
+* host firmware are verified in the xezim domain (design/), not here.
+
+.param VCELL=3.7 RINT=12m ILOAD=1
+.param DSGON=1 CHGON=1 CB4=0
+.param RDSBAL=30        ; assumed internal balance-FET Rds(on)
+
+* ---- J1: the virtual 6S pack (pins 1..7 = B0..B6) -------------------
+.subckt PACK6S p1 p2 p3 p4 p5 p6 p7
+VB1 m1 p1 {VCELL}
+RB1 p2 m1 {RINT}
+VB2 m2 p2 {VCELL}
+RB2 p3 m2 {RINT}
+VB3 m3 p3 {VCELL}
+RB3 p4 m3 {RINT}
+VB4 m4 p4 {VCELL}
+RB4 p5 m4 {RINT}
+VB5 m5 p5 {VCELL}
+RB5 p6 m5 {RINT}
+VB6 m6 p6 {VCELL}
+RB6 p7 m6 {RINT}
+.ends PACK6S
+
+* ---- J2: the commanded load (1 = PACK+, 2 = PACK-) ------------------
+* Draws the commanded current only while DSG allows -- the same law
+* the RNM pack model uses (i_act = DSG * I_load); an ideal current
+* source into an opened FET would otherwise force absurd voltages.
+.subckt LOADBOX n1 n2
+BLOAD n1 n2 I={ILOAD*DSGON}
+RLK   n1 n2 1G
+.ends LOADBOX
+
+* ---- J3: SWD header, nothing attached -------------------------------
+.subckt SWD_OPEN n1 n2 n3 n4 n5
+R1 n1 0 1G
+R2 n2 0 1G
+R3 n3 0 1G
+R4 n4 0 1G
+R5 n5 0 1G
+.ends SWD_OPEN
+
+* ---- discrete parts -------------------------------------------------
+.subckt NFET40 d g s
+MN d g s s NMOS40
+DB s d DBODY
+.model NMOS40 NMOS(VTO=2 KP=50 LAMBDA=0.01)
+.model DBODY  D(IS=1e-12 N=1)
+.ends NFET40
+
+.subckt SHUNT_1M n1 n2 n3 n4
+RSH n1 n4 1m
+RK2 n1 n2 1u
+RK3 n4 n3 1u
+.ends SHUNT_1M
+
+.subckt NTC10K n1 n2
+RT n1 n2 10k
+.ends NTC10K
+
+.subckt LED_G k a
+DL a k DLED
+.model DLED D(IS=1e-20 N=2)
+.ends LED_G
+
+* ---- U2: host MCU stub (48 high-impedance pins) ---------------------
+.subckt STM32_STUB n1 n2 n3 n4 n5 n6 n7 n8 n9 n10 n11 n12 n13 n14 n15
++ n16 n17 n18 n19 n20 n21 n22 n23 n24 n25 n26 n27 n28 n29 n30 n31 n32
++ n33 n34 n35 n36 n37 n38 n39 n40 n41 n42 n43 n44 n45 n46 n47 n48
+R1 n1 0 1G
+R2 n2 0 1G
+R3 n3 0 1G
+R4 n4 0 1G
+R5 n5 0 1G
+R6 n6 0 1G
+R7 n7 0 1G
+R8 n8 0 1G
+R9 n9 0 1G
+R10 n10 0 1G
+R11 n11 0 1G
+R12 n12 0 1G
+R13 n13 0 1G
+R14 n14 0 1G
+R15 n15 0 1G
+R16 n16 0 1G
+R17 n17 0 1G
+R18 n18 0 1G
+R19 n19 0 1G
+R20 n20 0 1G
+R21 n21 0 1G
+R22 n22 0 1G
+R23 n23 0 1G
+R24 n24 0 1G
+R25 n25 0 1G
+R26 n26 0 1G
+R27 n27 0 1G
+R28 n28 0 1G
+R29 n29 0 1G
+R30 n30 0 1G
+R31 n31 0 1G
+R32 n32 0 1G
+R33 n33 0 1G
+R34 n34 0 1G
+R35 n35 0 1G
+R36 n36 0 1G
+R37 n37 0 1G
+R38 n38 0 1G
+R39 n39 0 1G
+R40 n40 0 1G
+R41 n41 0 1G
+R42 n42 0 1G
+R43 n43 0 1G
+R44 n44 0 1G
+R45 n45 0 1G
+R46 n46 0 1G
+R47 n47 0 1G
+R48 n48 0 1G
+.ends STM32_STUB
+
+* ---- U1: BQ76930 behavioural (pins 1..30 in package order) ----------
+* 1 DSG 2 CHG 3 VSS 4 SDA 5 SCL 6 TS1 7 CAP1 8 REGOUT 9 REGSRC
+* 10 VC5X 11 NC1 12 NC2 13 TS2 14 CAP2 15 BAT 16 VC10 17 VC9 18 VC8
+* 19 VC7 20 VC6 21 VC5B 22 VC5 23 VC4 24 VC3 25 VC2 26 VC1 27 VC0
+* 28 SRP 29 SRN 30 ALERT
+.subckt BQ76930_BEH dsg chg vss sda scl ts1 cap1 regout regsrc vc5x
++ ncn1 ncn2 ts2 cap2 bat vc10 vc9 vc8 vc7 vc6 vc5b vc5 vc4 vc3 vc2
++ vc1 vc0 srp srn alert
+* regulator rail and FET gate drives
+VREG regout vss 3.3
+BDSG dsg vss V={10*DSGON}
+BCHG chg vss V={10*CHGON}
+* group-B balancing channel for cell 4: bleed VC6 <-> VC5B through the
+* internal balance FET; the read-droop then DERIVES from the sheet's
+* own 100R input filters (Ibal ~ Vcell/(2*Rc + RDSBAL))
+RCB4 vc6 vc5b R={1e12 - (1e12-RDSBAL)*CB4}
+* high-impedance measurement / digital pins
+RIN1 srp vss 1G
+RIN2 srn vss 1G
+RIN3 bat vss 1G
+RIN4 vc0 vss 1G
+RIN5 vc1 vss 1G
+RIN6 vc2 vss 1G
+RIN7 vc3 vss 1G
+RIN8 vc4 vss 1G
+RIN9 vc5 vss 1G
+RIN10 vc5b vss 1G
+RIN11 vc6 vss 1G
+RIN12 vc7 vss 1G
+RIN13 vc8 vss 1G
+RIN14 vc9 vss 1G
+RIN15 vc10 vss 1G
+RIN16 vc5x vss 1G
+RIN17 ts1 vss 1G
+RIN18 ts2 vss 1G
+RIN19 cap1 vss 1G
+RIN20 cap2 vss 1G
+RIN21 sda vss 1G
+RIN22 scl vss 1G
+RIN23 alert vss 1G
+RIN24 ncn1 vss 1G
+RIN25 ncn2 vss 1G
+RIN26 regsrc vss 100k
+.ends BQ76930_BEH

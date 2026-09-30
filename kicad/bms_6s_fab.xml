@@ -2,7 +2,7 @@
 <export version="E">
   <design>
     <source>\\wsl.localhost\Ubuntu\home\vraje\bq_vboard_evidence\kicad\bms_6s_fab.kicad_sch</source>
-    <date>2026-09-30T09:23:25</date>
+    <date>2026-09-30T09:44:09</date>
     <tool>Eeschema 10.0.6</tool>
     <sheet number="1" name="/" tstamps="/">
       <title_block>
@@ -33,7 +33,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="C" description="Unpolarized capacitor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
       <property name="ki_fp_filters" value="C_*"/>
@@ -57,7 +57,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="C" description="Unpolarized capacitor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
       <property name="ki_fp_filters" value="C_*"/>
@@ -81,7 +81,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="C" description="Unpolarized capacitor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
       <property name="ki_fp_filters" value="C_*"/>
@@ -105,7 +105,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="C" description="Unpolarized capacitor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
       <property name="ki_fp_filters" value="C_*"/>
@@ -129,7 +129,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="C" description="Unpolarized capacitor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
       <property name="ki_fp_filters" value="C_*"/>
@@ -153,7 +153,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="C" description="Unpolarized capacitor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
       <property name="ki_fp_filters" value="C_*"/>
@@ -177,7 +177,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="C" description="Unpolarized capacitor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
       <property name="ki_fp_filters" value="C_*"/>
@@ -201,7 +201,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="C" description="Unpolarized capacitor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
       <property name="ki_fp_filters" value="C_*"/>
@@ -225,7 +225,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="C" description="Unpolarized capacitor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
       <property name="ki_fp_filters" value="C_*"/>
@@ -249,7 +249,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="C" description="Unpolarized capacitor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
       <property name="ki_fp_filters" value="C_*"/>
@@ -273,7 +273,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="C" description="Unpolarized capacitor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
       <property name="ki_fp_filters" value="C_*"/>
@@ -297,7 +297,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="C" description="Unpolarized capacitor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
       <property name="ki_fp_filters" value="C_*"/>
@@ -321,7 +321,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="C" description="Unpolarized capacitor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
       <property name="ki_fp_filters" value="C_*"/>
@@ -345,7 +345,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="C" description="Unpolarized capacitor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
       <property name="ki_fp_filters" value="C_*"/>
@@ -369,7 +369,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="C" description="Unpolarized capacitor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
       <property name="ki_fp_filters" value="C_*"/>
@@ -393,7 +393,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="C" description="Unpolarized capacitor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
       <property name="ki_fp_filters" value="C_*"/>
@@ -417,7 +417,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="C" description="Unpolarized capacitor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
       <property name="ki_fp_filters" value="C_*"/>
@@ -441,7 +441,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="C" description="Unpolarized capacitor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="cap capacitor"/>
       <property name="ki_fp_filters" value="C_*"/>
@@ -460,12 +460,18 @@
       <value>green</value>
       <footprint>LED_SMD:LED_0603_1608Metric</footprint>
       <fields>
+        <field name="Sim.Device">SUBCKT</field>
+        <field name="Sim.Name">LED_G</field>
+        <field name="Sim.Library">${KIPRJMOD}/bms_fab_models.lib</field>
         <field name="Footprint">LED_SMD:LED_0603_1608Metric</field>
         <field name="Datasheet"/>
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="LED" description="Light emitting diode"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sim.Device" value="SUBCKT"/>
+      <property name="Sim.Name" value="LED_G"/>
+      <property name="Sim.Library" value="${KIPRJMOD}/bms_fab_models.lib"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="LED diode"/>
       <property name="ki_fp_filters" value="LED* LED_SMD:* LED_THT:*"/>
@@ -484,12 +490,18 @@
       <value>Cell taps</value>
       <footprint>Connector_PinHeader_2.54mm:PinHeader_1x07_P2.54mm_Vertical</footprint>
       <fields>
+        <field name="Sim.Device">SUBCKT</field>
+        <field name="Sim.Name">PACK6S</field>
+        <field name="Sim.Library">${KIPRJMOD}/bms_fab_models.lib</field>
         <field name="Footprint">Connector_PinHeader_2.54mm:PinHeader_1x07_P2.54mm_Vertical</field>
         <field name="Datasheet"/>
         <field name="Description"/>
       </fields>
       <libsource lib="Connector_Generic" part="Conn_01x07" description="Generic connector, single row, 01x07, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sim.Device" value="SUBCKT"/>
+      <property name="Sim.Name" value="PACK6S"/>
+      <property name="Sim.Library" value="${KIPRJMOD}/bms_fab_models.lib"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="connector"/>
       <property name="ki_fp_filters" value="Connector*:*_1x??_*"/>
@@ -513,12 +525,18 @@
       <value>PACK</value>
       <footprint>Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical</footprint>
       <fields>
+        <field name="Sim.Device">SUBCKT</field>
+        <field name="Sim.Name">LOADBOX</field>
+        <field name="Sim.Library">${KIPRJMOD}/bms_fab_models.lib</field>
         <field name="Footprint">Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical</field>
         <field name="Datasheet"/>
         <field name="Description"/>
       </fields>
       <libsource lib="Connector_Generic" part="Conn_01x02" description="Generic connector, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sim.Device" value="SUBCKT"/>
+      <property name="Sim.Name" value="LOADBOX"/>
+      <property name="Sim.Library" value="${KIPRJMOD}/bms_fab_models.lib"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="connector"/>
       <property name="ki_fp_filters" value="Connector*:*_1x??_*"/>
@@ -537,12 +555,18 @@
       <value>SWD</value>
       <footprint>Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical</footprint>
       <fields>
+        <field name="Sim.Device">SUBCKT</field>
+        <field name="Sim.Name">SWD_OPEN</field>
+        <field name="Sim.Library">${KIPRJMOD}/bms_fab_models.lib</field>
         <field name="Footprint">Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical</field>
         <field name="Datasheet"/>
         <field name="Description"/>
       </fields>
       <libsource lib="Connector_Generic" part="Conn_01x05" description="Generic connector, single row, 01x05, script generated (kicad-library-utils/schlib/autogen/connector/)"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sim.Device" value="SUBCKT"/>
+      <property name="Sim.Name" value="SWD_OPEN"/>
+      <property name="Sim.Library" value="${KIPRJMOD}/bms_fab_models.lib"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="connector"/>
       <property name="ki_fp_filters" value="Connector*:*_1x??_*"/>
@@ -564,12 +588,20 @@
       <value>NMOS 40V</value>
       <footprint>Package_TO_SOT_SMD:TO-252-2</footprint>
       <fields>
+        <field name="Sim.Device">SUBCKT</field>
+        <field name="Sim.Name">NFET40</field>
+        <field name="Sim.Library">${KIPRJMOD}/bms_fab_models.lib</field>
+        <field name="Sim.Pins">D=1 G=2 S=3</field>
         <field name="Footprint">Package_TO_SOT_SMD:TO-252-2</field>
         <field name="Datasheet"/>
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="Q_NMOS" description="N-MOSFET transistor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sim.Device" value="SUBCKT"/>
+      <property name="Sim.Name" value="NFET40"/>
+      <property name="Sim.Library" value="${KIPRJMOD}/bms_fab_models.lib"/>
+      <property name="Sim.Pins" value="D=1 G=2 S=3"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="NMOS N-MOS"/>
       <sheetpath names="/" tstamps="/"/>
@@ -588,12 +620,20 @@
       <value>NMOS 40V</value>
       <footprint>Package_TO_SOT_SMD:TO-252-2</footprint>
       <fields>
+        <field name="Sim.Device">SUBCKT</field>
+        <field name="Sim.Name">NFET40</field>
+        <field name="Sim.Library">${KIPRJMOD}/bms_fab_models.lib</field>
+        <field name="Sim.Pins">D=1 G=2 S=3</field>
         <field name="Footprint">Package_TO_SOT_SMD:TO-252-2</field>
         <field name="Datasheet"/>
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="Q_NMOS" description="N-MOSFET transistor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sim.Device" value="SUBCKT"/>
+      <property name="Sim.Name" value="NFET40"/>
+      <property name="Sim.Library" value="${KIPRJMOD}/bms_fab_models.lib"/>
+      <property name="Sim.Pins" value="D=1 G=2 S=3"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="NMOS N-MOS"/>
       <sheetpath names="/" tstamps="/"/>
@@ -617,7 +657,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="R" description="Resistor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="R res resistor"/>
       <property name="ki_fp_filters" value="R_*"/>
@@ -641,7 +681,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="R" description="Resistor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="R res resistor"/>
       <property name="ki_fp_filters" value="R_*"/>
@@ -665,7 +705,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="R" description="Resistor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="R res resistor"/>
       <property name="ki_fp_filters" value="R_*"/>
@@ -689,7 +729,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="R" description="Resistor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="R res resistor"/>
       <property name="ki_fp_filters" value="R_*"/>
@@ -713,7 +753,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="R" description="Resistor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="R res resistor"/>
       <property name="ki_fp_filters" value="R_*"/>
@@ -737,7 +777,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="R" description="Resistor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="R res resistor"/>
       <property name="ki_fp_filters" value="R_*"/>
@@ -761,7 +801,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="R" description="Resistor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="R res resistor"/>
       <property name="ki_fp_filters" value="R_*"/>
@@ -785,7 +825,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="R" description="Resistor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="R res resistor"/>
       <property name="ki_fp_filters" value="R_*"/>
@@ -809,7 +849,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="R" description="Resistor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="R res resistor"/>
       <property name="ki_fp_filters" value="R_*"/>
@@ -833,7 +873,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="R" description="Resistor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="R res resistor"/>
       <property name="ki_fp_filters" value="R_*"/>
@@ -857,7 +897,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="R" description="Resistor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="R res resistor"/>
       <property name="ki_fp_filters" value="R_*"/>
@@ -881,7 +921,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="R" description="Resistor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="R res resistor"/>
       <property name="ki_fp_filters" value="R_*"/>
@@ -905,7 +945,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="R" description="Resistor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="R res resistor"/>
       <property name="ki_fp_filters" value="R_*"/>
@@ -929,7 +969,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="R" description="Resistor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="R res resistor"/>
       <property name="ki_fp_filters" value="R_*"/>
@@ -953,7 +993,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="R" description="Resistor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="R res resistor"/>
       <property name="ki_fp_filters" value="R_*"/>
@@ -977,7 +1017,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="R" description="Resistor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="R res resistor"/>
       <property name="ki_fp_filters" value="R_*"/>
@@ -1001,7 +1041,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="R" description="Resistor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="R res resistor"/>
       <property name="ki_fp_filters" value="R_*"/>
@@ -1025,7 +1065,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="R" description="Resistor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="R res resistor"/>
       <property name="ki_fp_filters" value="R_*"/>
@@ -1049,7 +1089,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="R" description="Resistor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="R res resistor"/>
       <property name="ki_fp_filters" value="R_*"/>
@@ -1073,7 +1113,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="R" description="Resistor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="R res resistor"/>
       <property name="ki_fp_filters" value="R_*"/>
@@ -1097,7 +1137,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="R" description="Resistor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="R res resistor"/>
       <property name="ki_fp_filters" value="R_*"/>
@@ -1121,7 +1161,7 @@
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="R" description="Resistor"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="R res resistor"/>
       <property name="ki_fp_filters" value="R_*"/>
@@ -1140,12 +1180,18 @@
       <value>1m 3W</value>
       <footprint>Resistor_SMD:R_2512_6332Metric</footprint>
       <fields>
+        <field name="Sim.Device">SUBCKT</field>
+        <field name="Sim.Name">SHUNT_1M</field>
+        <field name="Sim.Library">${KIPRJMOD}/bms_fab_models.lib</field>
         <field name="Footprint">Resistor_SMD:R_2512_6332Metric</field>
         <field name="Datasheet"/>
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="R_Shunt" description="Shunt resistor with Kelvin connections"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sim.Device" value="SUBCKT"/>
+      <property name="Sim.Name" value="SHUNT_1M"/>
+      <property name="Sim.Library" value="${KIPRJMOD}/bms_fab_models.lib"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="R res shunt resistor"/>
       <property name="ki_fp_filters" value="R_*Shunt*"/>
@@ -1166,12 +1212,18 @@
       <value>10k B=3435</value>
       <footprint>Resistor_SMD:R_0603_1608Metric</footprint>
       <fields>
+        <field name="Sim.Device">SUBCKT</field>
+        <field name="Sim.Name">NTC10K</field>
+        <field name="Sim.Library">${KIPRJMOD}/bms_fab_models.lib</field>
         <field name="Footprint">Resistor_SMD:R_0603_1608Metric</field>
         <field name="Datasheet"/>
         <field name="Description"/>
       </fields>
       <libsource lib="Device" part="Thermistor_NTC" description="Temperature dependent resistor, negative temperature coefficient"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sim.Device" value="SUBCKT"/>
+      <property name="Sim.Name" value="NTC10K"/>
+      <property name="Sim.Library" value="${KIPRJMOD}/bms_fab_models.lib"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="thermistor NTC resistor sensor RTD"/>
       <property name="ki_fp_filters" value="R_* RV_*"/>
@@ -1190,12 +1242,18 @@
       <value>BQ76930DBT (3.3V REGOUT)</value>
       <footprint>Package_SO:TSSOP-30_4.4x7.8mm_P0.5mm</footprint>
       <fields>
+        <field name="Sim.Device">SUBCKT</field>
+        <field name="Sim.Name">BQ76930_BEH</field>
+        <field name="Sim.Library">${KIPRJMOD}/bms_fab_models.lib</field>
         <field name="Footprint">Package_SO:TSSOP-30_4.4x7.8mm_P0.5mm</field>
         <field name="Datasheet"/>
         <field name="Description"/>
       </fields>
       <libsource lib="Battery_Management" part="BQ76930DBT" description="Lithium battery monitor, 6-10 cells, integrated balancing, I2C interface, TSSOP-30"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sim.Device" value="SUBCKT"/>
+      <property name="Sim.Name" value="BQ76930_BEH"/>
+      <property name="Sim.Library" value="${KIPRJMOD}/bms_fab_models.lib"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="lithium battery balance charge afe"/>
       <property name="ki_fp_filters" value="TSSOP*4.4x7.8mm*P0.5mm*"/>
@@ -1242,12 +1300,18 @@
       <value>STM32G0B1CBT6</value>
       <footprint>Package_QFP:LQFP-48_7x7mm_P0.5mm</footprint>
       <fields>
+        <field name="Sim.Device">SUBCKT</field>
+        <field name="Sim.Name">STM32_STUB</field>
+        <field name="Sim.Library">${KIPRJMOD}/bms_fab_models.lib</field>
         <field name="Footprint">Package_QFP:LQFP-48_7x7mm_P0.5mm</field>
         <field name="Datasheet"/>
         <field name="Description"/>
       </fields>
       <libsource lib="MCU_ST_STM32G0" part="STM32G0B1C_B-C-E_Tx" description="STMicroelectronics Arm Cortex-M0+ MCU, 128-512KB flash, 144KB RAM, 64 MHz, 1.7-3.6V, 44 GPIO, LQFP48"/>
-      <property name="Sheetname" value="Root"/>
+      <property name="Sim.Device" value="SUBCKT"/>
+      <property name="Sim.Name" value="STM32_STUB"/>
+      <property name="Sim.Library" value="${KIPRJMOD}/bms_fab_models.lib"/>
+      <property name="Sheetname" value="bms_6s_fab"/>
       <property name="Sheetfile" value="bms_6s_fab.kicad_sch"/>
       <property name="ki_keywords" value="Arm Cortex-M0+ STM32G0 STM32G0x1"/>
       <property name="ki_fp_filters" value="LQFP*7x7mm*P0.5mm*"/>

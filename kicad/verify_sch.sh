@@ -20,6 +20,8 @@ mv -f erc.rpt bms_6s_fab_erc.rpt
 echo "ERC: 0 violations"
 
 "$CLI" sch export netlist --format kicadxml --output bms_6s_fab.xml bms_6s_fab.kicad_sch
-"$CLI" sch export netlist --format spice    --output bms_6s_fab.cir bms_6s_fab.kicad_sch
 
 python3 check_netlist.py
+
+# stage 4: simulate the exported netlist itself (ngspice + assertions)
+bash run_fab_sim.sh

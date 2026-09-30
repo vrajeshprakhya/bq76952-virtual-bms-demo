@@ -1,0 +1,89 @@
+Testbench: simulate the kicad-cli SPICE EXPORT of bms_6s_fab.kicad_sch
+* The device under test is build_fab_body.cir -- the exported netlist
+* itself (run_fab_sim.sh strips its .end and localises the models
+* include).  Cells and load live inside the connector models (PACK6S
+* at J1, LOADBOX at J2); scenario knobs are the global .params in
+* bms_fab_models.lib, driven here with alterparam + reset.
+
+.include bms_fab_models.lib
+.include build_fab_body.cir
+
+* (the export's GND net IS ngspice's node 0 -- auto-aliased)
+
+.control
+set noaskquit
+let ok = 1
+
+* ---------- OP1: nominal discharge, 1 A, everything on --------------
+op
+let c1     = v(/vc1f) - v(/vc0f)
+let c4     = v(/vc6f) - v(/vc5bf)
+let vsense = v(/srp) - v(/srn)
+let i_mA   = vsense/1e-3*1000
+echo OP1 nominal: c1 = $&c1  c4 = $&c4  vsense = $&vsense  i_mA = $&i_mA
+set c1s = "$&c1"
+set imas = "$&i_mA"
+if abs(c1 - 3.688) > 0.004
+  echo FAIL OP1 cell1 tap (want 3.688)
+  let ok = 0
+end
+if abs(i_mA - 1000) > 15
+  echo FAIL OP1 shunt current (want 1000 mA)
+  let ok = 0
+end
+
+* ---------- OP2: DSG commanded open -> current really stops ---------
+alterparam dsgon=0
+reset
+op
+let vsense_off = v(/srp) - v(/srn)
+let c1_off     = v(/vc1f) - v(/vc0f)
+echo OP2 DSG open: vsense = $&vsense_off  c1 = $&c1_off
+if abs(vsense_off) > 10e-6
+  echo FAIL OP2 current did not stop
+  let ok = 0
+end
+if abs(c1_off - 3.700) > 0.004
+  echo FAIL OP2 sag did not vanish
+  let ok = 0
+end
+
+* ---------- OP3: balance cell 4 -- droop DERIVES from the sheet -----
+* bleed path: B4 -> RF5(100R) -> VC6F -> RDSBAL(30R) -> VC5BF ->
+* RF4(100R) -> B3, so  c4bal = Vcell4 * RDSBAL/(2*100+RDSBAL)
+alterparam dsgon=1
+alterparam cb4=1
+reset
+op
+let c4bal    = v(/vc6f) - v(/vc5bf)
+let c4pred   = 3.688*30/230
+let ibal_mA  = (v(/vc6f) - v(/vc5bf))/30*1000
+echo OP3 balancing: c4bal = $&c4bal  predicted = $&c4pred  ibal_mA = $&ibal_mA
+set c4bals = "$&c4bal"
+if abs(c4bal - c4pred) > 0.02
+  echo FAIL OP3 balancing droop off analytic value
+  let ok = 0
+end
+
+* ---------- OP4: CHG open -- discharge continues via body diode -----
+alterparam cb4=0
+alterparam chgon=0
+reset
+op
+let vsense_bd = v(/srp) - v(/srn)
+echo OP4 CHG open, discharging: vsense = $&vsense_bd (body diode path)
+if abs(vsense_bd - 1e-3) > 20e-6
+  echo FAIL OP4 body-diode discharge path broken
+  let ok = 0
+end
+
+* the PASS line carries the measured numbers, so a silently-skipped
+* assertion (vector error) can never produce a hollow PASS: the
+* runner greps for PASS *with* a plausible c1 value on the line
+if ok = 1
+  echo FAB-SIM: PASS c1=$c1s i_mA=$imas c4bal=$c4bals vbd=$&vsense_bd
+else
+  echo FAB-SIM: FAIL
+end
+.endc
+.end

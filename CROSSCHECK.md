@@ -26,6 +26,24 @@ The regression's non-nominal scenarios are covered on the xezim side
 by the scoreboard's white-box prediction, whose linear-chain
 assumption is what the ngspice sweep independently confirms.
 
+The fab schematic is ALSO simulated directly: `kicad/run_fab_sim.sh`
+exports the SPICE netlist from `bms_6s_fab.kicad_sch` with kicad-cli
+and runs it in ngspice against numeric assertions
+(`logs_ngspice/fab_sim.log`): cell tap 3.688 V at 1 A, shunt-sense
+1.002 mV, DSG-open -> 0 A with sag vanished, CHG-open discharge via
+the body diode, and the balancing read-droop DERIVED from the sheet's
+own values.  That last one resolves the filter-value divergence this
+exercise surfaced: with the fab sheet's datasheet-typical 100R input
+filters and an assumed 30R internal balance FET, the BQ76930 bleeds
+16.0 mA and the balanced cell reads 0.481 V low (asserted against the
+analytic Vcell*30/230) -- the LARGE-droop regime, which is why
+BQ769x0 datasheets say not to trust a cell reading while balancing
+it.  The xezim RNM's 40 mV parameter models the SMALL-droop regime of
+a BQ76952-class part (10R-class sense lines, as in the hand deck
+`schematic/bms_full_board.cir`).  Both regimes are now simulated,
+each self-consistent, and the difference is a documented part/values
+choice rather than silent drift.
+
 Two fidelity notes the full-board circuit adds:
 1. While a cell balances, its NEIGHBOURS read ~20 mV HIGH (the bleed
    current through the shared sense line).  The RNM simplifies this
