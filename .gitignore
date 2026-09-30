@@ -3,3 +3,6 @@ design/build/
 design/xezim_cov.json
 design/tr_db.log
 schematic/*.raw
+# fetched upstream KiCad libraries (fetch_libs.sh) and render scratch
+kicad/libs/
+kicad/fab_check.png

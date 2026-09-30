@@ -30,6 +30,23 @@ schematic/     the board as SPICE + a drawn schematic sheet:
                                      schematic sheet (1:1 with the
                                      netlist)
                  run_ngspice.sh
+kicad/         fabrication-grade KiCad schematic (ERC-clean):
+                 bms_6s_fab.kicad_sch  the sheet -- BQ76930 AFE +
+                                       STM32G0B1CBT6 host, cell-input
+                                       filters, low-side DSG/CHG FETs,
+                                       kelvin shunt, NTC, I2C pull-ups,
+                                       SWD, decoupling; real footprints
+                 bms_6s_fab.pdf        kicad-cli export
+                 bms_6s_fab_erc.rpt    ERC report: 0 violations
+                 gen_sch.py            the generator (symbols embedded
+                                       from the official KiCad libs)
+                 fetch_libs.sh         library provenance (tag 9.0.0
+                                       fallback; installed KiCad
+                                       10.0.6 libs preferred)
+               PART SUBSTITUTION: the official library has no BQ76952,
+               so the fab sheet uses the 6S-capable BQ76930 (same
+               feature set as the demo exercises).  Sheet notes list
+               the datasheet items to review before fabrication.
 logs_ngspice/  ngspice.log, sweep_load.dat, tran_trip.dat, version
 logs_xezim/    smoke.log, regress.log (13 scenarios, seed 1),
                xezim_cov.json (functional coverage), version
