@@ -16,6 +16,8 @@ Sources: `logs_ngspice/ngspice.log` and `logs_xezim/smoke.log` /
 | DSG open, 1 A still commanded (OP2) | 0.000 mA, cell tap 3.70000 V | `i_act=0`, cells read unloaded (regress scenarios 5, 7, 8, 12) | protection loop-back: the trip stops the *physical* current and the sag vanishes |
 | Load sweep 0..4.2 A (`sweep_load.dat`) | shunt exactly 1 mV/A, tap sag exactly 12 mV/A, linear | two-pass scoreboard prediction matches every random corner to ~1 mV / tens of mA | the linear chain the white-box prediction assumes is the network's own behaviour |
 | Trip transient at 4.2 A (`bms_trip.cir`) | 4200 mA at t=4 ms; 0 mA and tap 3.7000 V at t=8 ms | hero sequence: OCD latches, `i_act` 4200 -> 0 mA, recover restores 1 A (regress scenarios 11-13) | the hero claim, shown electrically and at firmware level |
+| Balancing read-droop (`bms_full_board.cir` OP2) | DERIVED: 1.983 mA bleed through 2 x 10 Ohm sense lines -> cell 4 reads 39.68 mV low | RNM parameter VBAL_DROOP = 40 mV; firmware sees it in regress scenario 9 | the balancing artifact is network physics, not a fitted constant |
+| I2C wired-AND (`bms_full_board.cir` tran) | SDA = 0.35 uV while either side pulls, 3.30 V released | testbench top resolves `sda = !(pull_m or pull_s)`; every transaction in every log rode it | the pin-level open-drain bus claim |
 
 Differences to expect, by design: xezim numbers carry the AFE model's
 quantisation and noise (cells +/-1 mV, current +/-5 mA) and the
@@ -23,3 +25,14 @@ scenario's gain/offset tolerances; ngspice runs the nominal circuit.
 The regression's non-nominal scenarios are covered on the xezim side
 by the scoreboard's white-box prediction, whose linear-chain
 assumption is what the ngspice sweep independently confirms.
+
+Two fidelity notes the full-board circuit adds:
+1. While a cell balances, its NEIGHBOURS read ~20 mV HIGH (the bleed
+   current through the shared sense line).  The RNM simplifies this
+   into the single-cell -40 mV droop; a model upgrade would add the
+   +Ibal*RLINE term to the adjacent cells.
+2. The kelvin RC filter (100 Ohm / 100 nF) attenuates the injected
+   20 kHz ripple to about +/-90 mA at the AFE (`full_board.log`,
+   mean 1008 / max 1097 / min 926 mA), where the RNM injects the
+   unfiltered +/-200 mA at the summing node -- a conservative
+   placement the UVM tolerance is sized for.

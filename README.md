@@ -14,11 +14,21 @@ design/        the complete simulated design, verbatim:
                  mcu/   DPI tick shim (Renode swap-in point)
                  tb/    UVM-MS: proxy, bridge, env, tests
                  run.sh / compile.f
-schematic/     the Figure-2 circuit as SPICE:
-                 bms_core.inc   netlist (cells+Rint, DSG switch,
-                                gated load, shunt, NTC divider)
-                 bms_op.cir     operating points + 0..4.2 A sweep
-                 bms_trip.cir   transient DSG trip at 5 ms
+schematic/     the board as SPICE + a drawn schematic sheet:
+                 bms_core.inc        one-path netlist (Fig. 2 of the
+                                     whitepaper)
+                 bms_op.cir          operating points + 0..4.2 A sweep
+                 bms_trip.cir        transient DSG trip at 5 ms
+                 bms_full_board.cir  FULL board: all 7 sense lines with
+                                     filters, per-cell balancing
+                                     bleeders, DSG+CHG FETs with body
+                                     diodes, charger stub, shunt kelvin
+                                     with EMI injection, I2C pull-ups
+                                     with open-drain pulls both ends,
+                                     NTC -- simulated
+                 bms_full_board.tex/.pdf  the drawn full-board
+                                     schematic sheet (1:1 with the
+                                     netlist)
                  run_ngspice.sh
 logs_ngspice/  ngspice.log, sweep_load.dat, tran_trip.dat, version
 logs_xezim/    smoke.log, regress.log (13 scenarios, seed 1),
@@ -48,6 +58,8 @@ Tool versions are recorded in `logs_*/**version*`.
 | Config integrity over I2C | `regress.log`: no `never arrived` errors; check exists in `design/tb/bq_pkg.sv` |
 | Protection loop-back (trip stops real current) | `regress.log` `PROTECTION CLOSED-LOOP` lines + ngspice OP2 and `bms_trip.cir` (4200 -> 0 mA) |
 | Balancing closed-loop (right cell, 40 mV droop) | `regress.log` `BALANCING CLOSED-LOOP` line, scenario 9 |
+| The 40 mV droop is physics, not a fitted number | `logs_ngspice/full_board.log` OP2: the bleed network derives 39.7 mV (1.98 mA through 2 x 10 Ohm sense lines) |
+| Pin-level open-drain I2C (wired-AND) | `full_board.log` transient: SDA at 0 V while either side pulls, 3.3 V released; `full_i2c_bus.dat` |
 | Functional coverage over corner x response | `logs_xezim/xezim_cov.json` |
 | Bring-up bugs (START edge, array args, A-vs-mA) | fix-site comments in `design/rnm/bq76952_rnm.sv`, `design/tb/bq_proxy_pkg.sv`/`bq_bridge.sv`, and the whitepaper's Results section |
 

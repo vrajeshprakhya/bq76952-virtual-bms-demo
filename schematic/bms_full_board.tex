@@ -1,0 +1,149 @@
+% bms_full_board.tex -- drawn schematic of the FULL virtual 6S BMS
+% board.  1:1 with bms_full_board.cir (same reference designators and
+% values).  Build: ~/.local/bin/tectonic bms_full_board.tex
+\documentclass[border=8pt]{standalone}
+\usepackage[T1]{fontenc}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
+\usepackage[europeanresistors]{circuitikz}
+
+\newcommand{\iic}{I\textsuperscript{2}C}
+
+\begin{document}
+\begin{circuitikz}[font=\small,
+  lbl/.style={font=\footnotesize, text=black!60},
+  arr/.style={-{Stealth[length=2mm]}, semithick}]
+
+  % ================= title =================
+  \node[anchor=west, font=\normalsize\bfseries] at (-1.2,18.6)
+    {Virtual 6S BMS --- full board schematic};
+  \node[anchor=west, lbl] at (-1.2,18.0)
+    {1:1 with \texttt{bms\_full\_board.cir}; simulated with ngspice
+     (\texttt{logs\_ngspice/full\_board.log})};
+
+  % ================= cell stack =================
+  \draw (0,13.5) node[circ]{}
+        (0,13.5) to[battery1, l=$V_{c6}$] (0,12.3)
+                 to[R, l=$R_{\mathrm{int}}$, a=12\,m$\Omega$] (0,11.5) node[circ]{}
+        (0,11.5) to[battery1, l=$V_{c5}$] (0,10.3)
+                 to[R, l=$R_{\mathrm{int}}$] (0,9.5) node[circ]{}
+        (0,9.5)  to[battery1, l=$V_{c4}$] (0,8.3)
+                 to[R, l=$R_{\mathrm{int}}$] (0,7.5) node[circ]{}
+        (0,7.5)  to[battery1, l=$V_{c3}$] (0,6.3)
+                 to[R, l=$R_{\mathrm{int}}$] (0,5.5) node[circ]{}
+        (0,5.5)  to[battery1, l=$V_{c2}$] (0,4.3)
+                 to[R, l=$R_{\mathrm{int}}$] (0,3.5) node[circ]{}
+        (0,3.5)  to[battery1, l=$V_{c1}$] (0,2.3)
+                 to[R, l=$R_{\mathrm{int}}$] (0,1.5) node[circ]{};
+  \node[above left] at (-0.2,13.5) {\textbf{B+}};
+  \node[below left] at (-0.2,1.0) {\textbf{B$-$}};
+
+  % ================= sense lines with R_line =================
+  \draw (0,1.5)  -- (0,0.2);                    % B- down to shunt rail
+  \draw (0,1.5)  to[R, l_=$R_{\ell}$, a^=10\,$\Omega$] (5.6,1.5)  -- (13.2,1.5);
+  \draw (0,3.5)  to[R] (5.6,3.5)  -- (13.2,3.5);
+  \draw (0,5.5)  to[R] (5.6,5.5)  -- (13.2,5.5);
+  \draw (0,7.5)  to[R] (5.6,7.5)  -- (13.2,7.5);
+  \draw (0,9.5)  to[R] (5.6,9.5)  -- (13.2,9.5);
+  \draw (0,11.5) to[R] (5.6,11.5) -- (13.2,11.5);
+  \draw (0,13.5) to[R] (5.6,13.5) -- (13.2,13.5);
+  % representative filter cap (one drawn, seven fitted)
+  \draw (11.0,7.5) to[C, a=100\,nF] ++(0,-1.1) node[ground]{};
+  \node[lbl, anchor=west] at (6.6,6.6) {filter caps $\times 7$, one per line};
+
+  % ================= AFE box =================
+  \draw[rounded corners=3pt, thick] (13.2,0.8) rectangle (19.2,14.6);
+  \node[align=center, font=\small\bfseries] at (16.2,13.9)
+    {BQ76952-class AFE\\ \footnotesize (bq76952\_rnm.sv)};
+  \node[lbl, align=left, anchor=north west] at (15.0,13.1)
+    {16-bit ADC mux\\ protection engine\\ register map / \iic{} slave};
+  % pin labels, left edge
+  \node[lbl, anchor=west] at (13.25,13.5) {VC6};
+  \node[lbl, anchor=west] at (13.25,11.5) {VC5};
+  \node[lbl, anchor=west] at (13.25,9.5)  {VC4};
+  \node[lbl, anchor=west] at (13.25,7.5)  {VC3};
+  \node[lbl, anchor=west] at (13.25,5.5)  {VC2};
+  \node[lbl, anchor=west] at (13.25,3.5)  {VC1};
+  \node[lbl, anchor=west] at (13.25,1.5)  {VC0};
+
+  % one balancing bleeder drawn inside the AFE (x6 fitted)
+  \draw (14.6,9.5) node[circ]{} to[nos, l_=CB4] (15.6,8.9)
+        to[R, l_=$R_{\mathrm{bal}}$] (15.6,7.9)
+        -- (15.6,7.5) -- (14.6,7.5) node[circ]{};
+  \draw (13.2,9.5) -- (14.6,9.5);
+  \draw (13.2,7.5) -- (14.6,7.5);
+  \node[lbl, align=left, anchor=west] at (14.0,10.8)
+    {CB bleeders $\times 6$, 1.84\,k$\Omega$};
+
+  % ================= power path: B+ -- DSG -- CHG -- PACK+ ============
+  \draw (0,13.5) -- (0,15.4) -- (3.4,15.4);
+  \draw (3.4,15.4) node[nmos, anchor=D, rotate=90, xscale=-1](dsg){};
+  \node[lbl, above=1mm of dsg] {DSG};
+  \draw (dsg.S) -- (6.4,15.4);
+  \draw (6.4,15.4) node[nmos, anchor=D, rotate=90, xscale=-1](chg){};
+  \node[lbl, above=1mm of chg] {CHG};
+  \node[lbl] at (5.4,14.55) {body diodes};
+  \draw (chg.S) -- (10.4,15.4) node[circ]{} -- (25.6,15.4);
+  \node[above] at (10.4,15.55) {\textbf{PACK+}};
+  % charger stub
+  \draw (23.0,15.4) node[circ]{} -- (23.0,16.3) node[ocirc]{};
+  \node[lbl, right] at (23.15,16.3) {charger (stub)};
+  % gate drives from AFE top edge
+  \draw[arr] (14.0,14.6) -- (14.0,17.1) -| (dsg.G);
+  \draw[arr] (15.4,14.6) -- (15.4,16.6) -| (chg.G);
+  \node[lbl] at (10.2,17.35) {gate drives};
+
+  % return rail down the right and along the bottom to the shunt
+  \draw (25.6,15.4) -- (25.6,0.2) -- (2.6,0.2) node[circ]{};
+  \node[lbl] at (24.6,0.5) {PACK$-$};
+  % load on the return rail, right side
+  \draw (25.6,9.4) to[I, a=$I_{\mathrm{load}}$] (25.6,7.0);
+  % shunt
+  \draw (2.6,0.2) to[R, l_=$R_{\mathrm{sh}}$, a^=1\,m$\Omega$] (0,0.2);
+
+  % ================= kelvin sense + EMI =================
+  \draw (2.6,0.2) -- (2.6,-0.5)
+        to[R, l_=100\,$\Omega$] (8.6,-0.5)
+        to[sV, l=EMI] (11.4,-0.5) -- (14.2,-0.5) -- (14.2,0.8);
+  \draw (0,0.2) -- (-0.9,0.2) -- (-0.9,-1.5) -- (10.0,-1.5);
+  \draw (10.0,-1.5) to[R] (13.0,-1.5)
+        -- (15.2,-1.5) -- (15.2,0.8);
+  \node[lbl] at (11.5,-1.15) {100\,$\Omega$};
+  \node[lbl] at (5.0,-2.15) {EMI source: 0.2\,mV, 20\,kHz (DC/DC ripple), in series with SRP};
+  \draw (13.6,-0.5) to[C, a=100\,nF] (13.6,-1.5);
+  \node[lbl, anchor=west] at (13.9,0.55) {SRP};
+  \node[lbl, anchor=west] at (15.35,0.35) {SRN};
+
+  % ================= 3V3 rail, pull-ups, I2C, MCU =================
+  \draw (20.6,12.2) node[ocirc]{};
+  \node[above] at (20.6,12.35) {+3V3};
+  \draw (20.6,12.2) -- (20.6,11.6) -- (19.9,11.6)
+        (20.6,11.6) -- (21.3,11.6);
+  \draw (19.9,11.6) to[R, l_=4.7\,k$\Omega$] (19.9,9.9) -- (19.9,9.5);
+  \draw (21.3,11.6) to[R, a=4.7\,k$\Omega$] (21.3,9.9) -- (21.3,8.3);
+  \draw (19.2,9.5) -- (22.0,9.5);
+  \draw (19.2,8.3) -- (22.0,8.3);
+  \node[lbl, anchor=east] at (19.15,9.5) {SDA};
+  \node[lbl, anchor=east] at (19.15,8.3) {SCL};
+  \draw (19.9,9.5) node[circ]{};
+  \draw (21.3,8.3) node[circ]{};
+  \node[lbl, align=center] at (20.35,7.5) {open-drain\\ (wired-AND)};
+  % MCU box
+  \draw[rounded corners=3pt, thick] (22.0,7.4) rectangle (25.0,11.1);
+  \node[align=center, font=\small\bfseries] at (23.5,10.4)
+    {Host MCU\\ \footnotesize STM32G0B1 class};
+  \node[lbl, align=center] at (23.5,8.9)
+    {real C firmware\\ bit-banged \iic{} master};
+
+  % ================= NTC on TS =================
+  \draw (19.2,4.5) -- (20.6,4.5) node[circ]{};
+  \node[lbl, anchor=east] at (19.15,4.5) {TS};
+  \draw (20.6,4.5) to[R, l=10\,k$\Omega$] (20.6,6.3);
+  \draw (20.6,6.3) node[ocirc]{};
+  \node[right] at (20.75,6.35) {\footnotesize +3V3};
+  \draw (20.6,4.5) to[thR, l_=NTC] (20.6,2.6) node[ground]{};
+  \node[lbl, align=left, anchor=west] at (21.7,3.6)
+    {10\,k, B=3435\\ ratiometric to the rail};
+
+\end{circuitikz}
+\end{document}

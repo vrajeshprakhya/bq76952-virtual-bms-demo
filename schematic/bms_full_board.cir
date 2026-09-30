@@ -1,0 +1,183 @@
+Whitepaper evidence: FULL board schematic (6S BMS, BQ76952-class)
+* The complete board as an electrical network -- everything the
+* one-path deck (bms_core.inc) abstracts away:
+*   - all 7 cell-sense lines VC0..VC6 with series filter resistors
+*   - per-cell BALANCING bleed paths (AFE-internal 1.84 kOhm bleeder
+*     switched between adjacent VC pins): the ~40 mV read-droop the
+*     RNM parameterises is DERIVED here from the network
+*   - DSG + CHG FETs back-to-back with body diodes, charger stub
+*   - shunt kelvin sense with 100R/100n filters and the DC/DC EMI
+*     injection point in series with SRP
+*   - I2C with 4.7k pull-ups and open-drain pull-downs on BOTH ends
+*     (master and slave) -- the wired-AND the testbench top resolves
+*   - NTC divider on TS from the same 3.3 V rail (ratiometric)
+*
+* Node map:
+*   0 = B- ; t1..t6 cell taps ; vc0..vc6 AFE cell pins
+*   nmid   DSG/CHG common source node ; npack = PACK+ ; npkm = PACK-
+*   srp/srn shunt kelvin at the AFE ; tsn NTC mid ; sda/scl the bus
+
+.param VCELL=3.7  RINT=12m  RSH=1m
+.param RLINE=10   RBAL=1.84k
+.param RPU=4.7k   TNTC=25
+.param RNTCVAL={10k*exp(3435*(1/(TNTC+273.15)-1/298.15))}
+
+.model dsgsw sw vt=0.5 vh=0.1 ron=1m roff=1e9
+.model body  d
+
+* ---------------- cell stack ----------------
+V1 m1 0  {VCELL}
+R1 t1 m1 {RINT}
+V2 m2 t1 {VCELL}
+R2 t2 m2 {RINT}
+V3 m3 t2 {VCELL}
+R3 t3 m3 {RINT}
+V4 m4 t3 {VCELL}
+R4 t4 m4 {RINT}
+V5 m5 t4 {VCELL}
+R5 t5 m5 {RINT}
+V6 m6 t5 {VCELL}
+R6 t6 m6 {RINT}
+
+* ---------------- cell-sense lines (filtered) ----------------
+Rl0 0  vc0 {RLINE}
+Rl1 t1 vc1 {RLINE}
+Rl2 t2 vc2 {RLINE}
+Rl3 t3 vc3 {RLINE}
+Rl4 t4 vc4 {RLINE}
+Rl5 t5 vc5 {RLINE}
+Rl6 t6 vc6 {RLINE}
+Cf0 vc0 0 100n
+Cf1 vc1 0 100n
+Cf2 vc2 0 100n
+Cf3 vc3 0 100n
+Cf4 vc4 0 100n
+Cf5 vc5 0 100n
+Cf6 vc6 0 100n
+
+* ------- AFE-internal balancing bleeders (one per cell) -------
+* CB on cell k bleeds between pins vck and vc(k-1); the bleed current
+* flows through BOTH sense-line resistors -> the measured cell droops.
+Scb1 vc1 nb1 cb1 0 dsgsw
+Rb1  nb1 vc0 {RBAL}
+Scb2 vc2 nb2 cb2 0 dsgsw
+Rb2  nb2 vc1 {RBAL}
+Scb3 vc3 nb3 cb3 0 dsgsw
+Rb3  nb3 vc2 {RBAL}
+Scb4 vc4 nb4 cb4 0 dsgsw
+Rb4  nb4 vc3 {RBAL}
+Scb5 vc5 nb5 cb5 0 dsgsw
+Rb5  nb5 vc4 {RBAL}
+Scb6 vc6 nb6 cb6 0 dsgsw
+Rb6  nb6 vc5 {RBAL}
+Vcb1 cb1 0 0
+Vcb2 cb2 0 0
+Vcb3 cb3 0 0
+Vcb4 cb4 0 0
+Vcb5 cb5 0 0
+Vcb6 cb6 0 0
+
+* ---------------- power path: B+ -- DSG -- CHG -- PACK+ ----------------
+Sdsg t6   nmid dsgc 0 dsgsw
+Ddsg nmid t6   body
+Schg npack nmid chgc 0 dsgsw
+Dchg nmid npack body
+Vdsgc dsgc 0 1
+Vchgc chgc 0 1
+
+* load (commanded current, flows only while DSG allows -- the RNM law)
+Bload npack npkm I = V(cmd)*V(dsgc)
+Vcmd  cmd 0 1
+* charger stub (0 A unless a charge scenario drives ichg)
+Bchgr npkm npack I = V(ichg)*V(chgc)
+Vichg ichg 0 0
+
+* ---------------- shunt + kelvin sense + EMI ----------------
+Rsh  npkm 0 {RSH}
+Rf1  npkm srpa 100
+Bemi srp  srpa V = V(emien)*0.2m*sin(6.28318530718*20k*time)
+Vemien emien 0 0
+Rf2  0 srn 100
+Csr  srp srn 100n
+
+* ---------------- 3.3 V rail, NTC, I2C ----------------
+Vdd33 vdd33 0 3.3
+Rpull vdd33 tsn 10k
+Rntc  tsn 0 {RNTCVAL}
+
+Rpu1 vdd33 sda {RPU}
+Rpu2 vdd33 scl {RPU}
+* open-drain pull-downs: master and slave on SDA, master on SCL
+Smst sda 0 mpull 0 dsgsw
+Sslv sda 0 spull 0 dsgsw
+Sscl scl 0 msclp 0 dsgsw
+* wired-AND demo stimulus: master pulls 1..9 us, slave 5..13 us
+Vmpull mpull 0 PULSE(0 1 1u 10n 10n 8u 40u)
+Vspull spull 0 PULSE(0 1 5u 10n 10n 8u 40u)
+Vmsclp msclp 0 PULSE(0 1 2u 10n 10n 2u 4u)
+
+* ================= analyses =================
+.control
+set noaskquit
+
+echo ============================================================
+echo FULL BOARD OP1: nominal, 1 A discharge, both FETs on, CB off
+echo ============================================================
+op
+let c1 = v(vc1)-v(vc0)
+let c4 = v(vc4)-v(vc3)
+let c5 = v(vc5)-v(vc4)
+let c6 = v(vc6)-v(vc5)
+let vsense = v(srp)-v(srn)
+print c1 c4 c5 c6
+print v(npack) vsense v(tsn)
+set c4nom = "$&c4"
+
+echo ============================================================
+echo FULL BOARD OP2: balancing CELL 4 (CB4 closed), 1 A discharge
+echo the read-droop is DERIVED from the bleed network:
+echo   droop(cell4) approx Ibal * 2*RLINE approx 40 mV
+echo   (neighbours read HIGH by Ibal*RLINE approx 20 mV -- an artifact
+echo    the RNM simplifies into the single-cell droop)
+echo ============================================================
+alter vcb4 1
+op
+let c4bal   = v(vc4)-v(vc3)
+let droop4  = $c4nom - c4bal
+let c3bal   = v(vc3)-v(vc2)
+let c5bal   = v(vc5)-v(vc4)
+let ibal_mA = (v(vc4)-v(nb4))/1e-3*1000
+print c4bal droop4 c3bal c5bal ibal_mA
+
+echo ============================================================
+echo FULL BOARD OP3: DSG open, 1 A still commanded -> 0 A
+echo ============================================================
+alter vcb4 0
+alter vdsgc 0
+op
+let vsense_off = v(srp)-v(srn)
+let c1off = v(vc1)-v(vc0)
+print vsense_off c1off
+
+echo ============================================================
+echo I2C wired-AND transient: master pulls 1-9 us, slave 5-13 us,
+echo SCL toggling -- SDA is low whenever EITHER side pulls
+echo ============================================================
+alter vdsgc 1
+tran 50n 16u
+wrdata ../logs_ngspice/full_i2c_bus.dat v(sda) v(scl)
+meas tran sda_both_pulling FIND v(sda) AT=6u
+meas tran sda_released    FIND v(sda) AT=15u
+
+echo ============================================================
+echo Shunt-sense EMI transient: 0.2 mV 20 kHz ripple in series with
+echo SRP on top of the 1 mV (1 A) signal -> +/-200 mA apparent
+echo ============================================================
+alter vemien 1
+tran 1u 200u
+let vs = v(srp)-v(srn)
+let i_app_mA = vs/1e-3*1000
+print mean(i_app_mA) vecmax(i_app_mA) vecmin(i_app_mA)
+wrdata ../logs_ngspice/full_ripple.dat vs
+.endc
+.end
