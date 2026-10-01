@@ -580,6 +580,11 @@ text("PART SUBSTITUTION: behavioural model is BQ76952-class; official lib carrie
 text("REVIEW BEFORE FABRICATION: cell-group mapping + VC5X strap (SLUSBK2), REGOUT variant 3.3 V, TS2 termination,", 12, 25)
 text("FET selection + gate network vs pack current, SRP/SRN polarity.  Board GND = BATT- (J1.1).", 12, 29)
 text("Verification: kicad/verify_sch.sh = ERC + netlist export + golden connectivity compare (43 nets).", 12, 33)
+# SPICE directive as sheet text: the GUI simulator (Inspect ->
+# Simulator -> Run) picks it up and reproduces OP1 of the batch run
+# (nominal 1 A discharge; expect /VC1F-/VC0F = 3.688 V, /SRP ~ 1 mV).
+text(".op", 12, 39, size=2.0)
+text("^ simulation directive: GUI Simulator runs the nominal operating point (see kicad/bms_fab_tb.cir for the full asserted suite)", 18, 39)
 
 # ------------------------------------------------------------- write
 with open(OUT, "w") as f:

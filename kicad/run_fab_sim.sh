@@ -16,8 +16,9 @@ NG=${NG:-$HOME/ngspice-install/bin/ngspice}
 
 "$CLI" sch export netlist --format spice --output bms_6s_fab.cir bms_6s_fab.kicad_sch
 
-# body for the testbench: no .end, models include localised
-grep -v '^\.end' bms_6s_fab.cir \
+# body for the testbench: no .end, no sheet .op directive (the tb's
+# control section runs its own analyses), models include localised
+grep -vE '^\.end|^\.op' bms_6s_fab.cir \
   | sed 's|^\.include .*bms_fab_models.*|* (models included by the testbench)|' \
   > build_fab_body.cir
 

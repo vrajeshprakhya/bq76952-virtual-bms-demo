@@ -1,13 +1,14 @@
 .title KiCad schematic
 .include "//wsl.localhost/Ubuntu/home/vraje/bq_vboard_evidence/kicad/bms_fab_models.lib"
+.op
 R13 +3V3 /SCL 4.7k
 R14 +3V3 /+3V3_SWD 0
 R12 +3V3 /SDA 4.7k
 R15 /LED /LEDK 1k
-C9 +3V3 GND 100n
-C10 +3V3 GND 4.7u
 C11 /VREFP GND 100n
 R11 +3V3 /VREFP 0
+C10 +3V3 GND 4.7u
+C9 +3V3 GND 100n
 C8 +3V3 GND 100n
 R9 /CHG /CHG_G 100
 R10 /CHG_G /PACK_M 1Meg
