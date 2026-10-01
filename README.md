@@ -86,7 +86,7 @@ Tool versions are recorded in `logs_*/**version*`.
 | Balancing closed-loop (right cell, 40 mV droop) | `regress.log` `BALANCING CLOSED-LOOP` line, scenario 9 |
 | The 40 mV droop is physics, not a fitted number | `logs_ngspice/full_board.log` OP2: the bleed network derives 39.7 mV (1.98 mA through 2 x 10 Ohm sense lines) |
 | Pin-level open-drain I2C (wired-AND) | `full_board.log` transient: SDA at 0 V while either side pulls, 3.3 V released; `full_i2c_bus.dat` |
-| The FAB SCHEMATIC itself is simulatable | `logs_ngspice/fab_sim.log`: ngspice on the kicad-cli export -- 4 asserted operating points (incl. the 100R-filter balancing droop derived from the sheet's own values) plus a 4.2 A trip TRANSIENT (full current before, zero after, tap recovered, cut timed at 5 ms; waveform in `fab_trip.dat`) |
+| The FAB SCHEMATIC itself is simulatable | `logs_ngspice/fab_sim.log`: ngspice on the kicad-cli export -- 4 asserted operating points (incl. the 100R-filter balancing droop derived from the sheet's own values), a 4.2 A trip TRANSIENT (waveform in `fab_trip.dat`), and an AC sweep of the kelvin filter (fc = 7957.7 Hz measured vs 7957.7 analytic; response in `fab_kelvin_ac.dat`) |
 | Functional coverage over corner x response | `logs_xezim/xezim_cov.json` |
 | Bring-up bugs (START edge, array args, A-vs-mA) | fix-site comments in `design/rnm/bq76952_rnm.sv`, `design/tb/bq_proxy_pkg.sv`/`bq_bridge.sv`, and the whitepaper's Results section |
 

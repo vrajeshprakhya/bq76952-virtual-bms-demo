@@ -65,7 +65,11 @@ DB s d DBODY
 .ends NFET40
 
 .subckt SHUNT_1M n1 n2 n3 n4
-RSH n1 n4 1m
+* VACS: 0 V in the power path; its AC 1 magnitude exists only for
+* .ac analysis (SPICE semantics), standing in for the shunt-voltage
+* perturbation a ripple current would create.  OP/TRAN are untouched.
+RSH  n1 nmid 1m
+VACS nmid n4 DC 0 AC 1
 RK2 n1 n2 1u
 RK3 n4 n3 1u
 .ends SHUNT_1M

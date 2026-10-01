@@ -113,12 +113,48 @@ if (ttrip < 5.0e-3) | (ttrip > 5.1e-3)
   let ok = 0
 end
 wrdata ../logs_ngspice/fab_trip.dat v(/srp) v(/vc1f)
+set ttrips = "$&ttrip"
+
+* ---------- AC6: kelvin-filter frequency response --------------------
+* Unit AC perturbation at the shunt (VACS inside SHUNT_1M); transfer
+* read differentially at the AFE's SRP/SRN pins.  Analytic: first-
+* order lowpass, fc = 1/(2*pi*(R5+R6)*C7) = 7957.7 Hz.
+alterparam trip=0
+alterparam iload=1
+reset
+ac dec 20 10 1meg
+let hm   = v(/srp) - v(/srn)
+let hmag = mag(hm)
+let hdb  = db(hm)
+meas ac g_lo  FIND hmag AT=10
+meas ac fc    WHEN hdb=-3.0103 FALL=1
+meas ac g20k  FIND hmag AT=20k
+meas ac g500k FIND hmag AT=500k
+echo AC6 kelvin filter: g_lo = $&g_lo  fc = $&fc  g20k = $&g20k  g500k = $&g500k
+if abs(g_lo - 1) > 0.01
+  echo FAIL AC6 passband gain (want ~1)
+  let ok = 0
+end
+if (fc < 7700) | (fc > 8200)
+  echo FAIL AC6 corner frequency (want ~7958 Hz)
+  let ok = 0
+end
+if abs(g20k - 0.3697) > 0.008
+  echo FAIL AC6 20 kHz attenuation (want ~0.370)
+  let ok = 0
+end
+* first-order rolloff: |H(500k)| ~ fc/f = 0.0159
+if (g500k > 0.019) | (g500k < 0.013)
+  echo FAIL AC6 high-frequency rolloff (want ~0.016 at 500 kHz)
+  let ok = 0
+end
+wrdata ../logs_ngspice/fab_kelvin_ac.dat hmag hdb
 
 * the PASS line carries the measured numbers, so a silently-skipped
 * assertion (vector error) can never produce a hollow PASS: the
 * runner greps for PASS *with* a plausible c1 value on the line
 if ok = 1
-  echo FAB-SIM: PASS c1=$c1s i_mA=$imas c4bal=$c4bals vbd=$vbds ttrip=$&ttrip
+  echo FAB-SIM: PASS c1=$c1s i_mA=$imas c4bal=$c4bals vbd=$vbds ttrip=$ttrips fc=$&fc
 else
   echo FAB-SIM: FAIL
 end
