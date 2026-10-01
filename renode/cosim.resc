@@ -1,0 +1,18 @@
+:name: xezim co-simulation
+:description: STM32F4 running the real BMS host firmware against the SV-RNM board in xezim
+
+using sysbus
+
+mach create "bms"
+machine LoadPlatformDescription @platforms/boards/stm32f4_discovery-kit.repl
+
+include @Bridge.cs
+machine LoadPlatformDescriptionFromString "bridge: XezimBridge @ sysbus 0x50000000"
+
+sysbus LoadELF @fw_arm/fw.elf
+
+usart2 CreateFileBackend $CWD/uart.log true
+
+echo "running: firmware drives the xezim board over the bridge"
+emulation RunFor "2"
+quit

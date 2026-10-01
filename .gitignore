@@ -11,3 +11,8 @@ kicad/build_fab_body.cir
 kicad/rs1_zoom.png
 push_*.sh
 tidy*.sh
+# renode co-sim build artifacts (reproducible via renode/run_cosim.sh)
+renode/build/
+renode/fw_arm/fw.elf
+renode/uart.log
+renode/diag.sh
