@@ -15,6 +15,12 @@
 .param VCELL=3.7 RINT=12m ILOAD=1
 .param DSGON=1 CHGON=1 CB4=0
 .param RDSBAL=30        ; assumed internal balance-FET Rds(on)
+* transient trip: with TRIP=1, the DSG gate drive AND the commanded
+* load both cut off at t=TRIPT (the co-gating law the RNM uses:
+* i_act = DSG * I_load; an ideal current source has no compliance).
+* u(time-TRIPT) is 0 before the trip, 1 after; time=0 in DC, so every
+* operating point is unaffected.
+.param TRIP=0 TRIPT=5m
 
 * ---- J1: the virtual 6S pack (pins 1..7 = B0..B6) -------------------
 .subckt PACK6S p1 p2 p3 p4 p5 p6 p7
@@ -37,7 +43,7 @@ RB6 p7 m6 {RINT}
 * the RNM pack model uses (i_act = DSG * I_load); an ideal current
 * source into an opened FET would otherwise force absurd voltages.
 .subckt LOADBOX n1 n2
-BLOAD n1 n2 I={ILOAD*DSGON}
+BLOAD n1 n2 I={ILOAD*DSGON*(1-TRIP*u(time-TRIPT))}
 RLK   n1 n2 1G
 .ends LOADBOX
 
@@ -137,7 +143,7 @@ R48 n48 0 1G
 + vc1 vc0 srp srn alert
 * regulator rail and FET gate drives
 VREG regout vss 3.3
-BDSG dsg vss V={10*DSGON}
+BDSG dsg vss V={10*DSGON*(1-TRIP*u(time-TRIPT))}
 BCHG chg vss V={10*CHGON}
 * group-B balancing channel for cell 4: bleed VC6 <-> VC5B through the
 * internal balance FET; the read-droop then DERIVES from the sheet's

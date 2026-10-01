@@ -23,6 +23,6 @@ grep -vE '^\.end|^\.op' bms_6s_fab.cir \
   > build_fab_body.cir
 
 "$NG" -b bms_fab_tb.cir > ../logs_ngspice/fab_sim.log 2>&1 || true
-grep -E 'OP[1-4]|FAIL|FAB-SIM' ../logs_ngspice/fab_sim.log
+grep -E 'OP[1-4]|TRAN5|FAIL|FAB-SIM' ../logs_ngspice/fab_sim.log
 # PASS must carry a real measured c1 (guards against hollow passes)
 grep -q 'FAB-SIM: PASS c1=3.68' ../logs_ngspice/fab_sim.log

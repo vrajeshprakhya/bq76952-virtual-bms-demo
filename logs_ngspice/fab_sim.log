@@ -10,6 +10,9 @@ Warning: Value of resistor r3 is too small, set to 1.000000e-12
 Warning: Value of resistor r14 is too small, set to 1.000000e-12
 Warning: Value of resistor r11 is too small, set to 1.000000e-12
 Warning: Value of resistor r3 is too small, set to 1.000000e-12
+Warning: Value of resistor r14 is too small, set to 1.000000e-12
+Warning: Value of resistor r11 is too small, set to 1.000000e-12
+Warning: Value of resistor r3 is too small, set to 1.000000e-12
 
 Note: No compatibility mode selected!
 
@@ -52,5 +55,123 @@ Using SPARSE 1.3 as Direct Linear Solver
 
 No. of Data Rows : 1
 OP4 CHG open discharging: vsense = 0.00100001 (body diode path)
-FAB-SIM: PASS c1=3.688 i_mA=1000.02 c4bal=0.481018 vbd=0.00100001
+Reset re-loads circuit testbench: simulate the kicad-cli spice export of bms_6s_fab.kicad_sch
+
+Circuit: testbench: simulate the kicad-cli spice export of bms_6s_fab.kicad_sch
+
+Doing analysis at TEMP = 27.000000 and TNOM = 27.000000
+
+Using SPARSE 1.3 as Direct Linear Solver
+
+Initial Transient Solution
+--------------------------
+
+Node                                   Voltage
+----                                   -------
++3v3                                       3.3
+/scl                                   3.29997
+/+3v3_swd                                  3.3
+/sda                                   3.29997
+/led                               6.36431e-28
+/ledk                              6.36432e-28
+/vrefp                                     3.3
+/chg                                        10
+/chg_g                                   9.999
+/pack_m                              0.0252392
+/nrst                                        0
+unconnected-_u2-pc13-pad1_                   0
+unconnected-_u2-pc14-pad2_                   0
+unconnected-_u2-pc15-pad3_                   0
+unconnected-_u2-pf0-pad8_                    0
+unconnected-_u2-pf1-pad9_                    0
+/alert                                       0
+unconnected-_u2-pa1-pad12_                   0
+unconnected-_u2-pa2-pad13_                   0
+unconnected-_u2-pa3-pad14_                   0
+unconnected-_u2-pa4-pad15_                   0
+unconnected-_u2-pa6-pad17_                   0
+unconnected-_u2-pa7-pad18_                   0
+unconnected-_u2-pb0-pad19_                   0
+unconnected-_u2-pb1-pad20_                   0
+unconnected-_u2-pb2-pad21_                   0
+unconnected-_u2-pb10-pad22_                  0
+unconnected-_u2-pb11-pad23_                  0
+unconnected-_u2-pb12-pad24_                  0
+unconnected-_u2-pb13-pad25_                  0
+unconnected-_u2-pb14-pad26_                  0
+unconnected-_u2-pb15-pad27_                  0
+unconnected-_u2-pa8-pad28_                   0
+unconnected-_u2-pa9/ucpd1_dbcc1-pad29_               0
+unconnected-_u2-pc6-pad30_                   0
+unconnected-_u2-pc7-pad31_                   0
+unconnected-_u2-pa10/ucpd1_dbcc2-pad32_               0
+unconnected-_u2-pa9/pa11-pad33_               0
+unconnected-_u2-pa10/pa12-pad34_               0
+/swdio                                       0
+/swclk                                       0
+unconnected-_u2-pa15-pad37_                  0
+unconnected-_u2-pd0-pad38_                   0
+unconnected-_u2-pd1-pad39_                   0
+unconnected-_u2-pd2-pad40_                   0
+unconnected-_u2-pd3-pad41_                   0
+unconnected-_u2-pb3-pad42_                   0
+unconnected-_u2-pb4-pad43_                   0
+unconnected-_u2-pb5-pad44_                   0
+unconnected-_u2-pb8-pad47_                   0
+unconnected-_u2-pb9-pad48_                   0
+/+3v3reg                                   3.3
+/vc7f                                   18.248
+/b5                                     18.248
+/vc6f                                  14.5984
+/b4                                    14.5984
+/vc8f                                  21.8976
+/batrc                                 21.8976
+/b6                                    21.8976
+/regsrc                                21.8757
+/vc5bf                                 10.9488
+/dsg                                        10
+/srp                                0.00420002
+/srn                                         0
+/vc0f                                        0
+/vc1f                                   3.6496
+/vc2f                                  7.29919
+/vc3f                                  10.9488
+/ts1                                         0
+unconnected-_u1-ts2-pad13_                   0
+/cap1                                        0
+/cap2                                        0
+unconnected-_u1-nc_cap2_-pad11_               0
+unconnected-_u1-nc_cap2_-pad12_               0
+/b1                                     3.6496
+xj1.m1                                     3.7
+xj1.m2                                  7.3496
+/b2                                    7.29919
+xj1.m3                                 10.9992
+/b3                                    10.9488
+xj1.m4                                 14.6488
+xj1.m5                                 18.2984
+xj1.m6                                  21.948
+/srb                                0.00420002
+/srn_k                                       0
+/srp_k                              0.00420002
+/fetmid                              0.0147127
+/dsg_g                                   9.999
+b.xu1.bchg#branch                 -9.97376e-06
+b.xu1.bdsg#branch                  -9.9948e-06
+v.xj1.vb6#branch                      -4.20022
+v.xj1.vb5#branch                      -4.20022
+v.xj1.vb4#branch                      -4.20022
+v.xj1.vb3#branch                      -4.20022
+v.xj1.vb2#branch                      -4.20022
+v.xj1.vb1#branch                      -4.20022
+v.xu1.vreg#branch                            0
+
+
+No. of Data Rows : 413
+vpre                =  4.20002e-03
+vpost               =  2.08756e-14
+c1post              =  3.69999e+00
+ttrip               =  5.00060e-03
+TRAN5 trip: vpre = 0.00420002 vpost = 2.08756E-14 c1post = 3.69999 ttrip = 0.0050006
+FAB-SIM: PASS c1=3.688 i_mA=1000.02 c4bal=0.481018 vbd=0.00100001 ttrip=0.0050006
 Note: Simulation executed from .control section 

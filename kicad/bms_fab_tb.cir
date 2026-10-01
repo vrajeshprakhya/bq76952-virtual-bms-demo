@@ -79,11 +79,46 @@ if abs(vsense_bd - 1e-3) > 20e-6
   let ok = 0
 end
 
+set vbds = "$&vsense_bd"
+
+* ---------- TRAN5: the protection trip, on the fab netlist ----------
+* 4.2 A overload flowing; at t = 5 ms the DSG gate drive cuts (and
+* the load collapses with it -- the co-gating law).  Checks: full
+* current before, zero after, cell tap recovered, and the cut lands
+* at t = 5 ms (the sense network's 20 us RC adds negligible lag).
+alterparam chgon=1
+alterparam iload=4.2
+alterparam trip=1
+reset
+tran 20u 8m
+meas tran vpre   FIND v(/srp) AT=4m
+meas tran vpost  FIND v(/srp) AT=7.5m
+meas tran c1post FIND v(/vc1f) AT=7.5m
+meas tran ttrip  WHEN v(/srp)=2.1m FALL=1
+echo TRAN5 trip: vpre = $&vpre  vpost = $&vpost  c1post = $&c1post  ttrip = $&ttrip
+if abs(vpre - 4.2e-3) > 0.1e-3
+  echo FAIL TRAN5 pre-trip current (want 4.2 mV on the shunt)
+  let ok = 0
+end
+if abs(vpost) > 50e-6
+  echo FAIL TRAN5 current did not stop after the trip
+  let ok = 0
+end
+if abs(c1post - 3.700) > 0.004
+  echo FAIL TRAN5 cell tap did not recover
+  let ok = 0
+end
+if (ttrip < 5.0e-3) | (ttrip > 5.1e-3)
+  echo FAIL TRAN5 trip time off (want ~5 ms)
+  let ok = 0
+end
+wrdata ../logs_ngspice/fab_trip.dat v(/srp) v(/vc1f)
+
 * the PASS line carries the measured numbers, so a silently-skipped
 * assertion (vector error) can never produce a hollow PASS: the
 * runner greps for PASS *with* a plausible c1 value on the line
 if ok = 1
-  echo FAB-SIM: PASS c1=$c1s i_mA=$imas c4bal=$c4bals vbd=$&vsense_bd
+  echo FAB-SIM: PASS c1=$c1s i_mA=$imas c4bal=$c4bals vbd=$vbds ttrip=$&ttrip
 else
   echo FAB-SIM: FAIL
 end
