@@ -29,7 +29,7 @@
 \title{\bfseries Co-Verifying BMS Firmware Against a Virtual Board:\\
        SV-RNM, a Behavioural BQ76952-Class AFE, and UVM-MS}
 \author{Vrajesh Prakhya}
-\date{October 1, 2026 (rev.\ C)}
+\date{October 2, 2026}
 
 \begin{document}
 \maketitle
@@ -53,15 +53,15 @@ full trip-and-recover sequence.  During bring-up the bench caught
 three real defects before any hardware existed, including a one-bit
 protocol error that silently broke every bus transaction.
 
-Since the first revision, the models have been hardened across
-domains: a fabrication-grade KiCad schematic of the board now exports
-a SPICE netlist that ngspice simulates under six asserted analyses
+The models themselves are hardened across independent domains: a
+fabrication-grade KiCad schematic of the board exports a SPICE
+netlist that ngspice simulates under six asserted analyses
 (catching a gate-pull-down sizing flaw as a 0.2\% current anomaly),
-and the long-declared MCU swap-in point has been realized --- the same
-host logic, recompiled as 2.9\,kB of bare-metal ARM code, runs on a
-Renode-emulated STM32G0 --- the schematic's own MCU family --- and
-drives the SV-RNM board over a lockstep socket bridge, reporting the
-full trip-and-recover mission over its own UART.  A fault-injection
+and the firmware is verified a second way --- recompiled as 2.9\,kB of
+bare-metal ARM code, it runs on a Renode-emulated STM32G0 (the
+schematic's own MCU family) and drives the SV-RNM board over a
+lockstep socket bridge, reporting the full trip-and-recover mission
+over its own UART.  A fault-injection
 campaign closes the loop on trust: one deliberate defect per layer
 (firmware configuration, firmware protocol, analog front-end, pin
 path), each caught by a different rule of a cross-domain checker,
@@ -191,9 +191,9 @@ The five pieces:
     stepped one MCU clock per DPI call --- a queue-based bit-banged
     \iic{} master, threshold configuration at start-up, a 2\,ms poll
     loop, a balancing policy with hysteresis, and a fault-recover
-    write.  The tick-shim MCU was declared as the swap-in point for a
-    Renode machine; Section~\ref{sec:renode} reports that swap
-    carried out.
+    write.  The tick-shim MCU is one of two execution backends for
+    the firmware: Section~\ref{sec:renode} runs the same logic as
+    real ARM instructions on a Renode-emulated STM32G0.
   \item \textbf{UVM-MS layer}: bridge + abstract proxy per UVM-MS~1.0
     clauses 4.2.1/4.2.3.  It pushes scenarios onto \texttt{wreal}
     control nets and pulls \emph{both} sides of the bus --- the host's
@@ -559,8 +559,8 @@ fed back into the design and the models:
     datasheet-typical 100\,$\Omega$ filters put the BQ76930 in a
     different regime: 16\,mA bleed, 0.481\,V apparent droop, asserted
     against the analytic $V_{cell}\cdot R_{ds}/(2R_c + R_{ds})$.
-    Both regimes are now simulated and documented; what had been a
-    silent divergence between hand-written decks is a stated
+    Both regimes are simulated and documented; what would otherwise
+    be a silent divergence between hand-written decks is a stated
     part-and-values choice.
 \end{itemize}
 Full-circuit simulation also surfaced two RNM fidelity notes: a
@@ -571,12 +571,13 @@ ripple to ${\sim}0.37\times$ where the RNM conservatively injects it
 unfiltered.
 
 %=======================================================================
-\section{The swap-in point, swapped in: Renode co-simulation}
+\section{Real firmware on an emulated SoC: Renode co-simulation}
 \label{sec:renode}
 %=======================================================================
 
-The tick-shim MCU existed to be replaced, and has been.  The same
-host logic, rewritten as \emph{natural} blocking C (the queue-based
+The DPI tick shim is the fast regression backend; this section is the
+other backend, with no shim at all.  The same host logic, written as
+\emph{natural} blocking C (the queue-based
 \iic{} state machine dissolves under an emulator) and compiled to a
 2.9\,kB bare-metal ELF, runs as real ARM instructions on a
 Renode-emulated STM32G0 --- a Cortex-M0+ of the schematic's own U2
@@ -616,12 +617,12 @@ cycle-honest and runs are bit-reproducible.}
 The synchronization contract does the heavy lifting: the board's
 clock moves only when the firmware spends time (an \texttt{ADVANCE}
 register write), and every pin update is acknowledged with the
-freshly settled SDA.  Consecutive runs are bit-identical --- and so
-was switching the emulated CPU itself: the mission was first run on a
-Cortex-M4 (STM32F4) machine, and moving to the schematic-faithful
-Cortex-M0+ changed not one nanosecond or byte of the board timeline,
-because the contract makes board time a function of the firmware's
-stated delays alone, not of the core executing them.
+freshly settled SDA.  Consecutive runs are bit-identical --- and as a
+stronger determinism experiment, the same mission was also run with
+the emulated CPU swapped to a Cortex-M4 (STM32F4) machine: not one
+nanosecond or byte of the board timeline changed, because the
+contract makes board time a function of the firmware's stated delays
+alone, not of the core executing them.
 
 The mission --- configure protection over \iic{}, ride out an
 overload the \emph{AFE in the RNM} trips, recover the latch --- in
@@ -654,16 +655,16 @@ instructions.
 \label{sec:faults}
 
 A verification environment earns trust by catching defects it was not
-tuned for, so the co-simulation's pass criterion was promoted from a
-log grep to a \emph{cross-domain checker} (\texttt{check\_cosim.py}):
-it treats the firmware's UART log and the board's xezim log as two
+tuned for, so the co-simulation's pass criterion is not a log grep
+but a \emph{cross-domain checker} (\texttt{check\_cosim.py}): it
+treats the firmware's UART log and the board's xezim log as two
 independent witnesses and cross-examines them under four rules, one
 per layer of the stack --- R1, a real overload must open DSG within
 2\,ms; R2, chip-reported telemetry must match board physics during
 the quiet phase (3688$\pm$5\,mV, 1000$\pm$15\,mA); R3, DSG must never
 open \emph{before} an overload exists; R4, bus and mission health (no
 NACKs, no implausible readings, trip-and-recover must complete).  The
-firmware itself gained defence-in-depth: NACK counting and a
+firmware itself carries defence-in-depth: NACK counting and a
 plausibility window on cell voltage, both reported on its UART.
 
 A campaign (\texttt{run\_faults.sh}) then injected one deliberate
@@ -719,10 +720,10 @@ Deliberate simplifications, each with a clear upgrade path:
     configuration protocol of the real part is flattened into direct
     registers; temperature is reported in 0.1\,$^\circ$C rather than
     0.1\,K.
-  \item \textbf{MCU.}  \emph{Resolved} (Section~\ref{sec:renode}):
-    the firmware now also runs as real ARM instructions under Renode.
-    The remaining gap is coverage, not architecture --- the co-sim
-    runs one directed mission, while the 13-scenario
+  \item \textbf{MCU coverage split.}  The firmware runs two ways ---
+    tick-stepped through DPI, and as real ARM instructions under
+    Renode (Section~\ref{sec:renode}) --- but the coverage is uneven:
+    the co-sim runs one directed mission, while the 13-scenario
     constrained-random suite still executes on the DPI-shim path;
     pointing the UVM driver at the bridge is the natural unification.
     (A UVM-grade constrained-random campaign per emulated-firmware run
