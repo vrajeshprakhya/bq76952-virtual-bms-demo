@@ -43,10 +43,11 @@ board's analog electronics are SystemVerilog real-number models
 BQ76952-class device with its own register map and hardware protection
 engine, and the host firmware (C, stepped cycle-by-cycle through DPI)
 talks to it over a pin-level, open-drain \iic{} bus.  A UVM-MS
-environment above the board pushes physical scenarios --- cell
-voltages, load current, temperature, component tolerances --- and
-checks both what the firmware reports and what the analog domain
-actually does.  A 13-scenario regression passes with zero failures on
+environment --- the randomized-stimulus-and-checking testbench layer
+from the silicon-verification world --- sits above the board,
+pushes physical scenarios at it (cell voltages, load current,
+temperature, component tolerances) and checks both what the firmware
+reports and what the analog domain actually does.  A 13-scenario regression passes with zero failures on
 the xezim simulator, covering measurement accuracy, all four
 protection regions, cell balancing, EMI on the shunt sense line, and a
 full trip-and-recover sequence.  During bring-up the bench caught
@@ -55,8 +56,9 @@ protocol error that silently broke every bus transaction.
 
 The firmware is verified on both of a firmware team's first two
 test rungs, each with the analog board on the other side instead of
-a mock: the host-compiled logic under the UVM regression above, and
---- recompiled as bare-metal ARM code --- the binary itself, booted
+a mock: the host-compiled logic, graded by the testbench across the
+13-scenario randomized regression above, and --- recompiled as
+bare-metal ARM code --- the binary itself, booted
 on an emulated STM32 under unmodified mainline QEMU, driving the
 SV-RNM board over a lockstep socket bridge and reporting the full
 trip-and-recover mission over its own UART, with a board timeline
@@ -114,9 +116,9 @@ pieces and how they connect.
   % left column: testbench stack
   \node[blk, text width=34mm] (env)
     {\textbf{UVM-MS testbench}\\[1pt]
-     \footnotesize constrained-random +\\[-2pt]
-     \footnotesize directed scenarios,\\[-2pt]
-     \footnotesize scoreboard, coverage};
+     \footnotesize randomized + directed\\[-2pt]
+     \footnotesize scenarios, checking,\\[-2pt]
+     \footnotesize coverage tracking};
   \node[blk, text width=34mm, below=9mm of env] (brg)
     {\textbf{MS bridge + proxy}\\[1pt]
      \footnotesize push \texttt{wreal} nets;\\[-2pt]
@@ -533,9 +535,10 @@ on a bench or HIL rig.  This demonstrator climbs the first two ---
 and upgrades both, because on either rung the thing on the other side
 of the firmware is normally a \emph{mock}, and here it is the SV-RNM
 board.  Everything before this section is rung one: the decision
-logic, host-compiled and stepped through DPI, exercised at
-constrained-random scale against the board's physics instead of
-against stubs.  This section is rung two, with no shim at all.
+logic, host-compiled and stepped through DPI, graded by the
+testbench across randomized scenarios against the board's physics
+instead of against stubs.  This section is rung two, with no shim
+at all.
 
 The distinction is concrete: the two rungs compile the \emph{same}
 firmware source with two different compilers, for two different
@@ -545,8 +548,9 @@ on --- builds the logic into a native shared library that xezim
 loads through DPI; the testbench calls \texttt{fw\_tick()} once per
 modelled MCU clock and the host CPU executes the decision logic
 directly.  That is what makes rung one cheap and transparent ---
-fast enough for constrained-random scale, and open enough for the
-scoreboard's white-box prediction --- but it also means the firmware
+fast enough to run randomized scenarios by the hundred, and open
+enough that the testbench can predict and check every reading the
+firmware takes --- but it also means the firmware
 lives in the host's universe: the operating system's loader performs
 startup, integer widths and alignment come from x86-64, and there is
 no memory map at all, so an entire class of defects (startup code,
@@ -724,12 +728,12 @@ Deliberate simplifications, each with a clear upgrade path:
     registers; temperature is reported in 0.1\,$^\circ$C rather than
     0.1\,K.
   \item \textbf{Uneven rung coverage.}  Rung one (host-compiled
-    logic through DPI) carries the 13-scenario constrained-random
+    logic through DPI) carries the 13-scenario randomized
     suite; rung two (the ARM binary under QEMU,
     Section~\ref{sec:cosim}) runs one directed mission.  Pointing
-    the UVM driver at the bridge is the natural unification.  (A
-    constrained-random campaign per emulated-firmware run would also
-    be slow; rung one remains the regression workhorse.)
+    the testbench's stimulus at the bridge is the natural
+    unification.  (A randomized campaign per emulated-firmware run
+    would also be slow; rung one remains the regression workhorse.)
     And the emulated part is an STM32F405 standing in for the
     schematic's STM32G0B1; a G0B1 machine model in a QEMU fork closes
     that gap.
