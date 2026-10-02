@@ -56,6 +56,13 @@ R4 n4 0 1G
 R5 n5 0 1G
 .ends SWD_OPEN
 
+* ---- J4: UART console header, nothing attached ----------------------
+.subckt UART_OPEN n1 n2 n3
+R1 n1 0 1G
+R2 n2 0 1G
+R3 n3 0 1G
+.ends UART_OPEN
+
 * ---- discrete parts -------------------------------------------------
 .subckt NFET40 d g s
 MN d g s s NMOS40

@@ -54,6 +54,7 @@ NEED = [
     ("Connector_Generic", "Conn_01x07"),
     ("Connector_Generic", "Conn_01x02"),
     ("Connector_Generic", "Conn_01x05"),
+    ("Connector_Generic", "Conn_01x03"),
     ("power", "GND"), ("power", "+3V3"), ("power", "PWR_FLAG"),
 ]
 SYM, PINS = {}, {}
@@ -553,6 +554,19 @@ NRX = 8.89
 route((13.97, nrst[1]), (NRX, nrst[1]), (NRX, 195.58),
       (j3["4"][0] - 5.08, 195.58), (j3["4"][0] - 5.08, j3["4"][1]), j3["4"])
 gnd(*j3["5"], drop=2.54)
+# UART console header (USART2: PA2=TX, PA3=RX), below the SWD header.
+# This is the bench log channel the co-sim's uart.log stands in for.
+J4 = Part("Connector_Generic:Conn_01x03", "J4", "UART", 113.03, 200.66, 0,
+          "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical",
+          spice="UART_OPEN")
+j4 = {n: J4.pin(n) for n in "123"}
+pa2, pa3 = U2.pin("13"), U2.pin("14")
+route(pa2, (85.09, pa2[1]), (85.09, j4["1"][1]), j4["1"])
+route(pa3, (82.55, pa3[1]), (82.55, j4["2"][1]), j4["2"])
+tag("UART_TX", 95.25, j4["1"][1])
+tag("UART_RX", 92.71, j4["2"][1])
+gnd(*j4["3"], drop=2.54)
+
 # LED on PA5 (D1 rotated so the anode faces the resistor)
 pa5 = U2.pin("16")
 r15 = R("R15", "1k", 105.41, pa5[1], 90)
@@ -564,7 +578,8 @@ tag("LED", 96.52, pa5[1])
 tag("LEDK", 110.49, pa5[1])
 gnd(*d1.pin("1"), drop=2.54)
 # unused MCU pins
-used2 = {"4", "5", "6", "7", "10", "11", "16", "35", "36", "45", "46"}
+used2 = {"4", "5", "6", "7", "10", "11", "13", "14", "16", "35", "36",
+         "45", "46"}
 for p in PINS["MCU_ST_STM32G0:STM32G0B1C_B-C-E_Tx"]:
     if p not in used2:
         nc(U2, p)
