@@ -58,11 +58,10 @@ fabrication-grade KiCad schematic of the board exports a SPICE
 netlist that ngspice simulates under six asserted analyses
 (catching a gate-pull-down sizing flaw as a 0.2\% current anomaly),
 and the firmware is verified a second way --- recompiled as bare-metal
-ARM code, it runs on a Renode-emulated STM32G0 (the schematic's own
-MCU family) \emph{and} on unmodified mainline QEMU, driving the
-SV-RNM board over a lockstep socket bridge and reporting the full
-trip-and-recover mission over its own UART, with a board timeline
-that is byte-for-byte identical under both emulators.  A fault-injection
+ARM code, it runs on an emulated STM32 under unmodified mainline
+QEMU, driving the SV-RNM board over a lockstep socket bridge and
+reporting the full trip-and-recover mission over its own UART, with
+a board timeline that is reproducible to the nanosecond.  A fault-injection
 campaign closes the loop on trust: one deliberate defect per layer
 (firmware configuration, firmware protocol, analog front-end, pin
 path), each caught by a different rule of a cross-domain checker,
@@ -193,8 +192,8 @@ The five pieces:
     \iic{} master, threshold configuration at start-up, a 2\,ms poll
     loop, a balancing policy with hysteresis, and a fault-recover
     write.  The tick-shim MCU is one of two execution backends for
-    the firmware: Section~\ref{sec:renode} runs the same logic as
-    real ARM instructions on a Renode-emulated STM32G0.
+    the firmware: Section~\ref{sec:cosim} runs the same logic as
+    real ARM instructions on an emulated STM32 under mainline QEMU.
   \item \textbf{UVM-MS layer}: bridge + abstract proxy per UVM-MS~1.0
     clauses 4.2.1/4.2.3.  It pushes scenarios onto \texttt{wreal}
     control nets and pulls \emph{both} sides of the bus --- the host's
@@ -572,32 +571,47 @@ ripple to ${\sim}0.37\times$ where the RNM conservatively injects it
 unfiltered.
 
 %=======================================================================
-\section{Real firmware on an emulated SoC: Renode and QEMU co-simulation}
-\label{sec:renode}
+\section{Real firmware on an emulated SoC: QEMU co-simulation}
+\label{sec:cosim}
 %=======================================================================
 
 The DPI tick shim is the fast regression backend; this section is the
-other backend, with no shim at all.  The same host logic, written as
-\emph{natural} blocking C (the queue-based
-\iic{} state machine dissolves under an emulator) and compiled to a
-2.9\,kB bare-metal ELF, runs as real ARM instructions on a
-Renode-emulated STM32G0 --- a Cortex-M0+ of the schematic's own U2
-family (\texttt{-mcpu=cortex-m0plus}, the G0 memory map, the v2 USART
-register layout) --- and drives the SV-RNM board in xezim through a
-lockstep TCP bridge (Figure~\ref{fig:cosim}).
+other backend, with no shim at all.  QEMU is the emulator custom-SoC
+teams typically build their pre-silicon firmware flows on, extending
+it with machine and device models of their own silicon --- so the
+same host logic, written as \emph{natural} blocking C (the
+queue-based \iic{} state machine dissolves under an emulator) and
+compiled to a ${\sim}4$\,kB bare-metal ELF, runs as real ARM
+instructions on \emph{unmodified mainline} QEMU (9.2.4, machine
+\texttt{netduinoplus2}, an STM32F405 Cortex-M4) and drives the
+SV-RNM board in xezim through a lockstep TCP bridge
+(Figure~\ref{fig:cosim}).
+
+Mainline QEMU has no generic remote-MMIO hook, so the bridge rides a
+spare UART: \mbox{USART1}'s character device is a TCP socket into
+the xezim bridge server, and the firmware speaks a three-command
+line protocol (\texttt{S}~set pins, \texttt{A}~advance board time,
+\texttt{F}~finish, each acknowledged with the settled SDA) through
+the UART's data register --- the bolt-onto-a-spare-port pattern such
+teams use for HIL and model channels.  The schematic's U2 is an
+STM32G0B1, a part mainline QEMU does not model; the mission firmware
+is core-agnostic behind a five-function platform HAL
+(\texttt{hal.h}), and a G0B1 machine model is precisely the kind of
+extension a tapeout team would add to its QEMU fork --- for custom
+silicon, the machine model \emph{is} part of the deliverable.
 
 \begin{figure}[htbp]
 \centering
 \begin{tikzpicture}[node distance=6mm and 14mm]
   \node[hot, text width=46mm] (rn)
-    {\textbf{Renode: STM32G0 (U2)}\\[1pt]
-     \footnotesize real ARM firmware (2.9\,kB ELF)\\[-2pt]
+    {\textbf{QEMU: STM32F405}\\[1pt]
+     \footnotesize real ARM firmware (${\sim}4$\,kB ELF)\\[-2pt]
      \footnotesize blocking bit-banged \iic{}\\[-2pt]
      \footnotesize UART mission reporting};
   \node[blk, text width=34mm, right=of rn] (br)
     {\textbf{Lockstep bridge}\\[1pt]
-     \footnotesize MMIO regs $\to$ TCP RPC\\[-2pt]
-     \footnotesize SET pins / ADV ns\\[-2pt]
+     \footnotesize USART1 chardev $\to$ TCP\\[-2pt]
+     \footnotesize S pins / A ns / F\\[-2pt]
      \footnotesize ack carries settled SDA};
   \node[blk, text width=42mm, right=of br] (xz)
     {\textbf{xezim: SV-RNM board}\\[1pt]
@@ -609,44 +623,25 @@ lockstep TCP bridge (Figure~\ref{fig:cosim}).
   \draw[arr] ([yshift=-3mm]xz.west) -- ([yshift=-3mm]br.east);
   \draw[arr] ([yshift=-3mm]br.west) -- ([yshift=-3mm]rn.east);
 \end{tikzpicture}
-\caption{Co-simulation topology (Renode backend shown; the QEMU
-backend replaces the MMIO peripheral with the same line protocol
-spoken over a UART-attached TCP socket --- same server, same
-contract).  Board time advances \emph{only} on the firmware's own
-delay commands, so bit-banged \iic{} is cycle-honest and runs are
-bit-reproducible.}
+\caption{Co-simulation topology.  Board time advances \emph{only} on
+the firmware's own delay commands, so bit-banged \iic{} is
+cycle-honest and the board timeline is reproducible.}
 \label{fig:cosim}
 \end{figure}
 
 The synchronization contract does the heavy lifting: the board's
-clock moves only when the firmware spends time (an \texttt{ADVANCE}
-register write), and every pin update is acknowledged with the
-freshly settled SDA.  Consecutive runs are bit-identical --- and as a
-stronger determinism experiment, the same mission was also run with
-the emulated CPU swapped to a Cortex-M4 (STM32F4) machine: not one
-nanosecond or byte of the board timeline changed, because the
-contract makes board time a function of the firmware's stated delays
-alone, not of the core executing them.
-
-The strongest form of that experiment swaps the \emph{emulator}.
-Custom-SoC teams typically verify pre-silicon firmware on QEMU
-(extending it with their own machine and device models), so the
-mission also runs on unmodified mainline QEMU (9.2.4, machine
-\texttt{netduinoplus2}, an STM32F405): since mainline QEMU has no
-generic remote-MMIO hook, the bridge rides a spare UART ---
-\mbox{USART1}'s character device is a TCP socket into the \emph{same} xezim
-server, and the firmware speaks the same line protocol through the
-UART's registers, the bolt-onto-a-spare-port pattern such teams use
-for HIL and model channels.  The firmware is identical mission code
-over a five-function platform HAL (\texttt{hal\_renode.c} /
-\texttt{hal\_qemu.c}); the board timeline is byte-for-byte identical
-under both emulators (the board ends at $t = 52{,}233{,}121$\,ns
-exactly), the cross-domain checker passes unchanged, and the run
-takes ${\sim}8$\,s of wall clock.  One practical note from bring-up:
-the command/ack round-trips are tiny TCP packets, so Nagle's
-algorithm must be off on both ends (\texttt{nodelay=on} on QEMU's
-chardev) --- with it on, the identical run takes minutes instead of
-seconds.
+clock moves only when the firmware spends time (an \texttt{A}
+command), and every pin update is acknowledged with the freshly
+settled SDA.  QEMU's own host-side scheduling is not deterministic,
+but the board timeline is: consecutive runs end at
+$t = 52{,}233{,}121$\,ns exactly, with identical mission logs,
+because the contract makes board time a function of the firmware's
+stated delays alone --- not of host timing, instruction counts, or
+the core executing them.  A full mission takes ${\sim}8$\,s of wall
+clock.  One practical note from bring-up: the command/ack
+round-trips are tiny TCP packets, so Nagle's algorithm must be off
+on both ends (\texttt{nodelay=on} on QEMU's chardev) --- with it on,
+the identical run takes minutes instead of seconds.
 
 The mission --- configure protection over \iic{}, ride out an
 overload the \emph{AFE in the RNM} trips, recover the latch --- in
@@ -654,7 +649,7 @@ the firmware's own UART log:
 
 {\small
 \begin{verbatim}
-[fw] BMS host up on Renode/STM32G0; board = SV-RNM in xezim
+[fw] BMS host up on QEMU/STM32F405; board = SV-RNM in xezim
 [fw t=1.9ms]  AFE protection configured (CUV 2800mV COV 4250mV OCD 3000mA)
 [fw t=5.3ms]  ss=0x0 c1=3688mV i=998mA
 [fw t=15.2ms] ss=0x0 c1=3688mV i=1004mA
@@ -715,7 +710,7 @@ bridge    & pin path  & SDA readback stuck at 1           & R4: slave not ACKing
 \end{tabular}
 \caption{Fault-injection campaign: one defect per layer, each caught
 by its own rule.  Evidence per run in
-\texttt{logs\_renode/faults/}.}
+\texttt{logs\_qemu/faults/}.}
 \label{tab:faults}
 \end{table}
 
@@ -746,12 +741,15 @@ Deliberate simplifications, each with a clear upgrade path:
     0.1\,K.
   \item \textbf{MCU coverage split.}  The firmware runs two ways ---
     tick-stepped through DPI, and as real ARM instructions under
-    Renode (Section~\ref{sec:renode}) --- but the coverage is uneven:
+    QEMU (Section~\ref{sec:cosim}) --- but the coverage is uneven:
     the co-sim runs one directed mission, while the 13-scenario
     constrained-random suite still executes on the DPI-shim path;
     pointing the UVM driver at the bridge is the natural unification.
     (A UVM-grade constrained-random campaign per emulated-firmware run
     would also be slow; the shim remains the regression workhorse.)
+    And the emulated part is an STM32F405 standing in for the
+    schematic's STM32G0B1; a G0B1 machine model in a QEMU fork closes
+    that gap.
   \item \textbf{Behavioural constants.}  The 30\,$\Omega$ internal
     balance-FET resistance and the 10\,V gate-drive level in the
     SPICE-side AFE model are stated assumptions, not datasheet

@@ -1,0 +1,14 @@
+
+[fw] BMS host up on QEMU/STM32F405; board = SV-RNM in xezim
+[fw t=1.9ms] AFE protection configured (CUV 2800mV COV 4250mV OCD 3000mA)
+[fw t=5.3ms] ss=0x0 c1=26894mV i=998mA
+[fw t=5.3ms] *** TELEMETRY FAULT: implausible c1=26894mV
+[fw t=8.6ms] ss=0x0 c1=26638mV i=1000mA
+[fw t=11.9ms] ss=0x0 c1=26894mV i=999mA
+[fw t=15.2ms] ss=0x0 c1=26638mV i=1004mA
+[fw t=18.6ms] ss=0x4 c1=29710mV i=1mA
+[fw t=18.6ms] *** OCD TRIP seen over I2C -- current stopped by the AFE
+[fw t=48.9ms] recover written (0x99=1)
+[fw t=52.2ms] ss=0x0 c1=28174mV i=499mA
+[fw t=52.2ms] *** RECOVERED: latch cleared, current flowing again (499mA)
+[fw] done; stopping the board sim

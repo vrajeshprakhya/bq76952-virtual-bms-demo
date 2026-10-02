@@ -1,0 +1,3 @@
+CHECK: FAIL (2 rule violation(s))
+  R3 false-trip: DSG opened at 1.25ms, BEFORE the overload at 15ms
+  R4 mission: trip-and-recover did not complete

@@ -12,9 +12,17 @@
 #
 # Logs per run: ../logs_renode/faults/<name>/{uart,xezim,check}.log
 # Summary: ../logs_renode/faults/summary.log
+#   BACKEND=qemu runs the campaign on the QEMU backend instead
+#   (run_cosim_qemu.sh, logs under ../logs_qemu/faults).
 set -u
 cd "$(dirname "$0")"
-FDIR=../logs_renode/faults
+BACKEND=${BACKEND:-renode}
+if [ "$BACKEND" = "qemu" ]; then
+  RUNNER=run_cosim_qemu.sh; LDIR=../logs_qemu
+else
+  RUNNER=run_cosim.sh; LDIR=../logs_renode
+fi
+FDIR=$LDIR/faults
 mkdir -p "$FDIR"
 SUMMARY="$FDIR/summary.log"
 : > "$SUMMARY"
@@ -26,13 +34,13 @@ run_one() {  # name expected_rule FW_FAULT XZ_DEFS BR_STUCK
   echo "=============================================================="
   echo "== $name  (expect: $expect)"
   if FW_FAULT="$fw" XZ_DEFS="$xz" BR_FAULT_SDA_STUCK="$br" \
-       bash run_cosim.sh > "$FDIR/$name/run.log" 2>&1; then
+       bash "$RUNNER" > "$FDIR/$name/run.log" 2>&1; then
     rc=0
   else
     rc=1
   fi
-  cp -f ../logs_renode/uart.log  "$FDIR/$name/uart.log"  2>/dev/null || true
-  cp -f ../logs_renode/xezim.log "$FDIR/$name/xezim.log" 2>/dev/null || true
+  cp -f "$LDIR/uart.log"  "$FDIR/$name/uart.log"  2>/dev/null || true
+  cp -f "$LDIR/xezim.log" "$FDIR/$name/xezim.log" 2>/dev/null || true
   grep -E 'CHECK:|R[1-4] ' "$FDIR/$name/run.log" > "$FDIR/$name/check.log" || true
   cat "$FDIR/$name/check.log"
 

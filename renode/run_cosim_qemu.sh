@@ -9,18 +9,25 @@ set -eu
 cd "$(dirname "$0")"
 XEZIM=${XEZIM:-$HOME/xezim/target/release/xezim}
 QEMU=${QEMU:-$HOME/qemu-arm/bin/qemu-system-arm}
+# fault-injection knobs, same as run_cosim.sh (see run_faults.sh)
+FW_FAULT=${FW_FAULT:-}
+XZ_DEFS=${XZ_DEFS:-}
+BR_FAULT_SDA_STUCK=${BR_FAULT_SDA_STUCK:-0}
 mkdir -p ../logs_qemu build
 
-echo "== firmware (ARM, QEMU flavour) =="
-make -s -C fw_arm fw_qemu.elf
+echo "== firmware (ARM, QEMU flavour)${FW_FAULT:+  [FAULT_$FW_FAULT]} =="
+make -s -C fw_arm fw_qemu.elf FAULT="$FW_FAULT"
 
 echo "== bridge DPI library =="
 cc -shared -fPIC -O2 -Wall -I"$HOME/xezim/include" \
    bridge/xezim_bridge.c -o build/bridge.so
 
-echo "== xezim (background, waits for QEMU) =="
+BRTAG=""; [ "$BR_FAULT_SDA_STUCK" = "1" ] && BRTAG="  [BR_FAULT_SDA_STUCK]"
+echo "== xezim (background, waits for QEMU)${XZ_DEFS:+  [$XZ_DEFS]}$BRTAG =="
 rm -f uart_qemu.log
+BR_FAULT_SDA_STUCK="$BR_FAULT_SDA_STUCK" \
 "$XEZIM" --simulate --sv2017 --error-exit \
+  $XZ_DEFS \
   -f xezim.f -s top_renode \
   --dpi-lib build/bridge.so \
   --max-time 400ms \
