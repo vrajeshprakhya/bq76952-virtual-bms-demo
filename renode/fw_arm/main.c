@@ -1,17 +1,16 @@
 /*======================================================================
- * main.c -- REAL bare-metal BMS host firmware for the Renode-emulated
- * STM32G0 (the schematic's U2 family), talking to the SV-RNM board
- * simulated in xezim.
+ * main.c -- REAL bare-metal BMS host firmware (the mission), talking
+ * to the SV-RNM board simulated in xezim.  Platform-agnostic: the
+ * five operations it needs come from hal.h, implemented once for
+ * Renode (STM32G0, custom MMIO bridge peripheral) and once for
+ * mainline QEMU (STM32F405, bridge over a spare UART).  Board time
+ * advances only through hal_adv, so the board timeline is identical
+ * under either emulator.
  *
  * This is the natural-C version of the host logic the UVM regression
  * exercises (same demo AFE register map): blocking bit-banged I2C,
  * straight-line control flow, UART prints.  No tick-FSM contortions
- * -- the emulator makes blocking code just work.
- *
- * The board is reached through the XezimBridge peripheral at
- * 0x50000000: writes to PINS set SCL/SDA, writes to ADV advance the
- * BOARD's clock by that many ns (the sole source of board time --
- * strict lockstep), reads of SDA return the bus as last sampled.
+ * -- an emulator makes blocking code just work.
  *
  * Mission: configure the AFE's protection over I2C, poll the pack,
  * and ride out an overload: the AFE (in the RNM!) trips OCD when the
@@ -28,21 +27,7 @@
  *====================================================================*/
 
 #include <stdint.h>
-
-/* ---- the bridge to the xezim board ----
- * 0x6000_0000: free on the STM32G0 (0x5000_0000 is GPIOA there). */
-#define BR_PINS  (*(volatile uint32_t *)0x60000000u)  /* b0 SCL, b1 SDA pull */
-#define BR_ADV   (*(volatile uint32_t *)0x60000004u)  /* advance board <ns>  */
-#define BR_SDA   (*(volatile uint32_t *)0x60000008u)  /* sampled SDA         */
-#define BR_FIN   (*(volatile uint32_t *)0x6000000Cu)  /* end the board sim   */
-
-/* ---- USART2, v2 register map (G0/F7 generation) ----
- * CR1 @ 0x00, ISR @ 0x1C (TXE = bit 7), TDR @ 0x28.  NOT the F4's
- * v1 layout (SR @ 0x00, DR @ 0x04) -- polling the wrong offset spins
- * forever.  Renode models it; no clock setup needed. */
-#define USART2_CR1 (*(volatile uint32_t *)0x40004400u)
-#define USART2_ISR (*(volatile uint32_t *)0x4000441Cu)
-#define USART2_TDR (*(volatile uint32_t *)0x40004428u)
+#include "hal.h"
 
 /* ---- AFE demo register map (matches design/rnm/bq76952_rnm.sv) ---- */
 #define AFE_ADDR 0x08
@@ -62,8 +47,7 @@
 /* =================== UART =================== */
 static void putc_(char c)
 {
-    while (!(USART2_ISR & 0x80)) { }    /* TXE */
-    USART2_TDR = (uint32_t)c;
+    hal_putc(c);
 }
 static void puts_(const char *s)
 {
@@ -86,7 +70,7 @@ static void puti(int32_t v)
 static uint64_t t_ns = 0;
 static void adv(uint32_t ns)
 {
-    BR_ADV = ns;
+    hal_adv(ns);
     t_ns += ns;
 }
 static void put_t(void)
@@ -100,11 +84,9 @@ static void put_t(void)
 
 /* =================== bit-banged I2C =================== */
 #define QNS 2500u                 /* quarter bit: 100 kHz */
-static int cur_scl = 1, cur_sda = 1;   /* sda: 1 = released */
 static void pins(int scl, int sda_rel)
 {
-    cur_scl = scl; cur_sda = sda_rel;
-    BR_PINS = (uint32_t)((scl & 1) | ((sda_rel ? 0 : 1) << 1));
+    hal_set_pins(scl & 1, sda_rel ? 0 : 1);
 }
 static void qdel(void) { adv(QNS); }
 
@@ -129,7 +111,7 @@ static int i2c_tx(uint8_t b)          /* returns ACK (1 = acked) */
     }
     pins(0, 1); qdel();               /* release for slave ACK */
     pins(1, 1); qdel();
-    int ack = !(BR_SDA & 1);
+    int ack = !(hal_sda() & 1);
     qdel();
     pins(0, 1); qdel();
     return ack;
@@ -140,7 +122,7 @@ static uint8_t i2c_rx(int ack)
     for (int i = 7; i >= 0; i--) {
         pins(0, 1); qdel();
         pins(1, 1); qdel();
-        v = (uint8_t)((v << 1) | (BR_SDA & 1));
+        v = (uint8_t)((v << 1) | (hal_sda() & 1));
         qdel();
         pins(0, 1); qdel();
     }
@@ -185,8 +167,10 @@ int main(void)
 {
     uint8_t d[12];
 
-    USART2_CR1 = (1u << 0) | (1u << 3);    /* UE | TE (v2 positions) */
-    puts_("\n[fw] BMS host up on Renode/STM32G0; board = SV-RNM in xezim\n");
+    hal_init();
+    puts_("\n[fw] BMS host up on ");
+    puts_(hal_name);
+    puts_("; board = SV-RNM in xezim\n");
 
     /* configure the AFE's protection engine over the bus */
     wr16(R_CUV, 2800);
@@ -258,6 +242,6 @@ int main(void)
 
     if (!recovered) { put_t(); puts_("!!! mission incomplete\n"); }
     puts_("[fw] done; stopping the board sim\n");
-    BR_FIN = 1;
+    hal_fin();
     for (;;) { }
 }

@@ -16,13 +16,18 @@ SECTIONS
     *(.rodata*)
   } > FLASH
 
+  .ARM.exidx :
+  {
+    *(.ARM.exidx*)
+  } > FLASH
+
   _sidata = LOADADDR(.data);
-  .data : AT (ADDR(.text) + SIZEOF(.text))
+  .data :
   {
     _sdata = .;
     *(.data*)
     _edata = .;
-  } > RAM
+  } > RAM AT> FLASH
 
   .bss :
   {

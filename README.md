@@ -59,10 +59,22 @@ kicad/         fabrication-grade KiCad schematic (ERC-clean):
 logs_ngspice/  ngspice.log, sweep_load.dat, tran_trip.dat, version
 logs_xezim/    smoke.log, regress.log (13 scenarios, seed 1),
                xezim_cov.json (functional coverage), version
-renode/        Renode <-> xezim CO-SIMULATION: real bare-metal ARM
-               firmware on an emulated STM32G0 (Cortex-M0+, the
-               schematic's U2 family) drives the SV-RNM board over a
-               lockstep TCP bridge:
+renode/        SoC-emulator <-> xezim CO-SIMULATION, two backends:
+               real bare-metal ARM firmware on an emulated MCU drives
+               the SV-RNM board over a lockstep TCP bridge.
+               Backend 1 (run_cosim.sh): Renode, STM32G0 (Cortex-M0+,
+               the schematic's U2 family), bridge = custom MMIO
+               peripheral (Bridge.cs).
+               Backend 2 (run_cosim_qemu.sh): MAINLINE QEMU 9.2.4
+               (xPack, zero modifications), STM32F405/netduinoplus2
+               (Cortex-M4), bridge = the same line protocol over
+               USART1 whose chardev is a TCP socket -- the
+               bolt-onto-a-spare-UART pattern pre-silicon teams use.
+               Same mission logic (fw_arm/main.c), per-platform HALs
+               (hal_renode.c / hal_qemu.c); the board timeline is
+               byte-for-byte identical under both (and under the
+               F4-vs-G0 CPU swap), because board time is a function
+               of the firmware's stated delays alone.
                  fw_arm/        the firmware (natural blocking C,
                                 bit-banged I2C, UART reporting) +
                                 startup/linker/Makefile
@@ -118,6 +130,7 @@ Tool versions are recorded in `logs_*/**version*`.
 | Functional coverage over corner x response | `logs_xezim/xezim_cov.json` |
 | Bring-up bugs (START edge, array args, A-vs-mA) | fix-site comments in `design/rnm/bq76952_rnm.sv`, `design/tb/bq_proxy_pkg.sv`/`bq_bridge.sv`, and the whitepaper's Results section |
 | Injected defects in ANY layer are caught, each by a different rule | `logs_renode/faults/`: five-run campaign — clean passes; a byte-swapped OCD threshold (firmware config) trips R1 protection-missing; an off-by-one cell-register read (firmware protocol) trips R2 telemetry-vs-board-truth; a +2.5 A analog current-path offset (RNM) trips R3 false-trip; a stuck SDA readback (bridge/pin mux) trips R4 bus health — per-run logs + `summary.log` |
+| The co-sim is emulator-agnostic: mainline QEMU reproduces the board timeline byte-for-byte | `logs_qemu/`: the same mission firmware on unmodified QEMU 9.2.4 (STM32F405, bridge over a USART TCP chardev) finishes at t=52233121000 exactly, same samples, same checker PASS, ~8 s wall |
 | REAL firmware on an emulated SoC drives the RNM board | `logs_renode/uart.log`: ARM firmware (Renode STM32G0, the schematic's U2 family) configures the AFE over bit-banged I2C, reads 3688 mV / ~1000 mA, sees the OCD trip (3701 mV, 1 mA), recovers the latch, confirms 3694 mV / 499 mA -- every number consistent with the xezim, ngspice and UVM domains |
 
 Provenance note: the design was authored for this demonstrator; the
