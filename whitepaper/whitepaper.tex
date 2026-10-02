@@ -537,6 +537,30 @@ logic, host-compiled and stepped through DPI, exercised at
 constrained-random scale against the board's physics instead of
 against stubs.  This section is rung two, with no shim at all.
 
+The distinction is concrete: the two rungs compile the \emph{same}
+firmware source with two different compilers, for two different
+universes.  On rung one, the \emph{host} compiler --- plain
+\texttt{gcc}, targeting the x86-64 machine the simulator itself runs
+on --- builds the logic into a native shared library that xezim
+loads through DPI; the testbench calls \texttt{fw\_tick()} once per
+modelled MCU clock and the host CPU executes the decision logic
+directly.  That is what makes rung one cheap and transparent ---
+fast enough for constrained-random scale, and open enough for the
+scoreboard's white-box prediction --- but it also means the firmware
+lives in the host's universe: the operating system's loader performs
+startup, integer widths and alignment come from x86-64, and there is
+no memory map at all, so an entire class of defects (startup code,
+vector table, linker layout, register-level driver access,
+cross-compiler surprises) cannot even be expressed, let alone
+caught.  On rung two, the cross-compiler
+(\texttt{arm-none-eabi-gcc}) builds the same source into an ARM
+Thumb bare-metal ELF that the emulated Cortex-M boots from its reset
+vector --- instruction by instruction, registers and all.  Each rung
+exists to catch its bug class at the cheapest level that can express
+it: rung one finds logic bugs by the thousand; rung two proves the
+shippable artifact --- the binary that would be flashed --- holds
+the same conversation with the same board.
+
 QEMU is the emulator custom-SoC teams typically build their
 pre-silicon firmware flows on, extending it with machine and device
 models of their own silicon --- so the same host logic, written as
@@ -545,11 +569,7 @@ dissolves under an emulator) and compiled to a ${\sim}4$\,kB
 bare-metal ELF, runs as real ARM instructions on \emph{unmodified
 mainline} QEMU (9.2.4, machine \texttt{netduinoplus2}, an STM32F405
 Cortex-M4) and drives the SV-RNM board in xezim through a lockstep
-TCP bridge (Figure~\ref{fig:cosim}).  Rung two verifies what rung
-one cannot even express: the shippable artifact itself --- startup
-code, vector table, linker layout, register-level peripheral access
---- booting the way firmware boots, while holding the same
-conversation with the same board.
+TCP bridge (Figure~\ref{fig:cosim}).
 
 Mainline QEMU has no generic remote-MMIO hook, so the bridge rides a
 spare UART: \mbox{USART1}'s character device is a TCP socket into
