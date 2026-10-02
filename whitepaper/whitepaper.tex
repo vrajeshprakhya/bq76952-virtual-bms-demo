@@ -61,7 +61,11 @@ and the long-declared MCU swap-in point has been realized --- the same
 host logic, recompiled as 2.9\,kB of bare-metal ARM code, runs on a
 Renode-emulated STM32G0 --- the schematic's own MCU family --- and
 drives the SV-RNM board over a lockstep socket bridge, reporting the
-full trip-and-recover mission over its own UART.
+full trip-and-recover mission over its own UART.  A fault-injection
+campaign closes the loop on trust: one deliberate defect per layer
+(firmware configuration, firmware protocol, analog front-end, pin
+path), each caught by a different rule of a cross-domain checker,
+with the clean setup still green.
 \end{abstract}
 
 %=======================================================================
@@ -646,6 +650,64 @@ observed from the board side in the xezim log and from the chip side
 over \iic{}, through a bus whose every edge was produced by ARM
 instructions.
 
+\subsection{Fault injection: does the framework actually catch bugs?}
+\label{sec:faults}
+
+A verification environment earns trust by catching defects it was not
+tuned for, so the co-simulation's pass criterion was promoted from a
+log grep to a \emph{cross-domain checker} (\texttt{check\_cosim.py}):
+it treats the firmware's UART log and the board's xezim log as two
+independent witnesses and cross-examines them under four rules, one
+per layer of the stack --- R1, a real overload must open DSG within
+2\,ms; R2, chip-reported telemetry must match board physics during
+the quiet phase (3688$\pm$5\,mV, 1000$\pm$15\,mA); R3, DSG must never
+open \emph{before} an overload exists; R4, bus and mission health (no
+NACKs, no implausible readings, trip-and-recover must complete).  The
+firmware itself gained defence-in-depth: NACK counting and a
+plausibility window on cell voltage, both reported on its UART.
+
+A campaign (\texttt{run\_faults.sh}) then injected one deliberate
+defect into each layer.  Every fault was caught --- each by a
+\emph{different} rule --- while the clean setup stayed green:
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{@{}llll@{}}
+\toprule
+Run & Layer & Injected defect & Caught by \\
+\midrule
+clean     & ---       & none                              & passes (trip $+0.25$\,ms) \\
+fw\_cfg   & FW config & OCD threshold write byte-swapped  & R1: ``overload at 15\,ms \\
+          &           & (3000\,mA arms as 47\,115\,mA)    & \quad but DSG opened \emph{never}'' \\
+fw\_proto & FW protocol & cell readout off by one register & R2: ``c1=26894\,mV; board \\
+          &           &                                   & \quad truth is 3688$\pm$5'' \\
+board     & analog RNM & $+2500$\,mA current-path offset  & R3: ``DSG opened at 1.25\,ms, \\
+          &           & (damaged sense front-end)         & \quad \emph{before} the overload'' \\
+bridge    & pin path  & SDA readback stuck at 1           & R4: slave not ACKing + \\
+          &           & (pin-mux class of bug)            & \quad implausible telemetry \\
+\bottomrule
+\end{tabular}
+\caption{Fault-injection campaign: one defect per layer, each caught
+by its own rule.  Evidence per run in
+\texttt{logs\_renode/faults/}.}
+\label{tab:faults}
+\end{table}
+
+The analog fault produces the campaign's best exhibit.  With a
+$+2.5$\,A offset in the current path, the firmware reads
+\texttt{c1=3700mV i=2498mA}: current ``flowing'' alongside \emph{zero}
+IR sag, a physically impossible pair --- precisely how a bench
+engineer would recognise a sense-path offset.  Its recovery attempts
+fail forever, because the AFE instantly re-trips on the phantom
+current.  A real analog front-end defect, diagnosed purely from the
+chip's own telemetry, before any hardware exists: the class of
+board-bring-up mystery this framework was built to catch.  The
+byte-swap fault makes the complementary point --- the system behaves
+\emph{perfectly} at 1\,A and betrays nothing until the day of the
+first real overload, which is why R1 watches the board's truth rather
+than the firmware's belief.
+
 %=======================================================================
 \section{Limitations and next steps}
 %=======================================================================
@@ -675,10 +737,12 @@ Deliberate simplifications, each with a clear upgrade path:
 \end{itemize}
 
 Because the bus is modelled at pin level in \emph{both} simulators,
-bus fault injection --- a stuck SDA, NACK storms, corrupted bytes ---
-is now a cheap extension on either path, and the natural next test
-dimension: does the host firmware fail safe when its only window into
-the analog world degrades?
+bus fault injection is a cheap extension on either path ---
+Section~\ref{sec:faults} opened that front with a stuck SDA readback,
+and the rest of the menu (NACK storms from the slave side, corrupted
+bytes, a held SCL) remains the natural next test dimension: does the
+host firmware fail safe when its only window into the analog world
+degrades?
 
 This demonstrator is the fourth in a series built on one architecture
 (RNM board / \texttt{wreal} scenario nets / MS bridge with an
