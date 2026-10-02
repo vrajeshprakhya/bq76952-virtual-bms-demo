@@ -1,6 +1,7 @@
 /*======================================================================
  * main.c -- REAL bare-metal BMS host firmware for the Renode-emulated
- * STM32F4, talking to the SV-RNM board simulated in xezim.
+ * STM32G0 (the schematic's U2 family), talking to the SV-RNM board
+ * simulated in xezim.
  *
  * This is the natural-C version of the host logic the UVM regression
  * exercises (same demo AFE register map): blocking bit-banged I2C,
@@ -20,16 +21,20 @@
 
 #include <stdint.h>
 
-/* ---- the bridge to the xezim board ---- */
-#define BR_PINS  (*(volatile uint32_t *)0x50000000u)  /* b0 SCL, b1 SDA pull */
-#define BR_ADV   (*(volatile uint32_t *)0x50000004u)  /* advance board <ns>  */
-#define BR_SDA   (*(volatile uint32_t *)0x50000008u)  /* sampled SDA         */
-#define BR_FIN   (*(volatile uint32_t *)0x5000000Cu)  /* end the board sim   */
+/* ---- the bridge to the xezim board ----
+ * 0x6000_0000: free on the STM32G0 (0x5000_0000 is GPIOA there). */
+#define BR_PINS  (*(volatile uint32_t *)0x60000000u)  /* b0 SCL, b1 SDA pull */
+#define BR_ADV   (*(volatile uint32_t *)0x60000004u)  /* advance board <ns>  */
+#define BR_SDA   (*(volatile uint32_t *)0x60000008u)  /* sampled SDA         */
+#define BR_FIN   (*(volatile uint32_t *)0x6000000Cu)  /* end the board sim   */
 
-/* ---- STM32F4 USART2 (Renode models it; no clock setup needed) ---- */
-#define USART2_SR  (*(volatile uint32_t *)0x40004400u)
-#define USART2_DR  (*(volatile uint32_t *)0x40004404u)
-#define USART2_CR1 (*(volatile uint32_t *)0x4000440Cu)
+/* ---- USART2, v2 register map (G0/F7 generation) ----
+ * CR1 @ 0x00, ISR @ 0x1C (TXE = bit 7), TDR @ 0x28.  NOT the F4's
+ * v1 layout (SR @ 0x00, DR @ 0x04) -- polling the wrong offset spins
+ * forever.  Renode models it; no clock setup needed. */
+#define USART2_CR1 (*(volatile uint32_t *)0x40004400u)
+#define USART2_ISR (*(volatile uint32_t *)0x4000441Cu)
+#define USART2_TDR (*(volatile uint32_t *)0x40004428u)
 
 /* ---- AFE demo register map (matches design/rnm/bq76952_rnm.sv) ---- */
 #define AFE_ADDR 0x08
@@ -49,8 +54,8 @@
 /* =================== UART =================== */
 static void putc_(char c)
 {
-    while (!(USART2_SR & 0x80)) { }
-    USART2_DR = (uint32_t)c;
+    while (!(USART2_ISR & 0x80)) { }    /* TXE */
+    USART2_TDR = (uint32_t)c;
 }
 static void puts_(const char *s)
 {
@@ -170,8 +175,8 @@ int main(void)
 {
     uint8_t d[12];
 
-    USART2_CR1 = (1u << 13) | (1u << 3);   /* UE | TE */
-    puts_("\n[fw] BMS host up on Renode/STM32F4; board = SV-RNM in xezim\n");
+    USART2_CR1 = (1u << 0) | (1u << 3);    /* UE | TE (v2 positions) */
+    puts_("\n[fw] BMS host up on Renode/STM32G0; board = SV-RNM in xezim\n");
 
     /* configure the AFE's protection engine over the bus */
     wr16(R_CUV, 2800);

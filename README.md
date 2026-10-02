@@ -60,8 +60,9 @@ logs_ngspice/  ngspice.log, sweep_load.dat, tran_trip.dat, version
 logs_xezim/    smoke.log, regress.log (13 scenarios, seed 1),
                xezim_cov.json (functional coverage), version
 renode/        Renode <-> xezim CO-SIMULATION: real bare-metal ARM
-               firmware on an emulated STM32F4 drives the SV-RNM
-               board over a lockstep TCP bridge:
+               firmware on an emulated STM32G0 (Cortex-M0+, the
+               schematic's U2 family) drives the SV-RNM board over a
+               lockstep TCP bridge:
                  fw_arm/        the firmware (natural blocking C,
                                 bit-banged I2C, UART reporting) +
                                 startup/linker/Makefile
@@ -106,7 +107,7 @@ Tool versions are recorded in `logs_*/**version*`.
 | The FAB SCHEMATIC itself is simulatable | `logs_ngspice/fab_sim.log`: ngspice on the kicad-cli export -- 4 asserted operating points (incl. the 100R-filter balancing droop derived from the sheet's own values), a 4.2 A trip TRANSIENT (waveform in `fab_trip.dat`), and an AC sweep of the kelvin filter (fc = 7957.7 Hz measured vs 7957.7 analytic; response in `fab_kelvin_ac.dat`) |
 | Functional coverage over corner x response | `logs_xezim/xezim_cov.json` |
 | Bring-up bugs (START edge, array args, A-vs-mA) | fix-site comments in `design/rnm/bq76952_rnm.sv`, `design/tb/bq_proxy_pkg.sv`/`bq_bridge.sv`, and the whitepaper's Results section |
-| REAL firmware on an emulated SoC drives the RNM board | `logs_renode/uart.log`: ARM firmware (Renode STM32F4) configures the AFE over bit-banged I2C, reads 3688 mV / ~1000 mA, sees the OCD trip (3701 mV, 1 mA), recovers the latch, confirms 3694 mV / 499 mA -- every number consistent with the xezim, ngspice and UVM domains |
+| REAL firmware on an emulated SoC drives the RNM board | `logs_renode/uart.log`: ARM firmware (Renode STM32G0, the schematic's U2 family) configures the AFE over bit-banged I2C, reads 3688 mV / ~1000 mA, sees the OCD trip (3701 mV, 1 mA), recovers the latch, confirms 3694 mV / 499 mA -- every number consistent with the xezim, ngspice and UVM domains |
 
 Provenance note: the design was authored for this demonstrator; the
 architecture is modelled on the open 6S-BMS project (STM32G0B1 +

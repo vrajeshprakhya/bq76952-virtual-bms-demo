@@ -1,13 +1,14 @@
 :name: xezim co-simulation
-:description: STM32F4 running the real BMS host firmware against the SV-RNM board in xezim
+:description: STM32G0 (the schematic's U2 family) running the real BMS host firmware against the SV-RNM board in xezim
 
 using sysbus
 
 mach create "bms"
-machine LoadPlatformDescription @platforms/boards/stm32f4_discovery-kit.repl
+machine LoadPlatformDescription @platforms/cpus/stm32g0.repl
 
 include @Bridge.cs
-machine LoadPlatformDescriptionFromString "bridge: XezimBridge @ sysbus 0x50000000"
+# 0x50000000 is GPIOA on the G0; the bridge lives in the free 0x60000000 region
+machine LoadPlatformDescriptionFromString "bridge: XezimBridge @ sysbus 0x60000000"
 
 sysbus LoadELF @fw_arm/fw.elf
 
