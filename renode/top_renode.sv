@@ -26,12 +26,20 @@ module top_renode;
   //--- scenario: pack state over BOARD time ----------------------------
   real c_v = 3.7, rint_v = 0.012, iload_v = 1.0, temp_v = 25.0;
   real zero = 0.0;
-  wreal p_c, p_rint, p_iload, p_temp, p_z;
+`ifdef FAULT_COFF
+  // INJECTED ANALOG FAULT: +2500 mA offset in the current path (a
+  // damaged sense front-end / solder bridge class of defect)
+  real coff_v = 2500.0;
+`else
+  real coff_v = 0.0;
+`endif
+  wreal p_c, p_rint, p_iload, p_temp, p_z, p_coff;
   assign p_c     = c_v;
   assign p_rint  = rint_v;
   assign p_iload = iload_v;
   assign p_temp  = temp_v;
   assign p_z     = zero;
+  assign p_coff  = coff_v;
   logic intf_en = 1'b0;
 
   initial begin
@@ -55,7 +63,7 @@ module top_renode;
     .p_temp      (p_temp),
     .p_vgain_tol (p_z),
     .p_ctol      (p_z),
-    .p_coff_ma   (p_z),
+    .p_coff_ma   (p_coff),
     .intf_en     (intf_en),
     .dsg_en      (dsg_en),
     .chg_en      (chg_en),

@@ -1,0 +1,3 @@
+CHECK: FAIL (2 rule violation(s))
+  R1 protection-missing: overload at 15ms but DSG opened never (required within 2ms)
+  R4 mission: trip-and-recover did not complete

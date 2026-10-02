@@ -35,6 +35,10 @@ static int lsock = -1, csock = -1;
 static int first = 1;
 static char buf[128];
 static int blen = 0;
+/* FAULT INJECTION (BR_FAULT_SDA_STUCK=1 in the environment): acks
+ * always report SDA=1, modelling a broken SDA readback path -- the
+ * MCU pin left in output-only mode, a very real pin-mux bug. */
+static int fault_sda = -1;
 
 SV_PUBLIC int br_init(int port)
 {
@@ -82,7 +86,15 @@ SV_PUBLIC int br_next(int sda_now, int *scl_o, int *sda_o, int *ns_o)
         first = 0;
     } else {
         char ack[16];
-        int n = snprintf(ack, sizeof ack, "K %d\n", sda_now & 1);
+        int n;
+        if (fault_sda < 0) {
+            const char *e = getenv("BR_FAULT_SDA_STUCK");
+            fault_sda = (e && e[0] == '1') ? 1 : 0;
+            if (fault_sda)
+                fprintf(stderr, "[xezim-bridge] FAULT: SDA readback stuck at 1\n");
+        }
+        n = snprintf(ack, sizeof ack, "K %d\n",
+                     fault_sda ? 1 : (sda_now & 1));
         if (send(csock, ack, (size_t)n, 0) != n) return 2;
     }
 

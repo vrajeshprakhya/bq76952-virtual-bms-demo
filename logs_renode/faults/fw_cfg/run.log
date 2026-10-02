@@ -1,0 +1,65 @@
+== firmware (ARM)  [FAULT_OCD_SWAP] ==
+   text	   data	    bss	    dec	    hex	filename
+   3439	      0	     12	   3451	    d7b	fw.elf
+== bridge DPI library ==
+== xezim (background, waits for Renode) ==
+== Renode (console) ==
+---- firmware UART ----
+
+[fw] BMS host up on Renode/STM32G0; board = SV-RNM in xezim
+[fw t=1.9ms] AFE protection configured (CUV 2800mV COV 4250mV OCD 3000mA)
+[fw t=5.3ms] ss=0x0 c1=3688mV i=998mA
+[fw t=8.6ms] ss=0x0 c1=3687mV i=1000mA
+[fw t=11.9ms] ss=0x0 c1=3688mV i=999mA
+[fw t=15.2ms] ss=0x0 c1=3688mV i=1004mA
+[fw t=18.6ms] ss=0x0 c1=3650mV i=4201mA
+[fw t=21.9ms] ss=0x0 c1=3650mV i=4201mA
+[fw t=25.2ms] ss=0x0 c1=3650mV i=4202mA
+[fw t=28.6ms] ss=0x0 c1=3650mV i=4202mA
+[fw t=31.9ms] ss=0x0 c1=3649mV i=4202mA
+[fw t=35.2ms] ss=0x0 c1=3650mV i=4200mA
+[fw t=38.5ms] ss=0x0 c1=3649mV i=4198mA
+[fw t=41.9ms] ss=0x0 c1=3694mV i=497mA
+[fw t=45.2ms] ss=0x0 c1=3694mV i=497mA
+[fw t=48.5ms] ss=0x0 c1=3693mV i=501mA
+[fw t=51.8ms] ss=0x0 c1=3693mV i=503mA
+[fw t=55.2ms] ss=0x0 c1=3694mV i=503mA
+[fw t=58.5ms] ss=0x0 c1=3693mV i=503mA
+[fw t=61.8ms] ss=0x0 c1=3695mV i=500mA
+[fw t=65.2ms] ss=0x0 c1=3693mV i=497mA
+[fw t=68.5ms] ss=0x0 c1=3694mV i=496mA
+[fw t=71.8ms] ss=0x0 c1=3693mV i=499mA
+[fw t=75.1ms] ss=0x0 c1=3695mV i=499mA
+[fw t=78.5ms] ss=0x0 c1=3695mV i=500mA
+[fw t=81.8ms] ss=0x0 c1=3694mV i=496mA
+[fw t=85.1ms] ss=0x0 c1=3694mV i=495mA
+[fw t=88.4ms] ss=0x0 c1=3694mV i=501mA
+[fw t=91.8ms] ss=0x0 c1=3695mV i=502mA
+[fw t=95.1ms] ss=0x0 c1=3694mV i=505mA
+[fw t=98.4ms] ss=0x0 c1=3694mV i=501mA
+[fw t=101.8ms] ss=0x0 c1=3693mV i=499mA
+[fw t=105.1ms] ss=0x0 c1=3694mV i=495mA
+[fw t=108.4ms] ss=0x0 c1=3695mV i=496mA
+[fw t=111.7ms] ss=0x0 c1=3694mV i=503mA
+[fw t=115.1ms] ss=0x0 c1=3693mV i=498mA
+[fw t=118.4ms] ss=0x0 c1=3695mV i=502mA
+[fw t=121.7ms] ss=0x0 c1=3695mV i=501mA
+[fw t=125.0ms] ss=0x0 c1=3695mV i=503mA
+[fw t=128.4ms] ss=0x0 c1=3695mV i=497mA
+[fw t=131.7ms] ss=0x0 c1=3694mV i=504mA
+[fw t=135.0ms] ss=0x0 c1=3694mV i=502mA
+[fw t=138.4ms] ss=0x0 c1=3695mV i=501mA
+[fw t=141.7ms] ss=0x0 c1=3695mV i=502mA
+[fw t=145.0ms] ss=0x0 c1=3695mV i=500mA
+[fw t=148.3ms] ss=0x0 c1=3694mV i=504mA
+[fw t=151.7ms] ss=0x0 c1=3694mV i=496mA
+[fw t=151.7ms] !!! mission incomplete
+[fw] done; stopping the board sim
+---- board events (xezim) ----
+[scenario] t=15000000000: load raised to 4.2 A (overload)
+[scenario] t=40000000000: load reduced to 0.5 A
+[renode_bridge] firmware finished at t=151736329000
+---- cross-domain check ----
+CHECK: FAIL (2 rule violation(s))
+  R1 protection-missing: overload at 15ms but DSG opened never (required within 2ms)
+  R4 mission: trip-and-recover did not complete

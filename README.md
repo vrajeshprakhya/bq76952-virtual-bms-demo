@@ -73,6 +73,16 @@ renode/        Renode <-> xezim CO-SIMULATION: real bare-metal ARM
                  Bridge.cs      Renode MMIO peripheral (PINS/ADV/SDA/
                                 FIN registers -> RPC to xezim)
                  cosim.resc     machine script; run_cosim.sh runs it
+                 check_cosim.py cross-domain checker and pass gate:
+                                cross-examines the firmware's UART log
+                                against the board's event log (rules
+                                R1 protection / R2 telemetry /
+                                R3 false-trip / R4 bus+mission)
+                 run_faults.sh  fault-injection campaign: one injected
+                                defect per layer (firmware config,
+                                firmware protocol, analog front-end,
+                                bridge/pin path), each caught by a
+                                different rule, clean run still green
                Tools (no sudo): ~/renode-portable (v1.17.0),
                ~/arm-gcc (xPack 15.2.1); get_tools.sh fetches both.
 logs_renode/   uart.log (the firmware's own account of the trip-and-
@@ -107,6 +117,7 @@ Tool versions are recorded in `logs_*/**version*`.
 | The FAB SCHEMATIC itself is simulatable | `logs_ngspice/fab_sim.log`: ngspice on the kicad-cli export -- 4 asserted operating points (incl. the 100R-filter balancing droop derived from the sheet's own values), a 4.2 A trip TRANSIENT (waveform in `fab_trip.dat`), and an AC sweep of the kelvin filter (fc = 7957.7 Hz measured vs 7957.7 analytic; response in `fab_kelvin_ac.dat`) |
 | Functional coverage over corner x response | `logs_xezim/xezim_cov.json` |
 | Bring-up bugs (START edge, array args, A-vs-mA) | fix-site comments in `design/rnm/bq76952_rnm.sv`, `design/tb/bq_proxy_pkg.sv`/`bq_bridge.sv`, and the whitepaper's Results section |
+| Injected defects in ANY layer are caught, each by a different rule | `logs_renode/faults/`: five-run campaign — clean passes; a byte-swapped OCD threshold (firmware config) trips R1 protection-missing; an off-by-one cell-register read (firmware protocol) trips R2 telemetry-vs-board-truth; a +2.5 A analog current-path offset (RNM) trips R3 false-trip; a stuck SDA readback (bridge/pin mux) trips R4 bus health — per-run logs + `summary.log` |
 | REAL firmware on an emulated SoC drives the RNM board | `logs_renode/uart.log`: ARM firmware (Renode STM32G0, the schematic's U2 family) configures the AFE over bit-banged I2C, reads 3688 mV / ~1000 mA, sees the OCD trip (3701 mV, 1 mA), recovers the latch, confirms 3694 mV / 499 mA -- every number consistent with the xezim, ngspice and UVM domains |
 
 Provenance note: the design was authored for this demonstrator; the

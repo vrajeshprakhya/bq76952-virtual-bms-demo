@@ -1,0 +1,54 @@
+
+[fw] BMS host up on Renode/STM32G0; board = SV-RNM in xezim
+[fw t=1.9ms] AFE protection configured (CUV 2800mV COV 4250mV OCD 3000mA)
+[fw t=5.3ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=5.3ms] *** I2C FAULT: slave not ACKing (12 NACKs)
+[fw t=5.3ms] *** TELEMETRY FAULT: implausible c1=65535mV
+[fw t=5.3ms] *** OCD TRIP seen over I2C -- current stopped by the AFE
+[fw t=35.5ms] recover written (0x99=1)
+[fw t=38.9ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=42.2ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=45.5ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=48.9ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=52.2ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=55.5ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=58.8ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=62.2ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=65.5ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=68.8ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=72.1ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=75.5ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=78.8ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=82.1ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=85.5ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=88.8ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=92.1ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=95.4ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=98.8ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=102.1ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=105.4ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=108.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=112.1ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=115.4ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=118.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=122.1ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=125.4ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=128.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=132.0ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=135.4ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=138.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=142.0ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=145.4ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=148.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=152.0ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=155.3ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=158.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=162.0ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=165.3ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=168.6ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=172.0ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=175.3ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=178.6ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=182.0ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=182.0ms] !!! mission incomplete
+[fw] done; stopping the board sim
