@@ -37,14 +37,14 @@
 \begin{abstract}
 \noindent
 We verify unmodified battery-management host firmware against a fully
-virtual six-cell battery board --- no silicon, no lab bench.  The
+virtual six-cell battery board: no silicon, no lab bench.  The
 board's analog electronics are SystemVerilog real-number models
 (SV-RNM), the battery-monitor AFE is a behavioural model of a
 BQ76952-class device with its own register map and hardware protection
 engine, and the host firmware (C, stepped cycle-by-cycle through DPI)
 talks to it over a pin-level, open-drain \iic{} bus.  A UVM-MS
-environment --- the randomized-stimulus-and-checking testbench layer
-from the silicon-verification world --- sits above the board,
+environment (the randomized-stimulus-and-checking testbench layer
+from the silicon-verification world) sits above the board,
 pushes physical scenarios at it (cell voltages, load current,
 temperature, component tolerances) and checks both what the firmware
 reports and what the analog domain actually does.  A 13-scenario regression passes with zero failures on
@@ -57,8 +57,8 @@ protocol error that silently broke every bus transaction.
 The firmware is verified on both of a firmware team's first two
 test rungs, each with the analog board on the other side instead of
 a mock: the host-compiled logic, graded by the testbench across the
-13-scenario randomized regression above, and --- recompiled as
-bare-metal ARM code --- the binary itself, booted
+13-scenario randomized regression above, and then, recompiled as
+bare-metal ARM code, the binary itself, booted
 on an emulated STM32 under unmodified mainline QEMU, driving the
 SV-RNM board over a lockstep socket bridge and reporting the full
 trip-and-recover mission over its own UART, with a board timeline
@@ -75,7 +75,7 @@ with the clean setup still green.
 
 A battery management system fails in the seam between two worlds.  The
 firmware can be unit-tested against mocked register values, and the
-digital logic can be simulated --- but neither catches the class of bug
+digital logic can be simulated, but neither catches the class of bug
 where correct-looking code meets real electrical behaviour: a
 protection threshold written to the wrong register, a reading that
 silently scales wrong at a supply corner, a balancing command that
@@ -85,8 +85,8 @@ the actual current keeps flowing.
 These bugs normally surface on the lab bench, late, one board spin in.
 Firmware mocks cannot find them, because the mock returns whatever the
 test author \emph{believed} the analog chain does.  Digital-only
-simulation cannot find them, because the interesting behaviour --- IR
-sag, sensor tolerance, saturation, EMI --- is analog and lives on the
+simulation cannot find them, because the interesting behaviour (IR
+sag, sensor tolerance, saturation, EMI) is analog and lives on the
 PCB, outside the chip.
 
 The approach demonstrated here closes that seam in simulation:
@@ -177,7 +177,7 @@ The five pieces:
   \item \textbf{6S pack + load + shunt} (\texttt{pack\_rnm.sv}):
     per-cell open-circuit voltage, IR sag under load, shunt sense
     voltage.  Crucially, load current flows only while the AFE's
-    discharge FET is closed --- the protection loop-back.
+    discharge FET is closed: the protection loop-back.
   \item \textbf{BQ76952-class AFE} (\texttt{bq76952\_rnm.sv}):
     a 250\,$\mu$s measurement loop with gain tolerance and noise, its
     own protection engine (cell under-/overvoltage with hysteresis,
@@ -189,7 +189,7 @@ The five pieces:
     \mathit{pull}_s}$).  Every threshold, measurement and balancing
     command crosses it as real bus traffic at ${\sim}400$\,kHz.
   \item \textbf{Host firmware} (\texttt{firmware.c}): unmodified C,
-    stepped one MCU clock per DPI call --- a queue-based bit-banged
+    stepped one MCU clock per DPI call: a queue-based bit-banged
     \iic{} master, threshold configuration at start-up, a 2\,ms poll
     loop, a balancing policy with hysteresis, and a fault-recover
     write.  The tick-shim MCU is one of two execution backends for
@@ -197,9 +197,9 @@ The five pieces:
     real ARM instructions on an emulated STM32 under mainline QEMU.
   \item \textbf{UVM-MS layer}: bridge + abstract proxy per UVM-MS~1.0
     clauses 4.2.1/4.2.3.  It pushes scenarios onto \texttt{wreal}
-    control nets and pulls \emph{both} sides of the bus --- the host's
+    control nets and pulls \emph{both} sides of the bus (the host's
     beliefs via DPI, and the AFE's actual registers via hierarchical
-    reference --- plus the analog current tap.
+    reference), plus the analog current tap.
 \end{itemize}
 
 %=======================================================================
@@ -275,7 +275,7 @@ $R_{\mathrm{int}}$ feed the load through the AFE-controlled DSG FET;
 the pack current develops the sense voltage across
 $R_{\mathrm{sh}}$.  The AFE samples the cell taps, shunt pair and NTC,
 and the host reaches everything through two \iic{} wires.  (CHG FET
-and charger path omitted --- out of scope for this version.)}
+and charger path omitted; out of scope for this version.)}
 \label{fig:schem}
 \end{figure}
 
@@ -293,8 +293,8 @@ Three modelling choices matter to the verification story:
     DC/DC ripple interferer share the net, and the \emph{net type},
     not the testbench, decides how they combine.
   \item[Balancing has its measurement artifact.]  A cell being bled
-    through its sense line reads ${\sim}40$\,mV low --- the well-known
-    BQ-family effect --- so the scoreboard predicts it rather than
+    through its sense line reads ${\sim}40$\,mV low (the well-known
+    BQ-family effect), so the scoreboard predicts it rather than
     widening a tolerance.
 \end{description}
 
@@ -336,7 +336,7 @@ The slave is modelled at pin level: START/STOP detection on SDA edges
 gated by SCL, bit assembly on SCL rising edges, ACK generation, a
 register pointer with burst auto-increment, and write protection on
 the read-only ranges.  Figure~\ref{fig:i2c} shows the start of a
-threshold-write transaction --- and the one-clock-edge subtlety that
+threshold-write transaction, and the one-clock-edge subtlety that
 produced the first bring-up bug.
 
 \begin{figure}[htbp]
@@ -377,8 +377,8 @@ produced the first bring-up bug.
   % the bug annotation, in the band between the rails
   \draw[arr, red!70!black] (2.0,3.45) -- (2.0,3.9);
   \node[lbl, red!70!black, align=center] at (4.1,3.05)
-    {this SCL fall completes the START\\
-     --- it is \emph{not} a bit boundary};
+    {this SCL fall completes the START;\\
+     it is \emph{not} a bit boundary};
 
   % sampling convention, right side of the band
   \draw[arr] (7.6,3.5) -- (7.1,4.1);
@@ -391,7 +391,7 @@ produced the first bring-up bug.
 \reg{0x10} = device 0x08, write).  The v1 slave model counted the SCL
 falling edge that completes the START condition as a data-bit
 boundary, assembled every address one bit short, and NACKed every
-transaction --- the host read 0xFF everywhere.  The fix: only a
+transaction: the host read 0xFF everywhere.  The fix: only a
 falling edge that ends a real clock pulse advances the bit counter.}
 \label{fig:i2c}
 \end{figure}
@@ -444,8 +444,8 @@ through.}
     engine actually uses differ from the host's intent.  A byte-order
     bug, a wrong register address, or a broken bus all fail here.
   \item \textbf{Protection loop-back.}  When the AFE trips, the
-    scoreboard checks the \emph{analog} consequence --- shunt current
-    exactly 0\,mA --- not just the status bit, plus a trip-latency
+    scoreboard checks the \emph{analog} consequence (shunt current
+    exactly 0\,mA), not just the status bit, plus a trip-latency
     bound of three host control loops.
   \item \textbf{Balancing closed-loop.}  When the cell spread exceeds
     50\,mV, the host must write the balancing mask for exactly the
@@ -531,7 +531,7 @@ surfaced before the first passing run, each found by a specific check.
 A firmware team's test ladder has three rungs: host-compiled unit
 tests of the logic (fast, run on every commit), the real binary on an
 emulator or virtual platform (pre-silicon, in CI), and real silicon
-on a bench or HIL rig.  This demonstrator climbs the first two ---
+on a bench or HIL rig.  This demonstrator climbs the first two,
 and upgrades both, because on either rung the thing on the other side
 of the firmware is normally a \emph{mock}, and here it is the SV-RNM
 board.  Everything before this section is rung one: the decision
@@ -542,15 +542,15 @@ at all.
 
 The distinction is concrete: the two rungs compile the \emph{same}
 firmware source with two different compilers, for two different
-universes.  On rung one, the \emph{host} compiler --- plain
+universes.  On rung one, the \emph{host} compiler (plain
 \texttt{gcc}, targeting the x86-64 machine the simulator itself runs
-on --- builds the logic into a native shared library that xezim
+on) builds the logic into a native shared library that xezim
 loads through DPI; the testbench calls \texttt{fw\_tick()} once per
 modelled MCU clock and the host CPU executes the decision logic
-directly.  That is what makes rung one cheap and transparent ---
+directly.  That is what makes rung one cheap and transparent:
 fast enough to run randomized scenarios by the hundred, and open
 enough that the testbench can predict and check every reading the
-firmware takes --- but it also means the firmware
+firmware takes.  But it also means the firmware
 lives in the host's universe: the operating system's loader performs
 startup, integer widths and alignment come from x86-64, and there is
 no memory map at all, so an entire class of defects (startup code,
@@ -559,15 +559,15 @@ cross-compiler surprises) cannot even be expressed, let alone
 caught.  On rung two, the cross-compiler
 (\texttt{arm-none-eabi-gcc}) builds the same source into an ARM
 Thumb bare-metal ELF that the emulated Cortex-M boots from its reset
-vector --- instruction by instruction, registers and all.  Each rung
+vector, instruction by instruction, registers and all.  Each rung
 exists to catch its bug class at the cheapest level that can express
 it: rung one finds logic bugs by the thousand; rung two proves the
-shippable artifact --- the binary that would be flashed --- holds
+shippable artifact (the binary that would be flashed) holds
 the same conversation with the same board.
 
 QEMU is the emulator custom-SoC teams typically build their
 pre-silicon firmware flows on, extending it with machine and device
-models of their own silicon --- so the same host logic, written as
+models of their own silicon.  So the same host logic, written as
 \emph{natural} blocking C (the queue-based \iic{} state machine
 dissolves under an emulator) and compiled to a ${\sim}4$\,kB
 bare-metal ELF, runs as real ARM instructions on \emph{unmodified
@@ -580,12 +580,12 @@ spare UART: \mbox{USART1}'s character device is a TCP socket into
 the xezim bridge server, and the firmware speaks a three-command
 line protocol (\texttt{S}~set pins, \texttt{A}~advance board time,
 \texttt{F}~finish, each acknowledged with the settled SDA) through
-the UART's data register --- the bolt-onto-a-spare-port pattern such
+the UART's data register, the bolt-onto-a-spare-port pattern such
 teams use for HIL and model channels.  The schematic's U2 is an
 STM32G0B1, a part mainline QEMU does not model; the mission firmware
 is core-agnostic behind a five-function platform HAL
 (\texttt{hal.h}), and a G0B1 machine model is precisely the kind of
-extension a tapeout team would add to its QEMU fork --- for custom
+extension a tapeout team would add to its QEMU fork: for custom
 silicon, the machine model \emph{is} part of the deliverable.
 
 \begin{figure}[htbp]
@@ -624,15 +624,15 @@ settled SDA.  QEMU's own host-side scheduling is not deterministic,
 but the board timeline is: consecutive runs end at
 $t = 52{,}233{,}121$\,ns exactly, with identical mission logs,
 because the contract makes board time a function of the firmware's
-stated delays alone --- not of host timing, instruction counts, or
+stated delays alone, not of host timing, instruction counts, or
 the core executing them.  A full mission takes ${\sim}8$\,s of wall
 clock.  One practical note from bring-up: the command/ack
 round-trips are tiny TCP packets, so Nagle's algorithm must be off
-on both ends (\texttt{nodelay=on} on QEMU's chardev) --- with it on,
+on both ends (\texttt{nodelay=on} on QEMU's chardev); with it on,
 the identical run takes minutes instead of seconds.
 
-The mission --- configure protection over \iic{}, ride out an
-overload the \emph{AFE in the RNM} trips, recover the latch --- in
+The mission (configure protection over \iic{}, ride out an
+overload the \emph{AFE in the RNM} trips, recover the latch) in
 the firmware's own UART log:
 
 {\small
@@ -653,7 +653,7 @@ Every number is physically consistent with every other domain:
 3688\,mV is the 1\,A IR sag, 3701\,mV the unloaded recovery the trip
 causes, and 3694\,mV is exactly $3700 - 0.5\,\mathrm{A} \times
 12\,\mathrm{m}\Omega$ after recovery at the reduced load.  The AFE
-tripped 250\,$\mu$s (one measurement cycle) after the overload ---
+tripped 250\,$\mu$s (one measurement cycle) after the overload,
 observed from the board side in the xezim log and from the chip side
 over \iic{}, through a bus whose every edge was produced by ARM
 instructions.
@@ -666,7 +666,7 @@ tuned for, so the co-simulation's pass criterion is not a log grep
 but a \emph{cross-domain checker} (\texttt{check\_cosim.py}): it
 treats the firmware's UART log and the board's xezim log as two
 independent witnesses and cross-examines them under four rules, one
-per layer of the stack --- R1, a real overload must open DSG within
+per layer of the stack: R1, a real overload must open DSG within
 2\,ms; R2, chip-reported telemetry must match board physics during
 the quiet phase (3688$\pm$5\,mV, 1000$\pm$15\,mA); R3, DSG must never
 open \emph{before} an overload exists; R4, bus and mission health (no
@@ -675,8 +675,8 @@ firmware itself carries defence-in-depth: NACK counting and a
 plausibility window on cell voltage, both reported on its UART.
 
 A campaign (\texttt{run\_faults.sh}) then injected one deliberate
-defect into each layer.  Every fault was caught --- each by a
-\emph{different} rule --- while the clean setup stayed green:
+defect into each layer.  Every fault was caught, each by a
+\emph{different} rule, while the clean setup stayed green:
 
 \begin{table}[htbp]
 \centering
@@ -685,7 +685,7 @@ defect into each layer.  Every fault was caught --- each by a
 \toprule
 Run & Layer & Injected defect & Caught by \\
 \midrule
-clean     & ---       & none                              & passes (trip $+0.25$\,ms) \\
+clean     & n/a       & none                              & passes (trip $+0.25$\,ms) \\
 fw\_cfg   & FW config & OCD threshold write byte-swapped  & R1: ``overload at 15\,ms \\
           &           & (3000\,mA arms as 47\,115\,mA)    & \quad but DSG opened \emph{never}'' \\
 fw\_proto & FW protocol & cell readout off by one register & R2: ``c1=26894\,mV; board \\
@@ -705,13 +705,13 @@ by its own rule.  Evidence per run in
 The analog fault produces the campaign's best exhibit.  With a
 $+2.5$\,A offset in the current path, the firmware reads
 \texttt{c1=3700mV i=2498mA}: current ``flowing'' alongside \emph{zero}
-IR sag, a physically impossible pair --- precisely how a bench
+IR sag, a physically impossible pair: precisely how a bench
 engineer would recognise a sense-path offset.  Its recovery attempts
 fail forever, because the AFE instantly re-trips on the phantom
 current.  A real analog front-end defect, diagnosed purely from the
 chip's own telemetry, before any hardware exists: the class of
 board-bring-up mystery this framework was built to catch.  The
-byte-swap fault makes the complementary point --- the system behaves
+byte-swap fault makes the complementary point: the system behaves
 \emph{perfectly} at 1\,A and betrays nothing until the day of the
 first real overload, which is why R1 watches the board's truth rather
 than the firmware's belief.
@@ -743,7 +743,7 @@ Deliberate simplifications, each with a clear upgrade path:
 \end{itemize}
 
 Because the bus is modelled at pin level, bus fault injection is a
-cheap extension ---
+cheap extension.
 Section~\ref{sec:faults} opened that front with a stuck SDA readback,
 and the rest of the menu (NACK storms from the slave side, corrupted
 bytes, a held SCL) remains the natural next test dimension: does the
@@ -753,7 +753,7 @@ degrades?
 This demonstrator is the fourth in a series built on one architecture
 (RNM board / \texttt{wreal} scenario nets / MS bridge with an
 Annex-A proxy / DPI-tick firmware): a TCD1304 CCD sensor channel, an
-HX717 load-cell chain, an STM32 internal-ADC BMS, and this one ---
+HX717 load-cell chain, an STM32 internal-ADC BMS, and this one,
 each adding one integration step, ending here with a configurable
 smart AFE behind a real bus.
 
