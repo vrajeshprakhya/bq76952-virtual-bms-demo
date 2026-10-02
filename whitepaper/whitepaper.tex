@@ -53,11 +53,7 @@ full trip-and-recover sequence.  During bring-up the bench caught
 three real defects before any hardware existed, including a one-bit
 protocol error that silently broke every bus transaction.
 
-The models themselves are hardened across independent domains: a
-fabrication-grade KiCad schematic of the board exports a SPICE
-netlist that ngspice simulates under six asserted analyses
-(catching a gate-pull-down sizing flaw as a 0.2\% current anomaly),
-and the firmware is verified a second way --- recompiled as bare-metal
+The firmware is verified a second way --- recompiled as bare-metal
 ARM code, it runs on an emulated STM32 under unmodified mainline
 QEMU, driving the SV-RNM board over a lockstep socket bridge and
 reporting the full trip-and-recover mission over its own UART, with
@@ -211,7 +207,9 @@ sees and drops everything else: each cell is an ideal source $V_{ci}$
 behind an internal resistance $R_{\mathrm{int}}$, the load draws a
 commanded current $I_{\mathrm{load}}$ through the discharge FET, and
 the pack current develops a millivolt-level sense voltage across the
-1\,m$\Omega$ shunt.
+1\,m$\Omega$ shunt.  (How these models were constructed and
+cross-validated against SPICE on the board's fabrication schematic is
+the subject of a companion paper; here they are simply the board.)
 
 \begin{figure}[htbp]
 \centering
@@ -521,56 +519,6 @@ surfaced before the first passing run, each found by a specific check.
 \end{enumerate}
 
 %=======================================================================
-\section{Hardening the models across domains}
-\label{sec:hardening}
-%=======================================================================
-
-Everything above verifies firmware against the RNM.  A second line of
-work verifies the RNM --- and the board design itself --- against
-independent tools, with every artifact and log in the evidence
-repository (\texttt{bq76952-virtual-bms-demo}).
-
-\textbf{A fabrication-grade schematic.}  The board was drawn in KiCad
-with official library symbols and real footprints (the curated library
-carries no BQ76952, so the sheet instantiates the 6S-capable BQ76930
---- a documented substitution).  A four-stage loop runs after every
-schematic edit: ERC; netlist export; a \emph{golden connectivity
-compare} that checks KiCad's own exported netlist pin-for-pin against
-the design intent (43 nets); and ngspice on the exported netlist
-itself, with behavioural subcircuits bound through the schematic's
-\texttt{Sim.*} fields and the testbench living inside the connector
-models (J1 \emph{is} the six-cell pack, J2 \emph{is} the load).
-
-\textbf{Six asserted SPICE analyses on the export} --- four operating
-points, a 4.2\,A trip transient, and an AC sweep of the kelvin filter
-(corner measured 7957.74\,Hz against 7957.75 analytic).  Two findings
-fed back into the design and the models:
-\begin{itemize}
-  \item \emph{Gate pull-downs.}  The nominal operating point read
-    1001.98\,mA for a commanded 1\,A: two 10\,k$\Omega$ gate
-    pull-downs, held at 10\,V, each bled 1\,mA through the shunt --- a
-    permanent $+2$\,mA measurement offset, and a load the BQ769x0's
-    $\mu$A-class gate drivers could never hold.  Fixed to
-    1\,M$\Omega$ (now 1000.02\,mA); the assertion tightened to
-    $\pm2$\,mA so the mistake cannot return.
-  \item \emph{Two balancing-droop regimes.}  The RNM's 40\,mV
-    read-droop parameter was derived electrically (1.98\,mA through
-    10\,$\Omega$-class sense lines) --- but the fab sheet's
-    datasheet-typical 100\,$\Omega$ filters put the BQ76930 in a
-    different regime: 16\,mA bleed, 0.481\,V apparent droop, asserted
-    against the analytic $V_{cell}\cdot R_{ds}/(2R_c + R_{ds})$.
-    Both regimes are simulated and documented; what would otherwise
-    be a silent divergence between hand-written decks is a stated
-    part-and-values choice.
-\end{itemize}
-Full-circuit simulation also surfaced two RNM fidelity notes: a
-balancing cell's \emph{neighbours} read ${\sim}20$\,mV high (bleed
-current in the shared sense line --- the RNM folds this into the
-single-cell droop), and the kelvin RC attenuates injected 20\,kHz
-ripple to ${\sim}0.37\times$ where the RNM conservatively injects it
-unfiltered.
-
-%=======================================================================
 \section{Real firmware on an emulated SoC: QEMU co-simulation}
 \label{sec:cosim}
 %=======================================================================
@@ -750,17 +698,13 @@ Deliberate simplifications, each with a clear upgrade path:
     And the emulated part is an STM32F405 standing in for the
     schematic's STM32G0B1; a G0B1 machine model in a QEMU fork closes
     that gap.
-  \item \textbf{Behavioural constants.}  The 30\,$\Omega$ internal
-    balance-FET resistance and the 10\,V gate-drive level in the
-    SPICE-side AFE model are stated assumptions, not datasheet
-    values.
   \item \textbf{Scope.}  Charge-side current, coulomb counting,
     \iic{} clock stretching and multi-master, and CAN are out of
     scope for this version.
 \end{itemize}
 
-Because the bus is modelled at pin level in \emph{both} simulators,
-bus fault injection is a cheap extension on either path ---
+Because the bus is modelled at pin level, bus fault injection is a
+cheap extension ---
 Section~\ref{sec:faults} opened that front with a stuck SDA readback,
 and the rest of the menu (NACK storms from the slave side, corrupted
 bytes, a held SCL) remains the natural next test dimension: does the
