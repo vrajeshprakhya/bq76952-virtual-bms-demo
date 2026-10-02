@@ -53,11 +53,14 @@ full trip-and-recover sequence.  During bring-up the bench caught
 three real defects before any hardware existed, including a one-bit
 protocol error that silently broke every bus transaction.
 
-The firmware is verified a second way --- recompiled as bare-metal
-ARM code, it runs on an emulated STM32 under unmodified mainline
-QEMU, driving the SV-RNM board over a lockstep socket bridge and
-reporting the full trip-and-recover mission over its own UART, with
-a board timeline that is reproducible to the nanosecond.  A fault-injection
+The firmware is verified on both of a firmware team's first two
+test rungs, each with the analog board on the other side instead of
+a mock: the host-compiled logic under the UVM regression above, and
+--- recompiled as bare-metal ARM code --- the binary itself, booted
+on an emulated STM32 under unmodified mainline QEMU, driving the
+SV-RNM board over a lockstep socket bridge and reporting the full
+trip-and-recover mission over its own UART, with a board timeline
+that is reproducible to the nanosecond.  A fault-injection
 campaign closes the loop on trust: one deliberate defect per layer
 (firmware configuration, firmware protocol, analog front-end, pin
 path), each caught by a different rule of a cross-domain checker,
@@ -523,17 +526,30 @@ surfaced before the first passing run, each found by a specific check.
 \label{sec:cosim}
 %=======================================================================
 
-The DPI tick shim is the fast regression backend; this section is the
-other backend, with no shim at all.  QEMU is the emulator custom-SoC
-teams typically build their pre-silicon firmware flows on, extending
-it with machine and device models of their own silicon --- so the
-same host logic, written as \emph{natural} blocking C (the
-queue-based \iic{} state machine dissolves under an emulator) and
-compiled to a ${\sim}4$\,kB bare-metal ELF, runs as real ARM
-instructions on \emph{unmodified mainline} QEMU (9.2.4, machine
-\texttt{netduinoplus2}, an STM32F405 Cortex-M4) and drives the
-SV-RNM board in xezim through a lockstep TCP bridge
-(Figure~\ref{fig:cosim}).
+A firmware team's test ladder has three rungs: host-compiled unit
+tests of the logic (fast, run on every commit), the real binary on an
+emulator or virtual platform (pre-silicon, in CI), and real silicon
+on a bench or HIL rig.  This demonstrator climbs the first two ---
+and upgrades both, because on either rung the thing on the other side
+of the firmware is normally a \emph{mock}, and here it is the SV-RNM
+board.  Everything before this section is rung one: the decision
+logic, host-compiled and stepped through DPI, exercised at
+constrained-random scale against the board's physics instead of
+against stubs.  This section is rung two, with no shim at all.
+
+QEMU is the emulator custom-SoC teams typically build their
+pre-silicon firmware flows on, extending it with machine and device
+models of their own silicon --- so the same host logic, written as
+\emph{natural} blocking C (the queue-based \iic{} state machine
+dissolves under an emulator) and compiled to a ${\sim}4$\,kB
+bare-metal ELF, runs as real ARM instructions on \emph{unmodified
+mainline} QEMU (9.2.4, machine \texttt{netduinoplus2}, an STM32F405
+Cortex-M4) and drives the SV-RNM board in xezim through a lockstep
+TCP bridge (Figure~\ref{fig:cosim}).  Rung two verifies what rung
+one cannot even express: the shippable artifact itself --- startup
+code, vector table, linker layout, register-level peripheral access
+--- booting the way firmware boots, while holding the same
+conversation with the same board.
 
 Mainline QEMU has no generic remote-MMIO hook, so the bridge rides a
 spare UART: \mbox{USART1}'s character device is a TCP socket into
@@ -687,14 +703,13 @@ Deliberate simplifications, each with a clear upgrade path:
     configuration protocol of the real part is flattened into direct
     registers; temperature is reported in 0.1\,$^\circ$C rather than
     0.1\,K.
-  \item \textbf{MCU coverage split.}  The firmware runs two ways ---
-    tick-stepped through DPI, and as real ARM instructions under
-    QEMU (Section~\ref{sec:cosim}) --- but the coverage is uneven:
-    the co-sim runs one directed mission, while the 13-scenario
-    constrained-random suite still executes on the DPI-shim path;
-    pointing the UVM driver at the bridge is the natural unification.
-    (A UVM-grade constrained-random campaign per emulated-firmware run
-    would also be slow; the shim remains the regression workhorse.)
+  \item \textbf{Uneven rung coverage.}  Rung one (host-compiled
+    logic through DPI) carries the 13-scenario constrained-random
+    suite; rung two (the ARM binary under QEMU,
+    Section~\ref{sec:cosim}) runs one directed mission.  Pointing
+    the UVM driver at the bridge is the natural unification.  (A
+    constrained-random campaign per emulated-firmware run would also
+    be slow; rung one remains the regression workhorse.)
     And the emulated part is an STM32F405 standing in for the
     schematic's STM32G0B1; a G0B1 machine model in a QEMU fork closes
     that gap.
