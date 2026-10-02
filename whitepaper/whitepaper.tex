@@ -214,7 +214,9 @@ commanded current $I_{\mathrm{load}}$ through the discharge FET, and
 the pack current develops a millivolt-level sense voltage across the
 1\,m$\Omega$ shunt.  (How these models were constructed and
 cross-validated against SPICE on the board's fabrication schematic is
-the subject of a companion paper; here they are simply the board.)
+the subject of a companion paper; here they are simply the board.
+The fabrication schematic itself, including the SWD (J3) and UART
+console (J4) headers, is reproduced in Appendix~\ref{app:sch}.)
 
 \begin{figure}[htbp]
 \centering
@@ -756,5 +758,30 @@ Annex-A proxy / DPI-tick firmware): a TCD1304 CCD sensor channel, an
 HX717 load-cell chain, an STM32 internal-ADC BMS, and this one,
 each adding one integration step, ending here with a configurable
 smart AFE behind a real bus.
+
+%=======================================================================
+\appendix
+\section{The board schematic}
+\label{app:sch}
+%=======================================================================
+
+Figure~\ref{fig:fabsch} reproduces the board's fabrication schematic
+(KiCad export).  Landmarks for this paper: U2 is the STM32G0B1 host
+MCU, U1 the battery-monitor AFE, RS1 the 1\,m$\Omega$ shunt, J1 the
+six-cell pack connector, J2 the load, J3 the SWD programming header,
+and J4 the UART console header carrying USART2 (PA2/PA3), the serial
+port whose log Section~\ref{sec:cosim} captures.  Construction and
+cross-tool validation of the sheet are covered in the companion
+paper.
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=\textwidth, height=0.92\textheight,
+                 keepaspectratio]{board_schematic.pdf}
+\caption{The 6S BMS fabrication schematic, cropped to the drawn
+content.  The UART console header J4 sits below the SWD header J3,
+left of the FET cluster.}
+\label{fig:fabsch}
+\end{figure}
 
 \end{document}
