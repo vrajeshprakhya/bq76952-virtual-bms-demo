@@ -736,6 +736,55 @@ instant slides accordingly; each row is bit-reproducible.}
 \label{tab:drift}
 \end{table}
 
+\paragraph{Choosing between the contracts.}
+The two contracts are not competitors; they split the test
+population along one question: \emph{does this mission bet on the
+cost of computation?}  Table~\ref{tab:contracts} summarizes the
+trade.  Most test cases do not place that bet: configuration and
+driver bring-up, register-map conformance, protocol content, state
+machines, protection thresholds.  For those, lockstep is fully
+honest, maximally reproducible, and the chattier synchronization is
+irrelevant at this scale.  The minority that does bet on compute
+cost is where a device earns its reputation: audio pipelines with
+hard buffer deadlines, radio stacks whose protocol windows are tens
+of microseconds, RTOS scheduling and priority inversion, power-state
+transitions, every ``interrupt-to-action within X'' budget a product
+carries.  Those bugs are invisible under lockstep \emph{by
+construction}, surface today on the bench or in the field, and are
+exactly what quantum coupling turns into measurable, regressable
+numbers (Section~\ref{sec:quantum}'s 1.66\,ms service latency is the
+first such number this bench produced).  The practical split: run
+the high-volume logic suites under lockstep, run the latency-budget
+missions under quantum coupling, and let the same board model and
+the same contract-agnostic checker grade both.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+ & Lockstep & Quantum coupling \\
+\midrule
+Sync point            & every pin edge and      & per 10\,$\mu$s of CPU time, \\
+                      & \quad declared delay    & \quad plus pin-access flush \\
+Board time comes from & firmware's declared     & the CPU's own execution \\
+                      & \quad waits             & \\
+Compute costs time    & no (free)               & yes \\
+Interrupts            & no; events wait for the & yes; land within one \\
+                      & \quad next poll         & \quad quantum of the event \\
+Timing skew           & zero                    & bounded by one quantum \\
+Determinism           & bit-identical runs      & bit-identical runs \\
+Suited missions       & config, drivers,        & latency budgets: audio, \\
+                      & \quad protocol content, & \quad radio windows, RTOS \\
+                      & \quad protection logic  & \quad scheduling, ISR-to-action \\
+\bottomrule
+\end{tabular}
+\caption{The synchronization-contract trade.  Both are deterministic;
+they differ in whether the firmware's execution cost is part of the
+simulated world.}
+\label{tab:contracts}
+\end{table}
+
 \subsection{Fault injection: does the framework actually catch bugs?}
 \label{sec:faults}
 
