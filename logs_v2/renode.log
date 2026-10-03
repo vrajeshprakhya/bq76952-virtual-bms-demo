@@ -1,19 +1,19 @@
-[17:07:23.5605] [INFO] Loaded monitor commands from: /home/vraje/renode-portable/scripts/monitor.py
+[17:57:35.4907] [INFO] Loaded monitor commands from: /home/vraje/renode-portable/scripts/monitor.py
 [0mRenode, version 1.17.0 (1.17.0+20260907gitf1dd1b4af)
 
 [91m(monitor) [0mi $CWD/cosim_v2.resc
-[17:07:23.8369] [INFO] Including script(s): /home/vraje/bq_vboard_evidence/renode/cosim_v2.resc
-[17:07:24.1719] [INFO] System bus created.
-[17:07:31.2299] [INFO] Including script(s): /home/vraje/bq_vboard_evidence/renode/cosim_v2.resc
-[17:07:31.4609] [INFO] sysbus: Loading block of 3728 bytes length at 0x8000000.
-[17:07:31.5071] [INFO] sysbus: Loading block of 8 bytes length at 0x8000E90.
+[17:57:35.6882] [INFO] Including script(s): /home/vraje/bq_vboard_evidence/renode/cosim_v2.resc
+[17:57:35.8937] [INFO] System bus created.
+[17:57:39.3803] [INFO] Including script(s): /home/vraje/bq_vboard_evidence/renode/cosim_v2.resc
+[17:57:39.4672] [INFO] sysbus: Loading block of 4200 bytes length at 0x8000000.
+[17:57:39.4849] [INFO] sysbus: Loading block of 12 bytes length at 0x8001068.
 running: quantum-coupled firmware drives the xezim board
-[17:07:32.0037] [INFO] cpu: Guessing VectorTableOffset value to be 0x8000000.
-[17:07:32.0575] [INFO] cpu: Setting initial values: PC = 0x80008F5, SP = 0x2000C000.
-[17:07:32.0670] [INFO] bms2: Machine started.
-[17:07:32.2134] [INFO] bridge2: connected to xezim bridge2
-[17:07:35.3074] [INFO] bridge2: ALERT from board at 15250000 ns; raising IRQ
-[17:07:39.1737] [INFO] bridge2: xezim board finished
-[17:07:39.2833] [INFO] bms2: Machine paused.
+[17:57:39.6550] [INFO] cpu: Guessing VectorTableOffset value to be 0x8000000.
+[17:57:39.6712] [INFO] cpu: Setting initial values: PC = 0x8000A79, SP = 0x2000C000.
+[17:57:39.6743] [INFO] bms2: Machine started.
+[17:57:39.7218] [INFO] bridge2: connected to xezim bridge2
+[17:57:40.9014] [INFO] bridge2: ALERT from board at 15250000 ns; raising IRQ
+[17:57:42.7464] [INFO] bridge2: xezim board finished
+[17:57:42.8204] [INFO] bms2: Machine paused.
 [92mR[0m[92me[0m[92mn[0m[92mo[0m[92md[0m[92me[0m[92m [0m[92mi[0m[92ms[0m[92m [0m[92mq[0m[92mu[0m[92mi[0m[92mt[0m[92mt[0m[92mi[0m[92mn[0m[92mg[0m[92m[0m[92m
-[0m[92m[0m[0m[0m[17:07:39.3645] [INFO] bms2: Disposed.
+[0m[92m[0m[0m[0m[17:57:42.8815] [INFO] bms2: Disposed.

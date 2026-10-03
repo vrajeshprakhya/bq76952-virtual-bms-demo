@@ -1,0 +1,15 @@
+
+[fw] BMS host up on Renode/STM32G0 (v2 quantum-coupled); board = SV-RNM in xezim
+[fw t=2.9ms] AFE protection configured (CUV 2800mV COV 4250mV OCD 3000mA)
+[fw t=2.9ms] ALERT IRQ armed; polling for telemetry only
+[fw t=6.8ms] ss=0x0 c1=3689mV i=1003mA
+[fw t=8.8ms] ss=0x0 c1=3687mV i=995mA
+[fw t=10.8ms] ss=0x0 c1=3688mV i=995mA
+[fw t=12.8ms] ss=0x0 c1=3688mV i=998mA
+[fw t=14.8ms] ss=0x0 c1=3687mV i=1003mA
+[fw t=16.8ms] ss=0x4 c1=3700mV i=-1mA
+[fw t=17.4ms] *** ALERT IRQ: isr at t=15080us, seen at t=16910us ss=0x4 -- OCD TRIP seen over I2C -- current stopped by the AFE
+[fw t=42.4ms] recover written (0x99=1)
+[fw t=44.3ms] ss=0x0 c1=3694mV i=496mA
+[fw t=44.4ms] *** RECOVERED: latch cleared, current flowing again (496mA)
+[fw] done; stopping the board sim

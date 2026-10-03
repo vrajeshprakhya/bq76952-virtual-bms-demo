@@ -9,7 +9,12 @@
 //        |
 //   host MCU <====== pin-level I2C (SCL, open-drain SDA) ======> AFE
 //======================================================================
-module bq_board import bq_types_pkg::*; (
+module bq_board import bq_types_pkg::*; #(
+  // AFE measurement-loop period; override to model the AFE's internal
+  // oscillator drifting against the MCU's clock (independent clock
+  // domains, as on a physical board)
+  parameter real TMEAS_NS = 250000.0
+) (
   // host-facing I2C
   input  logic scl,
   input  logic sda_bus,
@@ -51,7 +56,7 @@ module bq_board import bq_types_pkg::*; (
     .y  (n_shunt)
   );
 
-  bq76952_rnm u_afe (
+  bq76952_rnm #(.TMEAS_NS(TMEAS_NS)) u_afe (
     .vc1 (w_vc1), .vc2 (w_vc2), .vc3 (w_vc3),
     .vc4 (w_vc4), .vc5 (w_vc5), .vc6 (w_vc6),
     .v_shunt   (n_shunt),

@@ -7,18 +7,26 @@ set -eu
 cd "$(dirname "$0")"
 XEZIM=${XEZIM:-$HOME/xezim/target/release/xezim}
 RENODE=${RENODE:-$HOME/renode-portable/renode}
+# fault/drift knobs: FW_FAULT=, XZ_DEFS="-D FAULT_COFF" or
+# "-D AFE_DRIFT_PPM=<n>", BR_FAULT_SDA_STUCK=1
+FW_FAULT=${FW_FAULT:-}
+XZ_DEFS=${XZ_DEFS:-}
+BR_FAULT_SDA_STUCK=${BR_FAULT_SDA_STUCK:-0}
 mkdir -p ../logs_v2 build
 
-echo "== firmware (ARM, v2) =="
-make -s -C fw_arm fw_v2.elf
+echo "== firmware (ARM, v2)${FW_FAULT:+  [FAULT_$FW_FAULT]} =="
+make -s -C fw_arm fw_v2.elf FAULT="$FW_FAULT"
 
 echo "== bridge2 DPI library =="
 cc -shared -fPIC -O2 -Wall -I"$HOME/xezim/include" \
    bridge/xezim_bridge2.c -o build/bridge2.so
 
-echo "== xezim (background, waits for Renode) =="
+BRTAG=""; [ "$BR_FAULT_SDA_STUCK" = "1" ] && BRTAG="  [BR_FAULT_SDA_STUCK]"
+echo "== xezim (background, waits for Renode)${XZ_DEFS:+  [$XZ_DEFS]}$BRTAG =="
 rm -f uart_v2.log
+BR_FAULT_SDA_STUCK="$BR_FAULT_SDA_STUCK" \
 "$XEZIM" --simulate --sv2017 --error-exit \
+  $XZ_DEFS \
   -f xezim_v2.f -s top_v2 \
   --dpi-lib build/bridge2.so \
   --max-time 400ms \

@@ -26,12 +26,19 @@ module top_v2;
   //--- scenario: pack state over BOARD time ----------------------------
   real c_v = 3.7, rint_v = 0.012, iload_v = 1.0, temp_v = 25.0;
   real zero = 0.0;
-  wreal p_c, p_rint, p_iload, p_temp, p_z;
+`ifdef FAULT_COFF
+  // INJECTED ANALOG FAULT: +2500 mA offset in the current path
+  real coff_v = 2500.0;
+`else
+  real coff_v = 0.0;
+`endif
+  wreal p_c, p_rint, p_iload, p_temp, p_z, p_coff;
   assign p_c     = c_v;
   assign p_rint  = rint_v;
   assign p_iload = iload_v;
   assign p_temp  = temp_v;
   assign p_z     = zero;
+  assign p_coff  = coff_v;
   logic intf_en = 1'b0;
 
   initial begin
@@ -44,7 +51,19 @@ module top_v2;
   end
 
   //--- the board --------------------------------------------------------
-  bq_board u_board (
+  // CLOCK-DRIFT KNOB: the AFE's internal oscillator vs the MCU's
+  // crystal are independent clocks on a real board.  Compile with
+  // -D AFE_DRIFT_PPM=<n> to stretch/shrink the AFE's measurement
+  // cycle; sweeping it slides the trip's phase against the firmware's
+  // loop, deterministically per value.
+`ifdef AFE_DRIFT_PPM
+  localparam real TMEAS = 250000.0 * (1.0 + (`AFE_DRIFT_PPM) / 1.0e6);
+`else
+  localparam real TMEAS = 250000.0;
+`endif
+  initial $display("[board] AFE measurement period = %.1f ns", TMEAS);
+
+  bq_board #(.TMEAS_NS(TMEAS)) u_board (
     .scl         (scl),
     .sda_bus     (sda_bus),
     .sda_pull    (s_sda_pull),
@@ -55,7 +74,7 @@ module top_v2;
     .p_temp      (p_temp),
     .p_vgain_tol (p_z),
     .p_ctol      (p_z),
-    .p_coff_ma   (p_z),
+    .p_coff_ma   (p_coff),
     .intf_en     (intf_en),
     .dsg_en      (dsg_en),
     .chg_en      (chg_en),

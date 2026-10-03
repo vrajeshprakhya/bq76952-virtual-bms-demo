@@ -1,0 +1,91 @@
+== firmware (ARM, v2) ==
+   text	   data	    bss	    dec	    hex	filename
+   4199	      0	     12	   4211	   1073	fw_v2.elf
+== bridge2 DPI library ==
+== xezim (background, waits for Renode)  [BR_FAULT_SDA_STUCK] ==
+== Renode (console) ==
+---- firmware UART ----
+
+[fw] BMS host up on Renode/STM32G0 (v2 quantum-coupled); board = SV-RNM in xezim
+[fw t=2.9ms] AFE protection configured (CUV 2800mV COV 4250mV OCD 3000mA)
+[fw t=2.9ms] ALERT IRQ armed; polling for telemetry only
+[fw t=6.8ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=6.9ms] *** I2C FAULT: slave not ACKing (12 NACKs)
+[fw t=6.9ms] *** TELEMETRY FAULT: implausible c1=65535mV
+[fw t=8.9ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=10.9ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=12.9ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=14.9ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=16.9ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=17.4ms] *** ALERT IRQ: isr at t=15250us, seen at t=16920us ss=0x255 -- OCD TRIP seen over I2C -- current stopped by the AFE
+[fw t=42.4ms] recover written (0x99=1)
+[fw t=44.3ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=46.3ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=48.3ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=50.3ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=52.2ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=54.2ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=56.2ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=58.2ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=60.1ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=62.1ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=64.1ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=66.1ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=68.1ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=70.0ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=72.0ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=74.0ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=76.0ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=77.9ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=79.9ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=81.9ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=83.9ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=85.8ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=87.8ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=89.8ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=91.8ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=93.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=95.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=97.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=99.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=101.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=103.6ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=105.6ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=107.6ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=109.6ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=111.5ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=113.5ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=115.5ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=117.5ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=119.5ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=121.4ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=123.4ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=125.4ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=127.4ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=129.3ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=131.3ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=133.3ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=135.3ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=137.3ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=139.2ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=141.2ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=143.2ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=145.2ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=147.1ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=147.2ms] !!! mission incomplete
+[fw] done; stopping the board sim
+---- board events (xezim) ----
+[board] AFE measurement period = 250000.0 ns
+[scenario] t=15000000000: load raised to 4.2 A (overload)
+[board] t=15250000000: AFE opened DSG (protection trip)
+[board] t=15250000000: ALERT asserted (safety status nonzero)
+[scenario] t=40000000000: load reduced to 0.5 A
+[board] t=42500000000: AFE closed DSG (recovered)
+[renode_bridge2] firmware finished at t=147254703000
+---- cross-domain check ----
+CHECK: FAIL (5 rule violation(s))
+  R2 telemetry: firmware says c1=65535mV at t=6.8ms; board truth is 3688 +/- 5
+  R2 telemetry: firmware says i=-1mA at t=6.8ms; board truth is 1000 +/- 15
+  R4 bus: firmware reported the slave not ACKing
+  R4 plausibility: firmware flagged implausible telemetry
+  R4 mission: trip-and-recover did not complete

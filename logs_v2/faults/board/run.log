@@ -1,0 +1,29 @@
+== firmware (ARM, v2) ==
+   text	   data	    bss	    dec	    hex	filename
+   4199	      0	     12	   4211	   1073	fw_v2.elf
+== bridge2 DPI library ==
+== xezim (background, waits for Renode)  [-D FAULT_COFF] ==
+== Renode (console) ==
+---- firmware UART ----
+
+[fw] BMS host up on Renode/STM32G0 (v2 quantum-coupled); board = SV-RNM in xezim
+[fw t=2.9ms] AFE protection configured (CUV 2800mV COV 4250mV OCD 3000mA)
+[fw t=2.9ms] ALERT IRQ armed; polling for telemetry only
+[fw t=3.5ms] *** ALERT IRQ: isr at t=2930us, seen at t=2950us ss=0x4 -- OCD TRIP seen over I2C -- current stopped by the AFE
+[fw t=42.4ms] recover written (0x99=1)
+[fw t=44.3ms] ss=0x0 c1=3700mV i=2504mA
+[fw t=44.4ms] *** RECOVERED: latch cleared, current flowing again (2504mA)
+[fw] done; stopping the board sim
+---- board events (xezim) ----
+[board] AFE measurement period = 250000.0 ns
+[board] t=1750000000: AFE opened DSG (protection trip)
+[board] t=1750000000: ALERT asserted (safety status nonzero)
+[scenario] t=15000000000: load raised to 4.2 A (overload)
+[scenario] t=40000000000: load reduced to 0.5 A
+[board] t=42500000000: AFE closed DSG (recovered)
+[board] t=43000000000: AFE opened DSG (protection trip)
+[board] t=43000000000: ALERT asserted (safety status nonzero)
+[renode_bridge2] firmware finished at t=44431213000
+---- cross-domain check ----
+CHECK: FAIL (1 rule violation(s))
+  R3 false-trip: DSG opened at 1.75ms, BEFORE the overload at 15ms

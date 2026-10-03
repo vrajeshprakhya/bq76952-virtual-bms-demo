@@ -117,6 +117,18 @@ logs_renode/   uart.log (the firmware's own account of the trip-and-
 logs_v2/       the quantum-coupled run: uart.log shows "ALERT IRQ:
                isr at t=15250us" -- interrupt delivery at the assert
                quantum -- plus the same telemetry the checker grades
+               drift/     clock-drift sweep (run_drift.sh): the AFE's
+                          measurement period swept +/-2% against the
+                          MCU's clock (-D AFE_DRIFT_PPM=<n>, a new
+                          defaulted TMEAS_NS parameter on bq_board);
+                          the trip's phase slides deterministically,
+                          sweep.log tabulates trip vs ISR instant,
+                          checker green at every point -- the bench
+                          samples this space once per power cycle,
+                          the co-sim walks it
+               faults/    the five-fault campaign re-run under the
+                          v2 coupling (BACKEND=v2 run_faults.sh),
+                          same verdicts R1-R4, clean green
 CROSSCHECK.md  the two simulators put side by side, number by number
 ```
 

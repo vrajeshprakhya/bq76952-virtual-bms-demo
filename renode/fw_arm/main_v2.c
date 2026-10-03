@@ -154,10 +154,12 @@ static uint8_t i2c_rx(int ack)
     pins(0, 1); qdel();
     return v;
 }
+static int nacks = 0;                 /* bus-health telemetry */
+
 static void afe_wr(uint8_t reg, const uint8_t *d, int n)
 {
     i2c_start();
-    i2c_tx((uint8_t)(AFE_ADDR << 1));
+    if (!i2c_tx((uint8_t)(AFE_ADDR << 1))) nacks++;
     i2c_tx(reg);
     for (int i = 0; i < n; i++) i2c_tx(d[i]);
     i2c_stop();
@@ -165,10 +167,10 @@ static void afe_wr(uint8_t reg, const uint8_t *d, int n)
 static void afe_rd(uint8_t reg, uint8_t *d, int n)
 {
     i2c_start();
-    i2c_tx((uint8_t)(AFE_ADDR << 1));
+    if (!i2c_tx((uint8_t)(AFE_ADDR << 1))) nacks++;
     i2c_tx(reg);
     i2c_start();
-    i2c_tx((uint8_t)((AFE_ADDR << 1) | 1));
+    if (!i2c_tx((uint8_t)((AFE_ADDR << 1) | 1))) nacks++;
     for (int i = 0; i < n; i++) d[i] = i2c_rx(i < n - 1);
     i2c_stop();
 }
@@ -190,7 +192,15 @@ int main(void)
 
     wr16(R_CUV, 2800);
     wr16(R_COV, 4250);
+#ifdef FAULT_OCD_SWAP
+    /* INJECTED BUG: byte-swapped threshold write -> 0xB80B = 47115 mA */
+    {
+        uint8_t sw[2] = { (uint8_t)(3000 >> 8), (uint8_t)(3000 & 0xff) };
+        afe_wr(R_OCD, sw, 2);
+    }
+#else
     wr16(R_OCD, 3000);
+#endif
     wr8(R_PROTEN, 0x0F);
     wr8(R_FETALW, 0x03);
     wr8(R_CB, 0x00);
@@ -199,7 +209,14 @@ int main(void)
     NVIC_ISER = (1u << ALERT_IRQ);     /* arm the ALERT interrupt */
     put_t(); puts_("ALERT IRQ armed; polling for telemetry only\n");
 
-    int tripped = 0, recovered = 0;
+#ifdef FAULT_REG_OFF1
+    /* INJECTED BUG: cell readout starts one register too high */
+#define R_CELLS_RD (R_CELLS + 1)
+#else
+#define R_CELLS_RD R_CELLS
+#endif
+
+    int tripped = 0, recovered = 0, bus_warned = 0, tele_warned = 0;
     uint64_t next_poll = tnow() + 2000000u;
     for (int loop = 0; loop < 60 && !recovered; loop++) {
         /* wait for the next poll slot, but let the ISR break in */
@@ -226,7 +243,7 @@ int main(void)
 
         uint8_t ss;
         afe_rd(R_SAFETY, &ss, 1);
-        afe_rd(R_CELLS, d, 2);
+        afe_rd(R_CELLS_RD, d, 2);
         int c1 = d[0] | (d[1] << 8);
         afe_rd(R_CURR, d, 2);
         int ma = (int16_t)(d[0] | (d[1] << 8));
@@ -236,6 +253,18 @@ int main(void)
         puts_(" c1="); puti(c1);
         puts_("mV i="); puti(ma);
         puts_("mA\n");
+
+        /* defence in depth: the firmware's own sanity checks */
+        if (nacks && !bus_warned) {
+            bus_warned = 1;
+            put_t(); puts_("*** I2C FAULT: slave not ACKing (");
+            puti(nacks); puts_(" NACKs)\n");
+        }
+        if ((c1 < 2000 || c1 > 4500) && !tele_warned) {
+            tele_warned = 1;
+            put_t(); puts_("*** TELEMETRY FAULT: implausible c1=");
+            puti(c1); puts_("mV\n");
+        }
 
         if (tripped && !(ss & SS_OCD) && ma > 400) {
             recovered = 1;

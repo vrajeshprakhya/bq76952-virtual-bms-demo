@@ -28,6 +28,9 @@ static int lsock = -1, csock = -1;
 static int first = 1;
 static char buf[128];
 static int blen = 0;
+/* FAULT INJECTION (BR_FAULT_SDA_STUCK=1): SDA readback stuck at 1,
+ * same pin-mux bug class as the v1 campaign. */
+static int fault_sda = -1;
 
 SV_PUBLIC int br2_init(int port)
 {
@@ -74,8 +77,15 @@ SV_PUBLIC int br2_next(int sda_now, int alert_now,
         first = 0;
     } else {
         char ack[24];
-        int n = snprintf(ack, sizeof ack, "K %d %d\n",
-                         sda_now & 1, alert_now & 1);
+        int n;
+        if (fault_sda < 0) {
+            const char *e = getenv("BR_FAULT_SDA_STUCK");
+            fault_sda = (e && e[0] == '1') ? 1 : 0;
+            if (fault_sda)
+                fprintf(stderr, "[xezim-bridge2] FAULT: SDA readback stuck at 1\n");
+        }
+        n = snprintf(ack, sizeof ack, "K %d %d\n",
+                     fault_sda ? 1 : (sda_now & 1), alert_now & 1);
         if (send(csock, ack, (size_t)n, 0) != n) return 2;
     }
 

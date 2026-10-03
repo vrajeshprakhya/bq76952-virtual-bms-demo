@@ -660,6 +660,82 @@ observed from the board side in the xezim log and from the chip side
 over \iic{}, through a bus whose every edge was produced by ARM
 instructions.
 
+\subsection{Beyond lockstep: making compute cost time}
+\label{sec:quantum}
+
+The lockstep contract has two stated blind spots.  Firmware
+computation is free (a slow handler or a bloated loop never stretches
+bus timing), and nothing asynchronous can preempt the firmware
+(events quantize to the boundaries the firmware itself creates).
+Both are removed by a second synchronization contract,
+\emph{virtual-time quantum coupling}, implemented as a parallel
+bridge in the same framework (on an emulator backend with directly
+scriptable virtual-time hooks; the identical contract ports to QEMU
+through its \texttt{icount} machinery).
+
+Under this contract the firmware never declares time at all.  The
+emulator's own virtual clock drives the board: one synchronization
+per 10\,$\mu$s \emph{quantum} of CPU execution, plus a flush of the
+quantum's un-synced tail before every pin access, so \iic{} edges
+keep per-edge fidelity while the quiet stretches between bus activity
+cost one message each (the hybrid most co-simulation backplanes
+converge on).  The firmware waits by genuinely spinning against a
+board-time register, and every instruction it executes spends board
+time.  Determinism survives, because quantum boundaries are pure
+virtual time: repeated runs are bit-identical.  The board's ALERT
+line, derived from the AFE's safety status, becomes a real NVIC
+interrupt, so the trip can preempt the firmware mid-execution.
+
+The measured result justifies the construction.  The interrupt
+service routine timestamps itself at $t = 15{,}250\,\mu$s, the exact
+quantum of the board's ALERT assertion (under lockstep, poll-based
+discovery came at 18.6\,ms).  The firmware's \emph{reaction} lands at
+16.91\,ms, and that remaining 1.66\,ms is the firmware's own
+main-loop service latency: the interrupt arrived mid-telemetry
+transaction, and the loop finishes its poll (now a real
+${\sim}1.9$\,ms of execution and bus cost) before honouring the
+flag.  Lockstep could not even express that number; here it is a
+measured property of the firmware, the kind a datasheet calls
+worst-case interrupt-to-action latency.  (Bring-up note: the gap was
+first blamed on the emulator's interrupt delivery; capturing board
+time \emph{inside} the ISR proved delivery exact and returned the
+blame to the code under test, which is the correct direction for a
+verification tool to point.)
+
+Finally, a physical board has no shared clock: the AFE's internal
+oscillator and the MCU's crystal drift independently, so the trip's
+phase against the firmware's loop is a dice roll per power cycle.
+The co-simulation models this with a drift knob on the AFE's
+measurement period (\texttt{AFE\_DRIFT\_PPM}, percent-grade spans for
+a BQ-class internal oscillator) and then does what the bench cannot:
+\emph{sweeps} the phase deterministically
+(Table~\ref{tab:drift}), every point reproducible from its
+parameters.  Each trip lands exactly on the first stretched or
+shrunk measurement boundary after the overload ($62 \times
+245\,\mu$s, $59 \times 255\,\mu$s, and so on), the ISR tracks it
+within one quantum, and the four-rule checker passes at every
+point.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{@{}rrrl@{}}
+\toprule
+AFE drift & Board trip & ISR timestamp & Checker \\
+\midrule
+$-20{,}000$ ppm & 15{,}190\,$\mu$s & 15{,}190\,$\mu$s & PASS \\
+$-5{,}000$ ppm  & 15{,}173\,$\mu$s & 15{,}180\,$\mu$s & PASS \\
+$0$ ppm         & 15{,}250\,$\mu$s & 15{,}250\,$\mu$s & PASS \\
+$+5{,}000$ ppm  & 15{,}075\,$\mu$s & 15{,}080\,$\mu$s & PASS \\
+$+20{,}000$ ppm & 15{,}045\,$\mu$s & 15{,}050\,$\mu$s & PASS \\
+\bottomrule
+\end{tabular}
+\caption{Clock-drift sweep under quantum coupling: the AFE's
+measurement period is stretched against the MCU's clock and the trip
+instant slides accordingly; each row is bit-reproducible.}
+\label{tab:drift}
+\end{table}
+
 \subsection{Fault injection: does the framework actually catch bugs?}
 \label{sec:faults}
 
@@ -717,6 +793,13 @@ byte-swap fault makes the complementary point: the system behaves
 \emph{perfectly} at 1\,A and betrays nothing until the day of the
 first real overload, which is why R1 watches the board's truth rather
 than the firmware's belief.
+
+The same five-run campaign was repeated under the quantum-coupled
+contract of Section~\ref{sec:quantum}: identical verdicts, each
+fault caught by its own rule, clean run green (evidence in
+\texttt{logs\_v2/faults/}).  The checker is agnostic to the
+synchronization contract, as it should be: it judges the two
+witnesses' stories, not the mechanism that produced them.
 
 %=======================================================================
 \section{Limitations and next steps}
