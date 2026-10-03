@@ -7,9 +7,15 @@ ifneq ($(FAULT),)
 CFLAGS += -DFAULT_$(FAULT)
 endif
 
-.PHONY: all fw.elf fw_qemu.elf clean
+.PHONY: all fw.elf fw_qemu.elf fw_v2.elf clean
 
-all: fw.elf fw_qemu.elf
+all: fw.elf fw_qemu.elf fw_v2.elf
+
+# Renode / STM32G0, v2 quantum-coupled bridge (no HAL: v2-specific)
+fw_v2.elf: main_v2.c startup_v2.c link.ld
+	$(CC) $(CFLAGS) -mcpu=cortex-m0plus $(LDFLAGS) \
+	  -o $@ main_v2.c startup_v2.c -lgcc
+	$(SIZE) $@
 
 # Renode / STM32G0 (Cortex-M0+): bridge = custom MMIO peripheral
 fw.elf: main.c hal_renode.c startup.c link.ld hal.h

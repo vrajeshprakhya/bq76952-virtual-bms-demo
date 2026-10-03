@@ -97,8 +97,26 @@ renode/        SoC-emulator <-> xezim CO-SIMULATION, two backends:
                                 different rule, clean run still green
                Tools (no sudo): ~/renode-portable (v1.17.0),
                ~/arm-gcc (xPack 15.2.1); get_tools.sh fetches both.
+               V2 BRIDGE (run_cosim_v2.sh): VIRTUAL-TIME QUANTUM
+               COUPLING on the Renode backend.  No ADV register: the
+               emulated CPU's own virtual clock drives board time
+               (Bridge2.cs fires one sync per 10 us quantum, plus a
+               flush before every pin access, so compute costs board
+               time and I2C edges stay cycle-honest), and the AFE's
+               ALERT is a real NVIC interrupt (level-held, ISR masks
+               itself).  Result: the ISR runs at t=15.250 ms, the
+               exact quantum of the board's assert (v1's poll-based
+               discovery was 18.6 ms); the remaining 1.66 ms to the
+               firmware's reaction is its own main-loop service
+               latency, now a measured property of the firmware
+               because execution cost is real.  fw_arm/main_v2.c +
+               startup_v2.c (full vector table), top_v2.sv,
+               bridge/*2.* -- v1 untouched.
 logs_renode/   uart.log (the firmware's own account of the trip-and-
                recover mission), xezim.log, renode.log
+logs_v2/       the quantum-coupled run: uart.log shows "ALERT IRQ:
+               isr at t=15250us" -- interrupt delivery at the assert
+               quantum -- plus the same telemetry the checker grades
 CROSSCHECK.md  the two simulators put side by side, number by number
 ```
 
@@ -130,6 +148,7 @@ Tool versions are recorded in `logs_*/**version*`.
 | Functional coverage over corner x response | `logs_xezim/xezim_cov.json` |
 | Bring-up bugs (START edge, array args, A-vs-mA) | fix-site comments in `design/rnm/bq76952_rnm.sv`, `design/tb/bq_proxy_pkg.sv`/`bq_bridge.sv`, and the whitepaper's Results section |
 | Injected defects in ANY layer are caught, each by a different rule | `logs_renode/faults/`: five-run campaign — clean passes; a byte-swapped OCD threshold (firmware config) trips R1 protection-missing; an off-by-one cell-register read (firmware protocol) trips R2 telemetry-vs-board-truth; a +2.5 A analog current-path offset (RNM) trips R3 false-trip; a stuck SDA readback (bridge/pin mux) trips R4 bus health — per-run logs + `summary.log` |
+| Under quantum coupling, firmware compute costs board time and interrupts land at the event | `logs_v2/uart.log`: ALERT ISR at t=15250us (the assert quantum, vs 18.6 ms polled in v1); the firmware's 1.66 ms main-loop service latency becomes a measured property; same checker passes |
 | The co-sim is emulator-agnostic: mainline QEMU reproduces the board timeline byte-for-byte | `logs_qemu/`: the same mission firmware on unmodified QEMU 9.2.4 (STM32F405, bridge over a USART TCP chardev) finishes at t=52233121000 exactly, same samples, same checker PASS, ~8 s wall |
 | REAL firmware on an emulated SoC drives the RNM board | `logs_renode/uart.log`: ARM firmware (Renode STM32G0, the schematic's U2 family) configures the AFE over bit-banged I2C, reads 3688 mV / ~1000 mA, sees the OCD trip (3701 mV, 1 mA), recovers the latch, confirms 3694 mV / 499 mA -- every number consistent with the xezim, ngspice and UVM domains |
 

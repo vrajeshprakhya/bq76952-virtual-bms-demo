@@ -1,0 +1,19 @@
+:name: xezim co-simulation v2
+:description: STM32G0 under the virtual-time quantum-coupled bridge; real NVIC interrupt from the board's ALERT
+
+using sysbus
+
+emulation SetGlobalQuantum "0.00002"
+mach create "bms2"
+machine LoadPlatformDescription @platforms/cpus/stm32g0.repl
+
+include @Bridge2.cs
+machine LoadPlatformDescriptionFromString "bridge2: XezimBridge2 @ sysbus 0x60000100 { quantumUs: 10; IRQ -> nvic@30 }"
+
+sysbus LoadELF @fw_arm/fw_v2.elf
+
+usart2 CreateFileBackend $CWD/uart_v2.log true
+
+echo "running: quantum-coupled firmware drives the xezim board"
+emulation RunFor "0.2"
+quit

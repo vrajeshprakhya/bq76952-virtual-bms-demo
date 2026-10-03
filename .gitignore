@@ -20,3 +20,5 @@ renode/uart_qemu.log
 renode/diag.sh
 renode/qcheck.sh
 kicad/j4_zoom.png
+renode/uart_v2.log
+renode/fw_arm/fw_v2.elf
