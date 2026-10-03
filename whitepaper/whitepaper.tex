@@ -60,9 +60,16 @@ a mock: the host-compiled logic, graded by the testbench across the
 13-scenario randomized regression above, and then, recompiled as
 bare-metal ARM code, the binary itself, booted
 on an emulated STM32 under unmodified mainline QEMU, driving the
-SV-RNM board over a lockstep socket bridge and reporting the full
+SV-RNM board over a socket bridge and reporting the full
 trip-and-recover mission over its own UART, with a board timeline
-that is reproducible to the nanosecond.  A fault-injection
+that is reproducible to the nanosecond.  The bridge offers two
+interchangeable synchronization contracts with distinct jobs: a
+\emph{logic} contract (lockstep), which proves what the firmware
+decides and says on the bus, and a \emph{timing} contract
+(virtual-time quantum coupling), which makes execution cost real
+and interrupts asynchronous, turning latencies such as the
+firmware's 1.66\,ms interrupt-to-action into measured, regressable
+numbers.  A fault-injection
 campaign closes the loop on trust: one deliberate defect per layer
 (firmware configuration, firmware protocol, analog front-end, pin
 path), each caught by a different rule of a cross-domain checker,
@@ -542,7 +549,23 @@ testbench across randomized scenarios against the board's physics
 instead of against stubs.  This section is rung two, with no shim
 at all.
 
-The distinction is concrete: the two rungs compile the \emph{same}
+Rung two itself runs under one of two interchangeable
+synchronization contracts, and the division of labour between them
+is worth stating before either is described, because each exists to
+prove a different thing.  The \textbf{logic contract} (lockstep,
+this section): the firmware declares its waits, board time is a
+function of the firmware's source alone, and what gets proven is
+\emph{what the firmware decides and says on the bus}: right
+registers, right protocol, right reactions to the board's physics.
+The \textbf{timing contract} (virtual-time quantum coupling,
+Section~\ref{sec:quantum}): the CPU's own execution cost drives
+board time and interrupts land at the event, and what gets proven is
+\emph{how fast the firmware does it}: interrupt-to-action budgets,
+service latencies, race alignments.  Same board model, same
+cross-domain checker; a mission runs under whichever contract
+matches the claim it must prove, and most teams need both halves.
+
+The distinction between the \emph{rungs} is concrete: the two rungs compile the \emph{same}
 firmware source with two different compilers, for two different
 universes.  On rung one, the \emph{host} compiler (plain
 \texttt{gcc}, targeting the x86-64 machine the simulator itself runs
@@ -619,7 +642,7 @@ cycle-honest and the board timeline is reproducible.}
 \label{fig:cosim}
 \end{figure}
 
-The synchronization contract does the heavy lifting: the board's
+The logic contract does the heavy lifting: the board's
 clock moves only when the firmware spends time (an \texttt{A}
 command), and every pin update is acknowledged with the freshly
 settled SDA.  QEMU's own host-side scheduling is not deterministic,
@@ -660,14 +683,18 @@ observed from the board side in the xezim log and from the chip side
 over \iic{}, through a bus whose every edge was produced by ARM
 instructions.
 
-\subsection{Beyond lockstep: making compute cost time}
+\subsection{The timing contract: virtual-time quantum coupling}
 \label{sec:quantum}
 
-The lockstep contract has two stated blind spots.  Firmware
-computation is free (a slow handler or a bloated loop never stretches
-bus timing), and nothing asynchronous can preempt the firmware
-(events quantize to the boundaries the firmware itself creates).
-Both are removed by a second synchronization contract,
+The logic contract is honest about everything except time's cost,
+and that is by design, not accident: it has two \emph{stated} blind
+spots.  Firmware computation is free (a slow handler or a bloated
+loop never stretches bus timing), and nothing asynchronous can
+preempt the firmware (events quantize to the boundaries the firmware
+itself creates).  Missions that only claim ``the firmware decides
+and communicates correctly'' lose nothing to those blind spots.
+Missions that claim ``the firmware is \emph{fast enough}'' cannot be
+run under it at all; they belong to the timing contract,
 \emph{virtual-time quantum coupling}, implemented as a parallel
 bridge in the same framework (on an emulator backend with directly
 scriptable virtual-time hooks; the identical contract ports to QEMU
@@ -737,9 +764,10 @@ instant slides accordingly; each row is bit-reproducible.}
 \end{table}
 
 \paragraph{Choosing between the contracts.}
-The two contracts are not competitors; they split the test
-population along one question: \emph{does this mission bet on the
-cost of computation?}  Table~\ref{tab:contracts} summarizes the
+The logic contract and the timing contract are not competitors, and
+neither supersedes the other; they split the test population along
+one question: \emph{does this mission bet on the cost of
+computation?}  Table~\ref{tab:contracts} summarizes the
 trade.  Most test cases do not place that bet: configuration and
 driver bring-up, register-map conformance, protocol content, state
 machines, protection thresholds.  For those, lockstep is fully
@@ -764,6 +792,7 @@ the same contract-agnostic checker grade both.
 \begin{tabular}{@{}lll@{}}
 \toprule
  & Lockstep & Quantum coupling \\
+ & (the logic contract) & (the timing contract) \\
 \midrule
 Sync point            & every pin edge and      & per 10\,$\mu$s of CPU time, \\
                       & \quad declared delay    & \quad plus pin-access flush \\
@@ -843,8 +872,8 @@ byte-swap fault makes the complementary point: the system behaves
 first real overload, which is why R1 watches the board's truth rather
 than the firmware's belief.
 
-The same five-run campaign was repeated under the quantum-coupled
-contract of Section~\ref{sec:quantum}: identical verdicts, each
+The same five-run campaign was repeated under the timing contract
+of Section~\ref{sec:quantum}: identical verdicts, each
 fault caught by its own rule, clean run green (evidence in
 \texttt{logs\_v2/faults/}).  The checker is agnostic to the
 synchronization contract, as it should be: it judges the two
