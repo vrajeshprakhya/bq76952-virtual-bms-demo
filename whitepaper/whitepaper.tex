@@ -701,6 +701,130 @@ cooperative-tick dispatch cost, measured at true execution price,
 the kind of number a datasheet calls worst-case event-to-action
 latency.
 
+Figure~\ref{fig:flow} lays the whole mission out as a timeline:
+what crosses the bridge and when, where board time is spent, which
+events are the board's own, and where the two witness logs that the
+checker cross-examines are produced.
+
+\begin{figure}[p]
+\centering
+\footnotesize
+\begin{tikzpicture}[yscale=0.92, xscale=1.0,
+  msg/.style={-{Stealth[length=2mm]}, semithick},
+  ret/.style={-{Stealth[length=2mm]}, semithick, gray},
+  ev/.style={fill=red!70!black, circle, inner sep=1.2pt},
+  note/.style={align=center, inner sep=2pt, text width=58mm},
+  side/.style={align=left, inner sep=2pt, text width=38mm},
+  probe/.style={align=left, inner sep=2pt, text width=38mm,
+                text=blue!50!black}]
+
+  % ---- lifelines ----
+  \node[hot, text width=34mm, align=center] (fwh) at (4.6, 0.4)
+    {\textbf{firmware} (QEMU, icount)\\
+     probed via its UART log};
+  \node[blk, text width=34mm, align=center] (bdh) at (11.6, 0.4)
+    {\textbf{board} (SV-RNM, xezim)\\
+     probed via its event log};
+  \draw[very thick] (4.6,-0.6) -- (4.6,-16.4);
+  \draw[very thick] (11.6,-0.6) -- (11.6,-16.4);
+
+  % ---- phase 1: configuration ----
+  \draw[msg] (4.6,-1.5) -- (11.6,-1.5)
+    node[midway, above, note]
+    {6 register writes, bit-banged \iic{}:\\every edge an
+     \texttt{S}, every gap paid};
+  \draw[ret] (11.6,-2.1) -- (4.6,-2.1)
+    node[midway, below, note] {each message acked: SDA + ALERT};
+  \node[side, anchor=east] at (3.9,-1.8)
+    {$0 \to 2.1$\,ms:\\configuration};
+
+  % ---- phase 2: the poll loop ----
+  \draw[rounded corners, gray] (4.0,-2.6) rectangle (15.9,-5.3);
+  \node[side, anchor=east, gray] at (3.9,-2.9) {every 2\,ms:};
+  \draw[msg] (4.6,-3.3) -- (11.6,-3.3)
+    node[midway, above, note]
+    {read status, cell\,1, current\\(${\sim}1.4$\,ms of executed
+     edges)};
+  \draw[msg, dashed] (4.6,-4.2) -- (11.6,-4.2)
+    node[midway, above, note]
+    {wait: \texttt{A 10000} per 10\,$\mu$s of\\execution
+     (${\sim}200$ beacons)};
+  \draw[ret] (11.6,-4.9) -- (4.6,-4.9)
+    node[midway, below, note]
+    {acks; AFE measures every 250\,$\mu$s};
+  \node[probe, anchor=west] at (11.9,-3.3)
+    {telemetry reaches the UART log};
+
+  % ---- the overload and trip ----
+  \node[ev] at (11.6,-6.2) {};
+  \node[side, anchor=west] at (11.9,-6.2)
+    {15.0\,ms: scenario raises the load to 4.2\,A (board's own
+     event)};
+  \node[ev] at (11.6,-7.8) {};
+  \node[probe, anchor=west] at (11.9,-7.8)
+    {15.25\,ms: AFE measures 4200\,mA $>$ 3000, opens DSG, latches
+     ALERT [board log]};
+
+  % torn read
+  \node[align=center, draw, rounded corners, text width=60mm]
+    at (8.1,-8.9)
+    {poll in flight across the trip: status read returns 0x0
+     (before), current read returns 4200\,mA (after): the
+     \emph{torn snapshot}};
+
+  % dispatch
+  \draw[ret, blue!50!black, very thick] (11.6,-10.0) -- (4.6,-10.0)
+    node[midway, above, note] {next ack carries ALERT = 1};
+  \node[probe, anchor=east] at (3.9,-10.7)
+    {15.516\,ms: dispatch: ss = 0x4, print TRIP [UART log]
+     (266\,$\mu$s after the event)};
+
+  % ---- recovery wait ----
+  \draw[msg, dashed] (4.6,-11.6) -- (11.6,-11.6)
+    node[midway, above, note]
+    {wait to 42\,ms: beacons only\\(${\sim}2600$ of them)};
+  \node[ev] at (11.6,-12.4) {};
+  \node[side, anchor=west] at (11.9,-12.4)
+    {40\,ms: scenario drops the load to 0.5\,A (board's own
+     event)};
+
+  % ---- recover and confirm ----
+  \draw[msg] (4.6,-13.3) -- (11.6,-13.3)
+    node[midway, above, note] {\iic{} write: recover (0x99 = 1)};
+  \node[probe, anchor=west] at (11.9,-13.9)
+    {42.75\,ms: DSG closes [board log]};
+  \draw[msg] (4.6,-14.7) -- (11.6,-14.7)
+    node[midway, above, note]
+    {poll: 3694\,mV, 495\,mA\\($= 3700 - 0.5\,\mathrm{A} \times
+     12\,\mathrm{m}\Omega$)};
+  \node[probe, anchor=east] at (3.9,-15.3)
+    {43.7\,ms: RECOVERED [UART log]};
+  \draw[msg] (4.6,-16.1) -- (11.6,-16.1)
+    node[midway, above, note] {\texttt{F}: end of mission};
+
+  % ---- the two witnesses and the checker ----
+  \node[blk, text width=32mm, align=center] (w1) at (4.6,-17.6)
+    {\texttt{uart.log}\\the chip's story};
+  \node[blk, text width=32mm, align=center] (w2) at (11.6,-17.6)
+    {\texttt{xezim.log}\\the board's story};
+  \node[hot, text width=84mm, align=center] (chk) at (8.1,-19.9)
+    {\textbf{cross-domain checker} (\texttt{check\_cosim.py})\\
+     R1 trip within 2\,ms of overload \;$\cdot$\; R2 telemetry
+     matches physics\\R3 no trip before overload \;$\cdot$\;
+     R4 bus health and mission complete};
+  \draw[msg] (w1.south) -- (chk.north west);
+  \draw[msg] (w2.south) -- (chk.north east);
+\end{tikzpicture}
+\caption{The trip-and-recover mission as a timeline.  Left lane: the
+firmware, whose executed instructions are the only source of board
+time (solid arrows carry pin edges, dashed arrows carry time
+beacons).  Right lane: the board, whose measurement loop, protection
+trip and scenario events are its own.  Neither side is instrumented
+internally: the test probes exactly two artifacts, the chip's serial
+log and the board's event log, and the checker cross-examines them.}
+\label{fig:flow}
+\end{figure}
+
 \subsection{Independent clocks: the drift sweep}
 \label{sec:quantum}
 
