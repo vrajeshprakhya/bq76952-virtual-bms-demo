@@ -69,7 +69,9 @@ decides and says on the bus, and a \emph{timing} contract
 (virtual-time quantum coupling), which makes execution cost real
 and interrupts asynchronous, turning latencies such as the
 firmware's 1.66\,ms interrupt-to-action into measured, regressable
-numbers.  A fault-injection
+numbers.  The board is also exposed as a standard IEEE 1666
+TLM-2.0 target, so any industry virtual-platform initiator can
+drive it.  A fault-injection
 campaign closes the loop on trust: one deliberate defect per layer
 (firmware configuration, firmware protocol, analog front-end, pin
 path), each caught by a different rule of a cross-domain checker,
@@ -936,6 +938,22 @@ synchronization theory: conservative lookahead~\cite{chandy1979}
 quantum-based loose coupling~\cite{tlm2}, and optimistic
 rollback~\cite{jefferson1985}, rarely used here because rolling back
 a CPU emulator is expensive.
+
+These comparisons are made concrete in the framework itself: the
+RNM board is also presented as a \emph{standard IEEE 1666 TLM-2.0
+target}.  A small SystemC shim (${\sim}250$ lines against the stock
+Accellera kernel) exposes a target socket whose register map is the
+bridge contract; the firmware's traffic from unmodified mainline
+QEMU crosses it as genuine generic-payload \texttt{b\_transport}
+transactions (14{,}439 per mission, identical across runs), the
+SystemC kernel's \texttt{sc\_time} advances with every board
+advance, and the board timeline ends at $t = 52{,}233{,}121$\,ns
+exactly, the same nanosecond as the direct transports, graded by
+the same checker.  Any TLM-2.0 initiator, whether QBox, a
+remote-port endpoint, or a vendor virtual platform, can bind to the
+same socket and drive the same board; the line protocol is thereby
+an implementation detail behind a standard boundary, not the
+interface.
 
 What the literature mostly does not cover is the other end of the
 wire.  These frameworks connect QEMU to \emph{digital} RTL; here the
