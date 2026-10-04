@@ -558,8 +558,9 @@ function of the firmware's source alone, and what gets proven is
 \emph{what the firmware decides and says on the bus}: right
 registers, right protocol, right reactions to the board's physics.
 The \textbf{timing contract} (virtual-time quantum coupling,
-Section~\ref{sec:quantum}): the CPU's own execution cost drives
-board time and interrupts land at the event, and what gets proven is
+Section~\ref{sec:quantum}): the emulated MCU's own execution cost
+drives board time and interrupts land at the event, and what gets
+proven is
 \emph{how fast the firmware does it}: interrupt-to-action budgets,
 service latencies, race alignments.  Same board model, same
 cross-domain checker; a mission runs under whichever contract
@@ -701,8 +702,11 @@ scriptable virtual-time hooks; the identical contract ports to QEMU
 through its \texttt{icount} machinery).
 
 Under this contract the firmware never declares time at all.  The
-emulator's own virtual clock drives the board: one synchronization
-per 10\,$\mu$s \emph{quantum} of CPU execution, plus a flush of the
+emulator's virtual clock for the emulated MCU drives the board (the
+host machine's time never enters; each emulated instruction costs a
+fixed slice of virtual time, which keeps runs reproducible): one
+synchronization per 10\,$\mu$s \emph{quantum} of the emulated MCU's
+execution, plus a flush of the
 quantum's un-synced tail before every pin access, so \iic{} edges
 keep per-edge fidelity while the quiet stretches between bus activity
 cost one message each (the hybrid most co-simulation backplanes
@@ -794,10 +798,10 @@ the same contract-agnostic checker grade both.
  & Lockstep & Quantum coupling \\
  & (the logic contract) & (the timing contract) \\
 \midrule
-Sync point            & every pin edge and      & per 10\,$\mu$s of CPU time, \\
+Sync point            & every pin edge and      & per 10\,$\mu$s of MCU time, \\
                       & \quad declared delay    & \quad plus pin-access flush \\
-Board time comes from & firmware's declared     & the CPU's own execution \\
-                      & \quad waits             & \\
+Board time comes from & firmware's declared     & the emulated MCU's \\
+                      & \quad waits             & \quad own execution \\
 Compute costs time    & no (free)               & yes \\
 Interrupts            & no; events wait for the & yes; land within one \\
                       & \quad next poll         & \quad quantum of the event \\
