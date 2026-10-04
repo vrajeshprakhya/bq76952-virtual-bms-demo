@@ -884,6 +884,67 @@ synchronization contract, as it should be: it judges the two
 witnesses' stories, not the mechanism that produced them.
 
 %=======================================================================
+\section{Related work}
+\label{sec:related}
+%=======================================================================
+
+Connecting QEMU to hardware simulation is well-trodden ground; this
+section places the bridge in that lineage.  Four families cover the
+traditional approaches.
+
+\textbf{QEMU wrapped as a SystemC/TLM-2.0 model.}  The academic root
+is Mont\'on et al.~\cite{monton2007}, which embedded QEMU behind a
+TLM interface so the SystemC kernel owns the simulation; the lineage
+matured into QBox~\cite{qbox2016}, an industrial integration of QEMU
+as a TLM-2.0 model, open-sourced and in production use.  RTL enters
+this family through SystemC-to-HDL co-simulation or TLM-to-pin
+adapters, and synchronization is TLM-2.0's loosely-timed
+\emph{quantum keeper}~\cite{tlm2}, the direct ancestor of this
+paper's timing contract.
+
+\textbf{A socket transaction protocol from a QEMU fork.}  The
+industrial workhorse is AMD/Xilinx remote-port with
+libsystemctlm-soc~\cite{remoteport}: a QEMU fork serializes
+transactions, wires and interrupts over a socket, and a library of
+SystemC/TLM bridges plus TLM-to-AXI adapters lands them in the major
+RTL simulators.  It exists because Zynq and Versal users face
+exactly this paper's problem (processing-system firmware in QEMU,
+programmable-logic design in an RTL simulator), and it is the
+closest industrial relative of the bridge built here: the same
+command/ack-over-socket shape, with two differences.  They fork QEMU
+to add the socket natively, where this work rides a UART character
+device to stay on unmodified mainline; and their RTL-side endpoint
+speaks bus transactions (AXI), where this one speaks pins.
+
+\textbf{Direct DPI-socket coupling.}  The lightweight end: the
+SystemVerilog simulator loads a C socket endpoint through DPI and
+the other process exits however it can.  This is common in-house
+plumbing and rarely published because it is plumbing; its
+standardized cousins are Accellera's SCE-MI transactor
+standard~\cite{scemi} for emulators and UVM-Connect for
+UVM-to-SystemC.  This paper's bridge is a member of this family on
+the simulator side, with the quantum-keeper idea borrowed from the
+first family for its timing contract.
+
+\textbf{Commercial co-verification.}  The ancestor is Mentor
+Seamless (instruction-set simulator against RTL, 1990s); the modern
+form is hybrid emulation, a virtual CPU subsystem coupled to RTL in
+a hardware emulator through transactor layers, offered by all three
+major EDA vendors.  Underneath every family sits the same
+synchronization theory: conservative lookahead~\cite{chandy1979}
+(this paper's logic contract is the zero-skew point of that family),
+quantum-based loose coupling~\cite{tlm2}, and optimistic
+rollback~\cite{jefferson1985}, rarely used here because rolling back
+a CPU emulator is expensive.
+
+What the literature mostly does not cover is the other end of the
+wire.  These frameworks connect QEMU to \emph{digital} RTL; here the
+firmware's counterpart is an analog board model with its own
+protection engine, physics rather than logic behind the pins, graded
+by a checker that reads both sides' logs.  That combination, not the
+transport, is this work's contribution.
+
+%=======================================================================
 \section{Limitations and next steps}
 %=======================================================================
 
@@ -923,6 +984,43 @@ Annex-A proxy / DPI-tick firmware): a TCD1304 CCD sensor channel, an
 HX717 load-cell chain, an STM32 internal-ADC BMS, and this one,
 each adding one integration step, ending here with a configurable
 smart AFE behind a real bus.
+
+%=======================================================================
+\begin{thebibliography}{9}
+\bibitem{monton2007}
+M.~Mont\'on, A.~Portero, M.~Moreno, B.~Mart\'inez, J.~Carrabina,
+``Mixed SW/SystemC SoC Emulation Framework,''
+\emph{IEEE Int.\ Symposium on Industrial Electronics}, 2007.
+
+\bibitem{qbox2016}
+G.~Delbergue, M.~Burton, F.~Konrad, B.~Le~Gal, C.~Jego,
+``QBox: an industrial solution for virtual platform simulation using
+QEMU and SystemC TLM-2.0,''
+\emph{8th European Congress on Embedded Real Time Software and
+Systems (ERTS)}, 2016.
+
+\bibitem{remoteport}
+AMD/Xilinx, ``libsystemctlm-soc: SystemC/TLM-2.0 co-simulation
+framework'' (remote-port protocol),
+\texttt{github.com/Xilinx/libsystemctlm-soc}.
+
+\bibitem{tlm2}
+IEEE Std 1666-2011, \emph{SystemC Language Reference Manual},
+TLM-2.0 loosely-timed coupling and the quantum keeper.
+
+\bibitem{scemi}
+Accellera, \emph{Standard Co-Emulation Modeling Interface (SCE-MI)
+Reference Manual}.
+
+\bibitem{chandy1979}
+K.~M.~Chandy, J.~Misra, ``Distributed simulation: a case study in
+design and verification of distributed programs,''
+\emph{IEEE Trans.\ Software Engineering}, 1979.
+
+\bibitem{jefferson1985}
+D.~R.~Jefferson, ``Virtual time,''
+\emph{ACM Trans.\ Programming Languages and Systems}, 1985.
+\end{thebibliography}
 
 %=======================================================================
 \appendix
