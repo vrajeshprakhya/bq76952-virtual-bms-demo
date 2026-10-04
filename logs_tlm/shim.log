@@ -1,0 +1,11 @@
+
+        SystemC 2.3.4-Accellera --- Oct  4 2026 13:21:14
+        Copyright (c) 1996-2022 by all Contributors,
+        ALL RIGHTS RESERVED
+[shim] IEEE 1666 TLM-2.0 shim: QEMU :43603 -> rnm_board_tlm -> xezim :43601
+[shim] listening for QEMU on 127.0.0.1:43603
+[shim] QEMU connected
+[shim] connected to xezim board server
+[shim] done: 14439 TLM-2.0 transactions, sc_time = 52230 us
+
+Info: /OSCI/SystemC: Simulation stopped by user.

@@ -114,6 +114,21 @@ renode/        SoC-emulator <-> xezim CO-SIMULATION, two backends:
                bridge/*2.* -- v1 untouched.
 logs_renode/   uart.log (the firmware's own account of the trip-and-
                recover mission), xezim.log, renode.log
+               TLM-2.0 SHIM (run_cosim_tlm.sh, tlm_shim/shim.cpp):
+               the RNM board presented as a STANDARD IEEE 1666
+               TLM-2.0 TARGET (Accellera SystemC 2.3.4, built
+               sudo-free by get_systemc.sh into ~/systemc).  Three
+               host processes: unmodified QEMU (same fw_qemu.elf)
+               -> SystemC shim, where every firmware action crosses
+               a genuine tlm_generic_payload b_transport into
+               rnm_board_tlm (register map PINS/SDA/ADV/FIN, sc_time
+               advancing with every ADV) -> the untouched xezim
+               board server.  Any TLM initiator (QBox, a remote-port
+               endpoint, a vendor virtual platform) can bind to the
+               same target.  14,439 TLM transactions per mission,
+               sc_time tracks board time, board ends at
+               t=52233121000 exactly: fourth transport, same
+               nanosecond.  Evidence: logs_tlm/.
 logs_v2/       the quantum-coupled run: uart.log shows "ALERT IRQ:
                isr at t=15250us" -- interrupt delivery at the assert
                quantum -- plus the same telemetry the checker grades
@@ -161,6 +176,7 @@ Tool versions are recorded in `logs_*/**version*`.
 | Bring-up bugs (START edge, array args, A-vs-mA) | fix-site comments in `design/rnm/bq76952_rnm.sv`, `design/tb/bq_proxy_pkg.sv`/`bq_bridge.sv`, and the whitepaper's Results section |
 | Injected defects in ANY layer are caught, each by a different rule | `logs_renode/faults/`: five-run campaign — clean passes; a byte-swapped OCD threshold (firmware config) trips R1 protection-missing; an off-by-one cell-register read (firmware protocol) trips R2 telemetry-vs-board-truth; a +2.5 A analog current-path offset (RNM) trips R3 false-trip; a stuck SDA readback (bridge/pin mux) trips R4 bus health — per-run logs + `summary.log` |
 | Under quantum coupling, firmware compute costs board time and interrupts land at the event | `logs_v2/uart.log`: ALERT ISR at t=15250us (the assert quantum, vs 18.6 ms polled in v1); the firmware's 1.66 ms main-loop service latency becomes a measured property; same checker passes |
+| The board is a standard IEEE 1666 TLM-2.0 target | `logs_tlm/`: the same mission crosses a genuine SystemC TLM-2.0 socket (14,439 generic-payload transactions, sc_time locked to board time), board ends at t=52233121000 exactly, same checker PASS -- any TLM initiator can drive the same board |
 | The co-sim is emulator-agnostic: mainline QEMU reproduces the board timeline byte-for-byte | `logs_qemu/`: the same mission firmware on unmodified QEMU 9.2.4 (STM32F405, bridge over a USART TCP chardev) finishes at t=52233121000 exactly, same samples, same checker PASS, ~8 s wall |
 | REAL firmware on an emulated SoC drives the RNM board | `logs_renode/uart.log`: ARM firmware (Renode STM32G0, the schematic's U2 family) configures the AFE over bit-banged I2C, reads 3688 mV / ~1000 mA, sees the OCD trip (3701 mV, 1 mA), recovers the latch, confirms 3694 mV / 499 mA -- every number consistent with the xezim, ngspice and UVM domains |
 
