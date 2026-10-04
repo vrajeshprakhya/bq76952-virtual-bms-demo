@@ -61,15 +61,13 @@ a mock: the host-compiled logic, graded by the testbench across the
 bare-metal ARM code, the binary itself, booted
 on an emulated STM32 under unmodified mainline QEMU, driving the
 SV-RNM board over a socket bridge and reporting the full
-trip-and-recover mission over its own UART, with a board timeline
-that is reproducible to the nanosecond.  The bridge offers two
-coupling modes with distinct jobs: a \emph{turn-based} mode, where
-the firmware's own declared waits move board time, proving what the
-firmware decides and says on the bus; and a \emph{bench-like} mode,
-where time flows with the emulated MCU's execution and the board's
-ALERT preempts the firmware as a real interrupt, turning latencies
-such as the firmware's 1.66\,ms interrupt-to-action into measured,
-regressable numbers.  The board is also exposed as a standard IEEE 1666
+trip-and-recover mission over its own UART.  Time in the
+co-simulation behaves as it does on a bench: QEMU's \texttt{icount}
+mode prices every instruction, the firmware meters its own measured
+execution to the board, and the board's ALERT preempts the mission
+within microseconds of the event, so event-to-action latencies
+(266 to 471\,$\mu$s across clock-drift alignments) are measured,
+regressable numbers, while runs stay byte-for-byte reproducible.  The board is also exposed as a standard IEEE 1666
 TLM-2.0 target, so any industry virtual-platform initiator can
 drive it.  A fault-injection
 campaign closes the loop on trust: one deliberate defect per layer
@@ -551,25 +549,18 @@ testbench across randomized scenarios against the board's physics
 instead of against stubs.  This section is rung two, with no shim
 at all.
 
-Rung two itself runs in one of two coupling modes, and the division
-of labour between them is worth stating before either is described,
-because each exists to prove a different thing.  In the
-\textbf{turn-based mode} (this section; \emph{lockstep}, in
-co-simulation terms) the two simulators take turns like players in
-a board game: the firmware acts, declares its waits, and only those
-declared waits move board time.  Thinking is free, so what gets
-proven is \emph{what the firmware decides and says on the bus}:
-right registers, right protocol, right reactions to the board's
-physics; and because board time depends only on the firmware's
-source, golden logs stay stable across compilers and emulators.  In
-the \textbf{bench-like mode} (Section~\ref{sec:quantum}) time
-behaves the way it does on a real bench: it flows while the
-firmware computes, and board events interrupt it mid-thought.  What
-gets proven there is \emph{how fast the firmware is}:
-interrupt-to-action budgets, service latencies, race alignments.
-Same board model, same cross-domain checker; a mission runs in
-whichever mode matches the claim it must prove, and most teams need
-both halves.
+Time in this co-simulation behaves the way it does on a real bench.
+QEMU runs under \texttt{icount}, so every emulated instruction costs
+a fixed slice of virtual time; the firmware measures its own
+execution with the free-running SysTick and grants the board exactly
+that much time (a beacon every ${\sim}10\,\mu$s from its wait loops,
+and a flush before every pin edge, so \iic{} edges land at their
+true instants); and the board's ALERT level rides every
+acknowledgement, dispatched within a tick of its arrival.
+Computation is never free: a slow loop stretches exactly what
+happens on the wires, interrupt-to-action budgets and service
+latencies are measured numbers, and races between the board and the
+firmware's loop happen, visibly, at their real alignments.
 
 The distinction between the \emph{rungs} is concrete: the two rungs compile the \emph{same}
 firmware source with two different compilers, for two different
@@ -603,16 +594,18 @@ models of their own silicon.  So the same host logic, written as
 dissolves under an emulator) and compiled to a ${\sim}4$\,kB
 bare-metal ELF, runs as real ARM instructions on \emph{unmodified
 mainline} QEMU (9.2.4, machine \texttt{netduinoplus2}, an STM32F405
-Cortex-M4) and drives the SV-RNM board in xezim through a
-turn-based TCP bridge (Figure~\ref{fig:cosim}).
+Cortex-M4, \texttt{icount} mode for deterministic virtual time) and
+drives the SV-RNM board in xezim through a TCP bridge
+(Figure~\ref{fig:cosim}).
 
 Mainline QEMU has no generic remote-MMIO hook, so the bridge rides a
 spare UART: \mbox{USART1}'s character device is a TCP socket into
 the xezim bridge server, and the firmware speaks a three-command
-line protocol (\texttt{S}~set pins, \texttt{A}~advance board time,
-\texttt{F}~finish, each acknowledged with the settled SDA) through
-the UART's data register, the bolt-onto-a-spare-port pattern such
-teams use for HIL and model channels.  The schematic's U2 is an
+line protocol (\texttt{S}~set pins; \texttt{A}~time beacons carrying
+the firmware's own measured execution; \texttt{F}~finish; each
+acknowledged with the settled SDA and the board's ALERT level)
+through the UART's data register, the bolt-onto-a-spare-port pattern
+such teams use for HIL and model channels.  The schematic's U2 is an
 STM32G0B1, a part mainline QEMU does not model; the mission firmware
 is core-agnostic behind a five-function platform HAL
 (\texttt{hal.h}), and a G0B1 machine model is precisely the kind of
@@ -624,14 +617,14 @@ silicon, the machine model \emph{is} part of the deliverable.
 \begin{tikzpicture}[node distance=6mm and 14mm]
   \node[hot, text width=46mm] (rn)
     {\textbf{QEMU: STM32F405}\\[1pt]
-     \footnotesize real ARM firmware (${\sim}4$\,kB ELF)\\[-2pt]
-     \footnotesize blocking bit-banged \iic{}\\[-2pt]
+     \footnotesize real ARM firmware, icount\\[-2pt]
+     \footnotesize SysTick-metered time\\[-2pt]
      \footnotesize UART mission reporting};
   \node[blk, text width=34mm, right=of rn] (br)
-    {\textbf{Lockstep bridge}\\[1pt]
+    {\textbf{TCP bridge}\\[1pt]
      \footnotesize USART1 chardev $\to$ TCP\\[-2pt]
-     \footnotesize S pins / A ns / F\\[-2pt]
-     \footnotesize ack carries settled SDA};
+     \footnotesize S pins / A time beacons\\[-2pt]
+     \footnotesize ack: SDA + ALERT};
   \node[blk, text width=42mm, right=of br] (xz)
     {\textbf{xezim: SV-RNM board}\\[1pt]
      \footnotesize the same \texttt{design/rnm}\\[-2pt]
@@ -642,25 +635,27 @@ silicon, the machine model \emph{is} part of the deliverable.
   \draw[arr] ([yshift=-3mm]xz.west) -- ([yshift=-3mm]br.east);
   \draw[arr] ([yshift=-3mm]br.west) -- ([yshift=-3mm]rn.east);
 \end{tikzpicture}
-\caption{Co-simulation topology.  Board time advances \emph{only} on
-the firmware's own delay commands, so bit-banged \iic{} is
-cycle-honest and the board timeline is reproducible.}
+\caption{Co-simulation topology.  Board time is the firmware's own
+measured execution, so every \iic{} edge lands at its true instant
+and the board's events preempt the firmware as they would on the
+bench.}
 \label{fig:cosim}
 \end{figure}
 
-The turn-based coupling does the heavy lifting: the board's
-clock moves only when the firmware spends time (an \texttt{A}
-command), and every pin update is acknowledged with the freshly
-settled SDA.  QEMU's own host-side scheduling is not deterministic,
-but the board timeline is: consecutive runs end at
-$t = 52{,}233{,}121$\,ns exactly, with identical mission logs,
-because this coupling makes board time a function of the firmware's
-stated delays alone, not of host timing, instruction counts, or
-the core executing them.  A full mission takes ${\sim}8$\,s of wall
-clock.  One practical note from bring-up: the command/ack
-round-trips are tiny TCP packets, so Nagle's algorithm must be off
-on both ends (\texttt{nodelay=on} on QEMU's chardev); with it on,
-the identical run takes minutes instead of seconds.
+Determinism survives the realism.  \texttt{icount} makes the
+emulated MCU's virtual time a pure function of its instruction
+stream, and the firmware's time ledger excludes what is not
+firmware time: the wait for a bridge acknowledgement and the
+readiness of the host-backed console, neither of which exists on
+silicon, both of which would otherwise leak the host machine's
+scheduling jitter into the simulated world.  With those excluded,
+consecutive runs produce byte-identical firmware logs and board
+events, the harness's closing timestamp reproducible to a
+microsecond across a 43\,ms mission.  A full mission takes
+${\sim}10$\,s of wall clock.  One practical note from bring-up: the
+command/ack round-trips are tiny TCP packets, so Nagle's algorithm
+must be off on both ends (\texttt{nodelay=on} on QEMU's chardev);
+with it on, the identical run takes minutes instead of seconds.
 
 The mission (configure protection over \iic{}, ride out an
 overload the \emph{AFE in the RNM} trips, recover the latch) in
@@ -668,80 +663,48 @@ the firmware's own UART log:
 
 {\small
 \begin{verbatim}
-[fw] BMS host up on QEMU/STM32F405; board = SV-RNM in xezim
-[fw t=1.9ms]  AFE protection configured (CUV 2800mV COV 4250mV OCD 3000mA)
-[fw t=5.3ms]  ss=0x0 c1=3688mV i=998mA
-[fw t=15.2ms] ss=0x0 c1=3688mV i=1004mA
-[fw t=18.6ms] ss=0x4 c1=3701mV i=1mA
-[fw t=18.6ms] *** OCD TRIP seen over I2C -- current stopped by the AFE
-[fw t=48.9ms] recover written (0x99=1)
-[fw t=52.2ms] ss=0x0 c1=3694mV i=499mA
-[fw t=52.2ms] *** RECOVERED: latch cleared, current flowing again (499mA)
+[fw] bench-like time on QEMU+icount; 1000-spin = 8073 systick ticks
+[fw t=2.1ms]  AFE protection configured (CUV 2800mV COV 4250mV OCD 3000mA)
+[fw t=2.1ms]  ALERT dispatch armed; polling for telemetry only
+[fw t=5.5ms]  ss=0x0 c1=3688mV i=1002mA
+[fw t=13.5ms] ss=0x0 c1=3688mV i=998mA
+[fw t=15.5ms] ss=0x0 c1=3689mV i=4200mA
+[fw t=15.9ms] *** ALERT dispatched at t=15516us ss=0x4 -- OCD TRIP seen
+              over I2C -- current stopped by the AFE
+[fw t=42.3ms] recover written (0x99=1)
+[fw t=43.7ms] ss=0x0 c1=3694mV i=495mA
+[fw t=43.7ms] *** RECOVERED: latch cleared, current flowing again (495mA)
 \end{verbatim}
 }
 
-Every number is physically consistent with every other domain:
-3688\,mV is the 1\,A IR sag, 3701\,mV the unloaded recovery the trip
-causes, and 3694\,mV is exactly $3700 - 0.5\,\mathrm{A} \times
-12\,\mathrm{m}\Omega$ after recovery at the reduced load.  The AFE
-tripped 250\,$\mu$s (one measurement cycle) after the overload,
-observed from the board side in the xezim log and from the chip side
-over \iic{}, through a bus whose every edge was produced by ARM
-instructions.
+Every number is physically consistent: 3688\,mV is the 1\,A IR sag,
+and 3694\,mV is exactly $3700 - 0.5\,\mathrm{A} \times
+12\,\mathrm{m}\Omega$ after recovery at the reduced load.  The first
+line is the firmware checking its own ruler (a 1000-iteration spin
+measured in SysTick ticks of virtual time).  The timeline now tells
+a time-costed story: configuring the AFE takes 2.1\,ms because every
+bit-banged \iic{} edge is paid for in executed instructions, and
+each telemetry poll costs its true ${\sim}1.4$\,ms of bus and
+compute work.
 
-\subsection{Bench-like time: execution costs time, interrupts
-preempt}
+The 15.5\,ms sample is a bench classic.  It reads \texttt{ss=0x0}
+with \texttt{i=4200mA}: an internally inconsistent snapshot, calm
+status beside overload current, because the AFE tripped
+\emph{between} the poll's status read and its current read.  On a
+physical board this is exactly the torn read that confuses a
+first-pass driver, and here it is captured, reproducibly, with the
+resolution arriving 16\,$\mu$s later as the ALERT dispatch.  The
+board asserts ALERT at $t = 15{,}250\,\mu$s (one AFE measurement
+cycle after the overload); the firmware dispatches it at
+$t = 15{,}516\,\mu$s.  That 266\,$\mu$s is the firmware's own
+cooperative-tick dispatch cost, measured at true execution price,
+the kind of number a datasheet calls worst-case event-to-action
+latency.
+
+\subsection{Independent clocks: the drift sweep}
 \label{sec:quantum}
 
-The turn-based mode is honest about everything except time's cost,
-and that is by design, not accident.  On a real bench, a slow
-interrupt handler stretches what happens on the wires, and events
-arrive whether or not the firmware is ready; the turn-based mode
-hides both (computation is free, and events wait politely for the
-firmware's next move).  Missions that only claim ``the firmware
-decides and communicates correctly'' lose nothing to that.
-Missions that claim ``the firmware is \emph{fast enough}'' need
-time to behave the way the bench does; they run in the bench-like
-mode (\emph{quantum coupling}, in the co-simulation literature),
-implemented as a parallel bridge in the same framework (on an
-emulator backend with directly scriptable virtual-time hooks; the
-identical scheme ports to QEMU through its \texttt{icount}
-machinery).
-
-In this mode the firmware never declares time at all.  The
-emulator's virtual clock for the emulated MCU drives the board (the
-host machine's time never enters; each emulated instruction costs a
-fixed slice of virtual time, which keeps runs reproducible): one
-synchronization per 10\,$\mu$s \emph{quantum} of the emulated MCU's
-execution, plus a flush of the
-quantum's un-synced tail before every pin access, so \iic{} edges
-keep per-edge fidelity while the quiet stretches between bus activity
-cost one message each (the hybrid most co-simulation backplanes
-converge on).  The firmware waits by genuinely spinning against a
-board-time register, and every instruction it executes spends board
-time.  Determinism survives, because quantum boundaries are pure
-virtual time: repeated runs are bit-identical.  The board's ALERT
-line, derived from the AFE's safety status, becomes a real NVIC
-interrupt, so the trip can preempt the firmware mid-execution.
-
-The measured result justifies the construction.  The interrupt
-service routine timestamps itself at $t = 15{,}250\,\mu$s, the exact
-quantum of the board's ALERT assertion (in the turn-based mode,
-poll-based
-discovery came at 18.6\,ms).  The firmware's \emph{reaction} lands at
-16.91\,ms, and that remaining 1.66\,ms is the firmware's own
-main-loop service latency: the interrupt arrived mid-telemetry
-transaction, and the loop finishes its poll (now a real
-${\sim}1.9$\,ms of execution and bus cost) before honouring the
-flag.  Lockstep could not even express that number; here it is a
-measured property of the firmware, the kind a datasheet calls
-worst-case interrupt-to-action latency.  (Bring-up note: the gap was
-first blamed on the emulator's interrupt delivery; capturing board
-time \emph{inside} the ISR proved delivery exact and returned the
-blame to the code under test, which is the correct direction for a
-verification tool to point.)
-
-Finally, a physical board has no shared clock: the AFE's internal
+A physical board has no shared clock: the AFE's internal
 oscillator and the MCU's crystal drift independently, so the trip's
 phase against the firmware's loop is a dice roll per power cycle.
 The co-simulation models this with a drift knob on the AFE's
@@ -751,81 +714,40 @@ a BQ-class internal oscillator) and then does what the bench cannot:
 (Table~\ref{tab:drift}), every point reproducible from its
 parameters.  Each trip lands exactly on the first stretched or
 shrunk measurement boundary after the overload ($62 \times
-245\,\mu$s, $59 \times 255\,\mu$s, and so on), the ISR tracks it
-within one quantum, and the four-rule checker passes at every
+245\,\mu$s, $59 \times 255\,\mu$s, and so on), while the firmware's
+dispatch stays pinned to its own poll-block boundary near
+15.52\,ms, so the sweep directly measures how dispatch latency
+varies with the trip's phase against the firmware's loop, from
+266\,$\mu$s to 471\,$\mu$s.  The four-rule checker passes at every
 point.
 
 \begin{table}[htbp]
 \centering
 \small
-\begin{tabular}{@{}rrrl@{}}
+\begin{tabular}{@{}rrrrl@{}}
 \toprule
-AFE drift & Board trip & ISR timestamp & Checker \\
+AFE drift & Board trip & Dispatched & Latency & Checker \\
 \midrule
-$-20{,}000$ ppm & 15{,}190\,$\mu$s & 15{,}190\,$\mu$s & PASS \\
-$-5{,}000$ ppm  & 15{,}173\,$\mu$s & 15{,}180\,$\mu$s & PASS \\
-$0$ ppm         & 15{,}250\,$\mu$s & 15{,}250\,$\mu$s & PASS \\
-$+5{,}000$ ppm  & 15{,}075\,$\mu$s & 15{,}080\,$\mu$s & PASS \\
-$+20{,}000$ ppm & 15{,}045\,$\mu$s & 15{,}050\,$\mu$s & PASS \\
+$-20{,}000$ ppm & 15{,}190\,$\mu$s & 15{,}516\,$\mu$s & 326\,$\mu$s & PASS \\
+$-5{,}000$ ppm  & 15{,}173\,$\mu$s & 15{,}525\,$\mu$s & 352\,$\mu$s & PASS \\
+$0$ ppm         & 15{,}250\,$\mu$s & 15{,}516\,$\mu$s & 266\,$\mu$s & PASS \\
+$+5{,}000$ ppm  & 15{,}075\,$\mu$s & 15{,}514\,$\mu$s & 439\,$\mu$s & PASS \\
+$+20{,}000$ ppm & 15{,}045\,$\mu$s & 15{,}516\,$\mu$s & 471\,$\mu$s & PASS \\
 \bottomrule
 \end{tabular}
-\caption{Clock-drift sweep in the bench-like mode: the AFE's
-measurement period is stretched against the MCU's clock and the trip
-instant slides accordingly; each row is bit-reproducible.}
+\caption{Clock-drift sweep: the AFE's measurement period is
+stretched against the MCU's clock, the trip instant slides, and the
+firmware's event-to-dispatch latency is measured at each alignment;
+each row is reproducible.}
 \label{tab:drift}
 \end{table}
 
-\paragraph{Choosing between the modes.}
-The two modes are not competitors, and neither supersedes the
-other; they split the test population along one question:
-\emph{does this mission care how long the firmware takes?}
-Table~\ref{tab:contracts} summarizes the
-trade.  Most test cases do not care: configuration and driver
-bring-up, register-map conformance, protocol content, state
-machines, protection thresholds.  For those, the turn-based mode is
-fully honest, maximally reproducible, and the chattier
-synchronization is irrelevant at this scale.  The minority that
-does care is where a device earns its reputation: audio pipelines
-with hard buffer deadlines, radio stacks whose protocol windows are
-tens of microseconds, RTOS scheduling and priority inversion,
-power-state transitions, every ``interrupt-to-action within X''
-budget a product carries.  Those bugs are invisible in the
-turn-based mode \emph{by construction}, surface today on the bench
-or in the field, and are exactly what the bench-like mode turns
-into measurable, regressable numbers
-(Section~\ref{sec:quantum}'s 1.66\,ms service latency is the
-first such number this bench produced).  The practical split: run
-the high-volume logic suites turn-based, run the latency-budget
-missions bench-like, and let the same board model and the same
-mode-agnostic checker grade both.
-
-\begin{table}[htbp]
-\centering
-\small
-\begin{tabular}{@{}lll@{}}
-\toprule
- & Turn-based & Bench-like \\
- & (waits move time) & (execution moves time) \\
-\midrule
-Sync point            & every pin edge and      & per 10\,$\mu$s of MCU time, \\
-                      & \quad declared delay    & \quad plus pin-access flush \\
-Board time comes from & firmware's declared     & the emulated MCU's \\
-                      & \quad waits             & \quad own execution \\
-Compute costs time    & no (free)               & yes \\
-Interrupts            & no; events wait for the & yes; land within one \\
-                      & \quad next poll         & \quad quantum of the event \\
-Timing skew           & zero                    & bounded by one quantum \\
-Determinism           & bit-identical runs      & bit-identical runs \\
-Suited missions       & config, drivers,        & latency budgets: audio, \\
-                      & \quad protocol content, & \quad radio windows, RTOS \\
-                      & \quad protection logic  & \quad scheduling, ISR-to-action \\
-\bottomrule
-\end{tabular}
-\caption{The coupling-mode trade.  Both are deterministic;
-they differ in whether the firmware's execution cost is part of the
-simulated world.}
-\label{tab:contracts}
-\end{table}
+This is the class of measurement a device team lives on: audio
+pipelines with hard buffer deadlines, radio stacks whose protocol
+windows are tens of microseconds, every ``event-to-action within
+X'' budget a product carries.  On the bench those numbers are one
+dice roll per power cycle; here they are a table, re-run on every
+commit.
 
 \subsection{Fault injection: does the framework actually catch bugs?}
 \label{sec:faults}
@@ -857,7 +779,7 @@ Run & Layer & Injected defect & Caught by \\
 clean     & n/a       & none                              & passes (trip $+0.25$\,ms) \\
 fw\_cfg   & FW config & OCD threshold write byte-swapped  & R1: ``overload at 15\,ms \\
           &           & (3000\,mA arms as 47\,115\,mA)    & \quad but DSG opened \emph{never}'' \\
-fw\_proto & FW protocol & cell readout off by one register & R2: ``c1=26894\,mV; board \\
+fw\_proto & FW protocol & cell readout off by one register & R2: ``c1=26382\,mV; board \\
           &           &                                   & \quad truth is 3688$\pm$5'' \\
 board     & analog RNM & $+2500$\,mA current-path offset  & R3: ``DSG opened at 1.25\,ms, \\
           &           & (damaged sense front-end)         & \quad \emph{before} the overload'' \\
@@ -867,7 +789,7 @@ bridge    & pin path  & SDA readback stuck at 1           & R4: slave not ACKing
 \end{tabular}
 \caption{Fault-injection campaign: one defect per layer, each caught
 by its own rule.  Evidence per run in
-\texttt{logs\_qemu/faults/}.}
+\texttt{logs\_qv2/faults/}.}
 \label{tab:faults}
 \end{table}
 
@@ -885,12 +807,10 @@ byte-swap fault makes the complementary point: the system behaves
 first real overload, which is why R1 watches the board's truth rather
 than the firmware's belief.
 
-The same five-run campaign was repeated in the bench-like mode
-of Section~\ref{sec:quantum}: identical verdicts, each
-fault caught by its own rule, clean run green (evidence in
-\texttt{logs\_v2/faults/}).  The checker is agnostic to the
-coupling mode, as it should be: it judges the two
-witnesses' stories, not the mechanism that produced them.
+The checker judges the two witnesses' stories, not the mechanism
+that produced them; the same campaign also passes against the
+repository's other bridge implementations, with identical
+verdicts.
 
 %=======================================================================
 \section{Related work}
@@ -909,7 +829,7 @@ as a TLM-2.0 model, open-sourced and in production use.  RTL enters
 this family through SystemC-to-HDL co-simulation or TLM-to-pin
 adapters, and synchronization is TLM-2.0's loosely-timed
 \emph{quantum keeper}~\cite{tlm2}, the direct ancestor of this
-paper's bench-like coupling.
+paper's time-beacon coupling.
 
 \textbf{A socket transaction protocol from a QEMU fork.}  The
 industrial workhorse is AMD/Xilinx remote-port with
@@ -933,7 +853,7 @@ standardized cousins are Accellera's SCE-MI transactor
 standard~\cite{scemi} for emulators and UVM-Connect for
 UVM-to-SystemC.  This paper's bridge is a member of this family on
 the simulator side, with the quantum-keeper idea borrowed from the
-first family for its bench-like coupling.
+first family for its time metering.
 
 \textbf{Commercial co-verification.}  The ancestor is Mentor
 Seamless (instruction-set simulator against RTL, 1990s); the modern
@@ -941,7 +861,7 @@ form is hybrid emulation, a virtual CPU subsystem coupled to RTL in
 a hardware emulator through transactor layers, offered by all three
 major EDA vendors.  Underneath every family sits the same
 synchronization theory: conservative lookahead~\cite{chandy1979}
-(this paper's turn-based coupling is the zero-skew point of that
+(this paper's pin-access flush is the zero-skew limit of that
 family),
 quantum-based loose coupling~\cite{tlm2}, and optimistic
 rollback~\cite{jefferson1985}, rarely used here because rolling back
@@ -992,6 +912,12 @@ Deliberate simplifications, each with a clear upgrade path:
     And the emulated part is an STM32F405 standing in for the
     schematic's STM32G0B1; a G0B1 machine model in a QEMU fork closes
     that gap.
+  \item \textbf{Nominal time scale.}  \texttt{icount} prices every
+    instruction at a fixed nominal rate, not at a cycle-accurate
+    model of the real pipeline, so measured latencies are faithful
+    in shape and approximate in scale, and golden logs are pinned to
+    a (compiler, flags, emulator version) tuple.  Cycle-true timing
+    closure remains the job of emulation platforms and silicon.
   \item \textbf{Scope.}  Charge-side current, coulomb counting,
     \iic{} clock stretching and multi-master, and CAN are out of
     scope for this version.

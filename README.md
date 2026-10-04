@@ -129,6 +129,23 @@ logs_renode/   uart.log (the firmware's own account of the trip-and-
                sc_time tracks board time, board ends at
                t=52233121000 exactly: fourth transport, same
                nanosecond.  Evidence: logs_tlm/.
+               BENCH-LIKE TIME ON MAINLINE QEMU (run_cosim_qv2.sh,
+               fw_arm/main_qv2.c): QEMU -icount shift=3 prices every
+               instruction; the firmware meters its own measured
+               execution (free-running SysTick = virtual-time ruler)
+               to the board as "A" time beacons every ~10 us, with a
+               flush before every pin edge; ALERT rides every ack and
+               is dispatched within a tick.  Harness time is excluded
+               from the ledger (ack waits, console readiness), which
+               is what makes runs reproducible: uart log and board
+               events byte-identical, harness finish +/-1 us over a
+               43 ms mission (logs_qv2/validate.log).  Mission log
+               captures a genuine torn read (ss=0x0 beside i=4200mA,
+               trip between the poll's two reads) and the measured
+               266-471 us event-to-dispatch latency across the drift
+               sweep.  Faults + drift re-validated on this backend
+               (logs_qv2/faults, logs_qv2/drift).  This is the
+               backend the whitepaper presents.
 logs_v2/       the quantum-coupled run: uart.log shows "ALERT IRQ:
                isr at t=15250us" -- interrupt delivery at the assert
                quantum -- plus the same telemetry the checker grades

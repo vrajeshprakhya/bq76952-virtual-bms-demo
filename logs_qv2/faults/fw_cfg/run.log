@@ -1,0 +1,82 @@
+== firmware (ARM, bench-like QEMU flavour)  [FAULT_OCD_SWAP] ==
+   text	   data	    bss	    dec	    hex	filename
+   4679	      4	     28	   4711	   1267	fw_qv2.elf
+== bridge2 DPI library ==
+== xezim (background, board server :43602) ==
+== QEMU (netduinoplus2, icount shift=3, deterministic) ==
+---- firmware UART ----
+
+[fw] bench-like time on QEMU+icount; 1000-spin = 8073 systick ticks
+[fw t=2.1ms] AFE protection configured (CUV 2800mV COV 4250mV OCD 3000mA)
+[fw t=2.1ms] ALERT dispatch armed; polling for telemetry only
+[fw t=5.5ms] ss=0x0 c1=3688mV i=1002mA
+[fw t=7.5ms] ss=0x0 c1=3689mV i=1003mA
+[fw t=9.5ms] ss=0x0 c1=3689mV i=1004mA
+[fw t=11.5ms] ss=0x0 c1=3688mV i=1004mA
+[fw t=13.5ms] ss=0x0 c1=3688mV i=998mA
+[fw t=15.5ms] ss=0x0 c1=3689mV i=4200mA
+[fw t=17.5ms] ss=0x0 c1=3649mV i=4205mA
+[fw t=19.5ms] ss=0x0 c1=3650mV i=4196mA
+[fw t=21.5ms] ss=0x0 c1=3649mV i=4204mA
+[fw t=23.5ms] ss=0x0 c1=3649mV i=4198mA
+[fw t=25.5ms] ss=0x0 c1=3649mV i=4200mA
+[fw t=27.5ms] ss=0x0 c1=3649mV i=4201mA
+[fw t=29.5ms] ss=0x0 c1=3649mV i=4197mA
+[fw t=31.5ms] ss=0x0 c1=3650mV i=4204mA
+[fw t=33.5ms] ss=0x0 c1=3650mV i=4205mA
+[fw t=35.5ms] ss=0x0 c1=3649mV i=4200mA
+[fw t=37.5ms] ss=0x0 c1=3650mV i=4200mA
+[fw t=39.5ms] ss=0x0 c1=3650mV i=4195mA
+[fw t=41.5ms] ss=0x0 c1=3695mV i=499mA
+[fw t=43.5ms] ss=0x0 c1=3695mV i=502mA
+[fw t=45.5ms] ss=0x0 c1=3693mV i=502mA
+[fw t=47.5ms] ss=0x0 c1=3695mV i=495mA
+[fw t=49.5ms] ss=0x0 c1=3695mV i=501mA
+[fw t=51.5ms] ss=0x0 c1=3693mV i=499mA
+[fw t=53.5ms] ss=0x0 c1=3695mV i=499mA
+[fw t=55.5ms] ss=0x0 c1=3694mV i=503mA
+[fw t=57.5ms] ss=0x0 c1=3695mV i=495mA
+[fw t=59.5ms] ss=0x0 c1=3694mV i=496mA
+[fw t=61.5ms] ss=0x0 c1=3694mV i=502mA
+[fw t=63.5ms] ss=0x0 c1=3693mV i=496mA
+[fw t=65.5ms] ss=0x0 c1=3694mV i=500mA
+[fw t=67.5ms] ss=0x0 c1=3695mV i=504mA
+[fw t=69.5ms] ss=0x0 c1=3694mV i=497mA
+[fw t=71.5ms] ss=0x0 c1=3694mV i=502mA
+[fw t=73.5ms] ss=0x0 c1=3693mV i=499mA
+[fw t=75.5ms] ss=0x0 c1=3694mV i=504mA
+[fw t=77.5ms] ss=0x0 c1=3694mV i=503mA
+[fw t=79.5ms] ss=0x0 c1=3693mV i=502mA
+[fw t=81.5ms] ss=0x0 c1=3694mV i=504mA
+[fw t=83.5ms] ss=0x0 c1=3693mV i=502mA
+[fw t=85.5ms] ss=0x0 c1=3695mV i=505mA
+[fw t=87.5ms] ss=0x0 c1=3693mV i=501mA
+[fw t=89.5ms] ss=0x0 c1=3693mV i=496mA
+[fw t=91.5ms] ss=0x0 c1=3694mV i=497mA
+[fw t=93.5ms] ss=0x0 c1=3695mV i=496mA
+[fw t=95.5ms] ss=0x0 c1=3694mV i=495mA
+[fw t=97.5ms] ss=0x0 c1=3694mV i=502mA
+[fw t=99.5ms] ss=0x0 c1=3695mV i=499mA
+[fw t=101.5ms] ss=0x0 c1=3694mV i=497mA
+[fw t=103.5ms] ss=0x0 c1=3694mV i=499mA
+[fw t=105.5ms] ss=0x0 c1=3693mV i=495mA
+[fw t=107.5ms] ss=0x0 c1=3694mV i=500mA
+[fw t=109.5ms] ss=0x0 c1=3694mV i=495mA
+[fw t=111.5ms] ss=0x0 c1=3693mV i=498mA
+[fw t=113.5ms] ss=0x0 c1=3694mV i=498mA
+[fw t=115.5ms] ss=0x0 c1=3694mV i=500mA
+[fw t=117.5ms] ss=0x0 c1=3694mV i=502mA
+[fw t=119.5ms] ss=0x0 c1=3694mV i=499mA
+[fw t=121.5ms] ss=0x0 c1=3694mV i=504mA
+[fw t=123.5ms] ss=0x0 c1=3694mV i=496mA
+[fw t=123.5ms] !!! mission incomplete
+[fw] done; stopping the board sim
+---- board events (xezim) ----
+[board] AFE measurement period = 250000.0 ns
+[scenario] t=15000000000: load raised to 4.2 A (overload)
+[scenario] t=40000000000: load reduced to 0.5 A
+[renode_bridge2] firmware finished at t=123585904000
+---- cross-domain check ----
+CHECK: FAIL (2 rule violation(s))
+  R1 protection-missing: overload at 15ms but DSG opened never (required within 2ms)
+  R4 mission: trip-and-recover did not complete

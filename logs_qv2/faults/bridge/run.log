@@ -1,0 +1,91 @@
+== firmware (ARM, bench-like QEMU flavour) ==
+   text	   data	    bss	    dec	    hex	filename
+   4679	      4	     28	   4711	   1267	fw_qv2.elf
+== bridge2 DPI library ==
+== xezim (background, board server :43602)  [BR_FAULT_SDA_STUCK] ==
+== QEMU (netduinoplus2, icount shift=3, deterministic) ==
+---- firmware UART ----
+
+[fw] bench-like time on QEMU+icount; 1000-spin = 8073 systick ticks
+[fw t=2.1ms] AFE protection configured (CUV 2800mV COV 4250mV OCD 3000mA)
+[fw t=2.1ms] ALERT dispatch armed; polling for telemetry only
+[fw t=5.5ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=5.5ms] *** I2C FAULT: slave not ACKing (12 NACKs)
+[fw t=5.5ms] *** TELEMETRY FAULT: implausible c1=65535mV
+[fw t=7.5ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=9.5ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=11.5ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=13.5ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=15.5ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=15.9ms] *** ALERT dispatched at t=15516us ss=0x255 -- OCD TRIP seen over I2C -- current stopped by the AFE
+[fw t=42.3ms] recover written (0x99=1)
+[fw t=43.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=45.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=47.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=49.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=51.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=53.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=55.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=57.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=59.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=61.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=63.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=65.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=67.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=69.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=71.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=73.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=75.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=77.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=79.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=81.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=83.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=85.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=87.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=89.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=91.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=93.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=95.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=97.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=99.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=101.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=103.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=105.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=107.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=109.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=111.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=113.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=115.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=117.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=119.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=121.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=123.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=125.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=127.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=129.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=131.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=133.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=135.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=137.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=139.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=141.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=143.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=145.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=147.7ms] ss=0x255 c1=65535mV i=-1mA
+[fw t=147.7ms] !!! mission incomplete
+[fw] done; stopping the board sim
+---- board events (xezim) ----
+[board] AFE measurement period = 250000.0 ns
+[scenario] t=15000000000: load raised to 4.2 A (overload)
+[board] t=15250000000: AFE opened DSG (protection trip)
+[board] t=15250000000: ALERT asserted (safety status nonzero)
+[scenario] t=40000000000: load reduced to 0.5 A
+[board] t=42500000000: AFE closed DSG (recovered)
+[renode_bridge2] firmware finished at t=147745703000
+---- cross-domain check ----
+CHECK: FAIL (5 rule violation(s))
+  R2 telemetry: firmware says c1=65535mV at t=5.5ms; board truth is 3688 +/- 5
+  R2 telemetry: firmware says i=-1mA at t=5.5ms; board truth is 1000 +/- 15
+  R4 bus: firmware reported the slave not ACKing
+  R4 plausibility: firmware flagged implausible telemetry
+  R4 mission: trip-and-recover did not complete

@@ -21,6 +21,8 @@ if [ "$BACKEND" = "qemu" ]; then
   RUNNER=run_cosim_qemu.sh; LDIR=../logs_qemu
 elif [ "$BACKEND" = "v2" ]; then
   RUNNER=run_cosim_v2.sh; LDIR=../logs_v2
+elif [ "$BACKEND" = "qv2" ]; then
+  RUNNER=run_cosim_qv2.sh; LDIR=../logs_qv2
 else
   RUNNER=run_cosim.sh; LDIR=../logs_renode
 fi

@@ -23,3 +23,5 @@ kicad/j4_zoom.png
 renode/uart_v2.log
 renode/fw_arm/fw_v2.elf
 renode/uart_tlm.log
+renode/uart_qv2.log
+renode/fw_arm/fw_qv2.elf

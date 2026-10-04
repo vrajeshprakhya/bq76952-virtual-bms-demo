@@ -7,9 +7,15 @@ ifneq ($(FAULT),)
 CFLAGS += -DFAULT_$(FAULT)
 endif
 
-.PHONY: all fw.elf fw_qemu.elf fw_v2.elf clean
+.PHONY: all fw.elf fw_qemu.elf fw_v2.elf fw_qv2.elf clean
 
-all: fw.elf fw_qemu.elf fw_v2.elf
+all: fw.elf fw_qemu.elf fw_v2.elf fw_qv2.elf
+
+# mainline QEMU + icount, BENCH-LIKE time (self-metered via SysTick)
+fw_qv2.elf: main_qv2.c startup.c link.ld
+	$(CC) $(CFLAGS) -mcpu=cortex-m4 $(LDFLAGS) \
+	  -o $@ main_qv2.c startup.c -lgcc
+	$(SIZE) $@
 
 # Renode / STM32G0, v2 quantum-coupled bridge (no HAL: v2-specific)
 fw_v2.elf: main_v2.c startup_v2.c link.ld

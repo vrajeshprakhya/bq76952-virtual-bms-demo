@@ -1,0 +1,33 @@
+== firmware (ARM, bench-like QEMU flavour) ==
+   text	   data	    bss	    dec	    hex	filename
+   4679	      4	     28	   4711	   1267	fw_qv2.elf
+== bridge2 DPI library ==
+== xezim (background, board server :43602)  [-D AFE_DRIFT_PPM=5000] ==
+== QEMU (netduinoplus2, icount shift=3, deterministic) ==
+---- firmware UART ----
+
+[fw] bench-like time on QEMU+icount; 1000-spin = 8073 systick ticks
+[fw t=2.1ms] AFE protection configured (CUV 2800mV COV 4250mV OCD 3000mA)
+[fw t=2.1ms] ALERT dispatch armed; polling for telemetry only
+[fw t=5.5ms] ss=0x0 c1=3688mV i=1002mA
+[fw t=7.5ms] ss=0x0 c1=3689mV i=1003mA
+[fw t=9.5ms] ss=0x0 c1=3689mV i=1004mA
+[fw t=11.5ms] ss=0x0 c1=3688mV i=1004mA
+[fw t=13.5ms] ss=0x0 c1=3688mV i=998mA
+[fw t=15.5ms] ss=0x0 c1=3688mV i=108mA
+[fw t=15.9ms] *** ALERT dispatched at t=15514us ss=0x4 -- OCD TRIP seen over I2C -- current stopped by the AFE
+[fw t=42.3ms] recover written (0x99=1)
+[fw t=43.7ms] ss=0x0 c1=3695mV i=502mA
+[fw t=43.7ms] *** RECOVERED: latch cleared, current flowing again (502mA)
+[fw] done; stopping the board sim
+---- board events (xezim) ----
+[board] AFE measurement period = 251250.0 ns
+[scenario] t=15000000000: load raised to 4.2 A (overload)
+[board] t=15075000000: AFE opened DSG (protection trip)
+[board] t=15075000000: ALERT asserted (safety status nonzero)
+[scenario] t=40000000000: load reduced to 0.5 A
+[board] t=42461250000: AFE closed DSG (recovered)
+[renode_bridge2] firmware finished at t=43723643000
+---- cross-domain check ----
+CHECK: PASS  (7 samples cross-checked; trip 0.07ms after overload)
+COSIM-QV2: PASS

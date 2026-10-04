@@ -1,0 +1,16 @@
+
+[fw] bench-like time on QEMU+icount; 1000-spin = 8073 systick ticks
+[fw t=2.1ms] AFE protection configured (CUV 2800mV COV 4250mV OCD 3000mA)
+[fw t=2.1ms] ALERT dispatch armed; polling for telemetry only
+[fw t=5.5ms] ss=0x0 c1=26382mV i=1002mA
+[fw t=5.5ms] *** TELEMETRY FAULT: implausible c1=26382mV
+[fw t=7.5ms] ss=0x0 c1=26638mV i=1003mA
+[fw t=9.5ms] ss=0x0 c1=26638mV i=1004mA
+[fw t=11.5ms] ss=0x0 c1=26382mV i=1004mA
+[fw t=13.5ms] ss=0x0 c1=26382mV i=998mA
+[fw t=15.5ms] ss=0x0 c1=26382mV i=4200mA
+[fw t=15.9ms] *** ALERT dispatched at t=15516us ss=0x4 -- OCD TRIP seen over I2C -- current stopped by the AFE
+[fw t=42.3ms] recover written (0x99=1)
+[fw t=43.7ms] ss=0x0 c1=28174mV i=495mA
+[fw t=43.7ms] *** RECOVERED: latch cleared, current flowing again (495mA)
+[fw] done; stopping the board sim
