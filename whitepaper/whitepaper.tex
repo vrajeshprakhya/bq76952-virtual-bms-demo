@@ -1146,6 +1146,48 @@ each adding one integration step, ending here with a configurable
 smart AFE behind a real bus.
 
 %=======================================================================
+\section{Reproducibility}
+\label{sec:repro}
+%=======================================================================
+
+Everything in this paper lives in one repository~\cite{repo}:
+
+\begin{center}
+\texttt{github.com/vrajeshprakhya/bq76952-virtual-bms-demo}
+\end{center}
+
+The toolchain installs without administrator rights (the
+\texttt{renode/get\_*.sh} scripts fetch portable QEMU, the ARM
+cross-compiler and SystemC), each co-simulation is one script
+(\texttt{renode/run\_cosim*.sh}), and every number quoted in this
+paper maps to a committed log: the mission transcripts, the
+fault-campaign verdicts, the drift sweep, and the determinism
+record.  The layout:
+
+{\small
+\begin{verbatim}
+design/            the virtual board and its original bench
+  rnm/             SV-RNM: pack, AFE, board (the models of Sec. 3)
+  rnm_lc/          the load-cell chain (second protocol, Sec. 7)
+  tb/, fw/, mcu/   UVM-MS bench, host logic, tick-shim MCU (rung one)
+renode/            co-simulation (rung two)
+  fw_arm/          the ARM missions and HALs (bit-bang, driver, SPI)
+  bridge/          the pin-level bridges, incl. the generic pin vector
+  tlm_shim/        the IEEE 1666 TLM-2.0 target (Sec. 8)
+  Bridge*.cs       harness peripherals (MMIO, quantum engine,
+                   I2C-slave-to-pins)
+  run_cosim*.sh    one script per backend; run_faults.sh, run_drift.sh
+  check_cosim.py,  the cross-domain checkers (RULE1..RULE4)
+  check_spi.py
+kicad/, schematic/ fabrication schematic + SPICE suite (companion
+                   paper's artifacts)
+logs_*/            committed evidence, one directory per backend:
+                   missions, faults/, drift/, validate.log
+whitepaper/        this document's sources and the schematic figure
+\end{verbatim}
+}
+
+%=======================================================================
 \begin{thebibliography}{9}
 \bibitem{monton2007}
 M.~Mont\'on, A.~Portero, M.~Moreno, B.~Mart\'inez, J.~Carrabina,
@@ -1180,6 +1222,11 @@ design and verification of distributed programs,''
 \bibitem{jefferson1985}
 D.~R.~Jefferson, ``Virtual time,''
 \emph{ACM Trans.\ Programming Languages and Systems}, 1985.
+
+\bibitem{repo}
+V.~Prakhya, \emph{bq76952-virtual-bms-demo}: complete sources,
+missions, bridges, checkers and committed evidence logs for this
+paper, \texttt{github.com/vrajeshprakhya/bq76952-virtual-bms-demo}.
 \end{thebibliography}
 
 %=======================================================================
