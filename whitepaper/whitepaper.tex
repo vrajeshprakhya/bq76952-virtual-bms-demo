@@ -713,6 +713,7 @@ checker cross-examines are produced.
   msg/.style={-{Stealth[length=2mm]}, semithick},
   ret/.style={-{Stealth[length=2mm]}, semithick, gray},
   ev/.style={fill=red!70!black, circle, inner sep=1.2pt},
+  fev/.style={fill=blue!50!black, circle, inner sep=1.2pt},
   note/.style={align=center, inner sep=2pt, text width=58mm},
   side/.style={align=left, inner sep=2pt, text width=38mm},
   probe/.style={align=left, inner sep=2pt, text width=38mm,
@@ -728,6 +729,14 @@ checker cross-examines are produced.
   \draw[very thick] (4.6,-0.6) -- (4.6,-16.4);
   \draw[very thick] (11.6,-0.6) -- (11.6,-16.4);
 
+  % ---- what each side is doing at t = 0, before any traffic ----
+  \node[fev] at (4.6,-1.0) {};
+  \node[probe, anchor=east] at (3.9,-1.0)
+    {t = 0 boot: ruler self-check [UART]};
+  \node[side, anchor=west] at (11.9,-1.45)
+    {live from t = 0: 1\,A steady,\\AFE measuring; protection
+     unarmed};
+
   % ---- phase 1: configuration ----
   \draw[msg] (4.6,-1.5) -- (11.6,-1.5)
     node[midway, above, note]
@@ -737,6 +746,10 @@ checker cross-examines are produced.
     node[midway, below, note] {each message acked: SDA + ALERT};
   \node[side, anchor=east] at (3.9,-1.8)
     {$0 \to 2.1$\,ms:\\configuration};
+
+  \node[ev] at (11.6,-2.35) {};
+  \node[side, anchor=west] at (11.9,-2.35)
+    {2.1\,ms: protection armed};
 
   % ---- phase 2: the poll loop ----
   \draw[rounded corners, gray] (4.0,-2.6) rectangle (15.9,-5.3);
@@ -775,11 +788,16 @@ checker cross-examines are produced.
   % dispatch
   \draw[ret, blue!50!black, very thick] (11.6,-10.0) -- (4.6,-10.0)
     node[midway, above, note] {next ack carries ALERT = 1};
+  \node[fev] at (4.6,-10.0) {};
   \node[probe, anchor=east] at (3.9,-10.7)
     {15.516\,ms: dispatch: ss = 0x4, print TRIP [UART log]
      (266\,$\mu$s after the event)};
 
   % ---- recovery wait ----
+  \node[fev] at (4.6,-11.6) {};
+  \node[probe, anchor=east] at (3.9,-12.3)
+    {decision: hold recovery until the load clears (board time
+     42\,ms)};
   \draw[msg, dashed] (4.6,-11.6) -- (11.6,-11.6)
     node[midway, above, note]
     {wait to 42\,ms: beacons only\\(${\sim}2600$ of them)};
@@ -791,12 +809,14 @@ checker cross-examines are produced.
   % ---- recover and confirm ----
   \draw[msg] (4.6,-13.3) -- (11.6,-13.3)
     node[midway, above, note] {\iic{} write: recover (0x99 = 1)};
+  \node[ev] at (11.6,-13.9) {};
   \node[probe, anchor=west] at (11.9,-13.9)
     {42.75\,ms: DSG closes [board log]};
   \draw[msg] (4.6,-14.7) -- (11.6,-14.7)
     node[midway, above, note]
     {poll: 3694\,mV, 495\,mA\\($= 3700 - 0.5\,\mathrm{A} \times
      12\,\mathrm{m}\Omega$)};
+  \node[fev] at (4.6,-15.3) {};
   \node[probe, anchor=east] at (3.9,-15.3)
     {43.7\,ms: RECOVERED [UART log]};
   \draw[msg] (4.6,-16.1) -- (11.6,-16.1)
@@ -817,14 +837,11 @@ checker cross-examines are produced.
 \end{tikzpicture}
 \caption{The trip-and-recover mission as a timeline.  Board time
 flows top to bottom (ordering is to scale, spacing is not; durations
-are in the annotations), the grey frame is a repeating phase, and
-the log boxes and checker at the bottom are the post-run act.  Left
-lane: the firmware, whose executed instructions are the only source of board
-time (solid arrows carry pin edges, dashed arrows carry time
-beacons).  Right lane: the board, whose measurement loop, protection
-trip and scenario events are its own.  Neither side is instrumented
-internally: the test probes exactly two artifacts, the chip's serial
-log and the board's event log, and the checker cross-examines them.}
+are in the annotations); the grey frame is a repeating phase; the
+log boxes and checker are the post-run act.  Solid arrows: pin
+edges; dashed: time beacons; red dots: board-only events; blue
+dots: firmware-only events.  The test probes exactly two artifacts,
+the chip's serial log and the board's event log.}
 \label{fig:flow}
 \end{figure}
 
