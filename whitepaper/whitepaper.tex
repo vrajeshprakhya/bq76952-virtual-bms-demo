@@ -772,6 +772,13 @@ checker cross-examines are produced.
   \node[probe, anchor=west] at (11.9,-3.3)
     {telemetry reaches the UART log};
 
+  % ---- the final quiet-phase poll, in flight across the trip ----
+  \draw[fill=gray!25, draw=gray] (4.44,-5.7) rectangle (4.76,-8.45);
+  \node[side, anchor=east] at (3.9,-7.0)
+    {the last poll of the quiet phase is still in flight: its three
+     reads span 14.9 to 16.3\,ms, so both board events land
+     \emph{inside} one poll};
+
   % ---- the overload and trip ----
   \node[ev] at (11.6,-6.2) {};
   \node[side, anchor=west] at (11.9,-6.2)
@@ -783,11 +790,11 @@ checker cross-examines are produced.
      ALERT};
 
   % torn read
-  \node[align=center, draw, rounded corners, text width=60mm]
-    at (8.1,-8.9)
-    {poll in flight across the trip: status read returns 0x0
-     (before), current read returns 4200\,mA (after): the
-     \emph{torn snapshot}};
+  \node[align=center, draw, rounded corners, text width=66mm]
+    at (8.2,-8.85)
+    {status read answered 0x0 (before the trip); current read,
+     4200\,mA (after): one inconsistent snapshot, the
+     \emph{torn read}};
 
   % dispatch
   \draw[ret, blue!50!black, very thick] (11.6,-10.0) -- (4.6,-10.0)
@@ -844,7 +851,9 @@ flows top to bottom (ordering is to scale, spacing is not; durations
 are in the annotations); the grey frame is a repeating phase; the
 log boxes and checker are the post-run act.  Solid arrows: pin
 edges; dashed: time beacons; red dots: board-only events; blue
-dots: firmware-only events.  The test probes exactly two artifacts,
+dots: firmware-only events; the narrow bar on the firmware lane is
+one poll still executing across the events beside it.  The test
+probes exactly two artifacts,
 the chip's serial log and the board's event log.}
 \label{fig:flow}
 \end{figure}
