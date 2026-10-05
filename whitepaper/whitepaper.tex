@@ -756,7 +756,8 @@ checker cross-examines are produced.
 
   % ---- phase 2: the poll loop ----
   \draw[rounded corners, gray] (4.0,-2.6) rectangle (15.9,-5.3);
-  \node[side, anchor=east, gray] at (3.9,-2.9) {every 2\,ms:};
+  \node[side, anchor=east, gray] at (3.9,-3.1)
+    {poll cycle, repeats every 2\,ms until the trip:};
   \draw[msg] (4.6,-3.3) -- (11.6,-3.3)
     node[midway, above, note]
     {three \iic{} reads: status, cell\,1, current\\(costs
