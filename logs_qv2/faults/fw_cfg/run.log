@@ -75,8 +75,8 @@
 [board] AFE measurement period = 250000.0 ns
 [scenario] t=15000000000: load raised to 4.2 A (overload)
 [scenario] t=40000000000: load reduced to 0.5 A
-[renode_bridge2] firmware finished at t=123585904000
+[renode_bridge2] firmware finished at t=123557904000
 ---- cross-domain check ----
 CHECK: FAIL (2 rule violation(s))
-  R1 protection-missing: overload at 15ms but DSG opened never (required within 2ms)
-  R4 mission: trip-and-recover did not complete
+  RULE1 protection-missing: overload at 15ms but DSG opened never (required within 2ms)
+  RULE4 mission: trip-and-recover did not complete

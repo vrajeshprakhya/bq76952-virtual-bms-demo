@@ -88,8 +88,8 @@ renode/        SoC-emulator <-> xezim CO-SIMULATION, two backends:
                  check_cosim.py cross-domain checker and pass gate:
                                 cross-examines the firmware's UART log
                                 against the board's event log (rules
-                                R1 protection / R2 telemetry /
-                                R3 false-trip / R4 bus+mission)
+                                RULE1 protection / RULE2 telemetry /
+                                RULE3 false-trip / RULE4 bus+mission)
                  run_faults.sh  fault-injection campaign: one injected
                                 defect per layer (firmware config,
                                 firmware protocol, analog front-end,
@@ -184,7 +184,7 @@ logs_v2/       the quantum-coupled run: uart.log shows "ALERT IRQ:
                           the co-sim walks it
                faults/    the five-fault campaign re-run under the
                           v2 coupling (BACKEND=v2 run_faults.sh),
-                          same verdicts R1-R4, clean green
+                          same verdicts RULE1-RULE4, clean green
 CROSSCHECK.md  the two simulators put side by side, number by number
 ```
 
@@ -215,7 +215,7 @@ Tool versions are recorded in `logs_*/**version*`.
 | The FAB SCHEMATIC itself is simulatable | `logs_ngspice/fab_sim.log`: ngspice on the kicad-cli export -- 4 asserted operating points (incl. the 100R-filter balancing droop derived from the sheet's own values), a 4.2 A trip TRANSIENT (waveform in `fab_trip.dat`), and an AC sweep of the kelvin filter (fc = 7957.7 Hz measured vs 7957.7 analytic; response in `fab_kelvin_ac.dat`) |
 | Functional coverage over corner x response | `logs_xezim/xezim_cov.json` |
 | Bring-up bugs (START edge, array args, A-vs-mA) | fix-site comments in `design/rnm/bq76952_rnm.sv`, `design/tb/bq_proxy_pkg.sv`/`bq_bridge.sv`, and the whitepaper's Results section |
-| Injected defects in ANY layer are caught, each by a different rule | `logs_renode/faults/`: five-run campaign — clean passes; a byte-swapped OCD threshold (firmware config) trips R1 protection-missing; an off-by-one cell-register read (firmware protocol) trips R2 telemetry-vs-board-truth; a +2.5 A analog current-path offset (RNM) trips R3 false-trip; a stuck SDA readback (bridge/pin mux) trips R4 bus health — per-run logs + `summary.log` |
+| Injected defects in ANY layer are caught, each by a different rule | `logs_renode/faults/`: five-run campaign — clean passes; a byte-swapped OCD threshold (firmware config) trips RULE1 protection-missing; an off-by-one cell-register read (firmware protocol) trips RULE2 telemetry-vs-board-truth; a +2.5 A analog current-path offset (RNM) trips RULE3 false-trip; a stuck SDA readback (bridge/pin mux) trips RULE4 bus health — per-run logs + `summary.log` |
 | The framework transports to other protocols | `logs_spi/`: the HX717 load-cell chain (SPI-family) on the generic pin-vector bridge; 2000 g step = 1,718,241 counts vs 1,717,987 physics, detected 2.10 ms after the board's step, same checker discipline |
 | The production I2C driver stack is verified, not just the conversation | `logs_i2cdrv/`: firmware drives the real STM32 G0 I2C1 controller (CR2/START/TXIS/RXNE/STOPF); a harness slave turns each byte into pin-level edges on the same board; same mission, trip at 15.25 ms, checker PASS |
 | Under quantum coupling, firmware compute costs board time and interrupts land at the event | `logs_v2/uart.log`: ALERT ISR at t=15250us (the assert quantum, vs 18.6 ms polled in v1); the firmware's 1.66 ms main-loop service latency becomes a measured property; same checker passes |

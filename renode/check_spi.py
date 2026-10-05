@@ -5,11 +5,11 @@ UART log vs the board's event log, graded against the chain's
 physics.  Expected step delta: 2 mV/V x 5 V x (2000/5000) = 4 mV
 into a 0.5*5V/128 = 19.531 mV full scale -> 1,717,987 counts.
 
-  S1 quiet scale: pre-step deltas within noise of zero
-  S2 physics: post-step steady delta = 1,717,987 within 1%
-  S3 detection: the firmware's WEIGHT event lands within 10 ms of
+  RULE1 quiet scale: pre-step deltas within noise of zero
+  RULE2 physics: post-step steady delta = 1,717,987 within 1%
+  RULE3 detection: the firmware's WEIGHT event lands within 10 ms of
      the board's force step
-  S4 mission completes; no HX717 power-down events
+  RULE4 mission completes; no HX717 power-down events
 
 Usage: check_spi.py <uart.log> <xezim.log>
 """
@@ -41,7 +41,7 @@ fails = []
 pre = [s for s in samples if step_ms is not None and s[0] < step_ms]
 for t, n, c, d in pre:
     if abs(d) > 3000:
-        fails.append(f"S1 quiet: delta={d} at t={t}ms on an empty "
+        fails.append(f"RULE1 quiet: delta={d} at t={t}ms on an empty "
                      f"scale (noise budget 3000)")
         break
 
@@ -50,23 +50,23 @@ post = [s for s in samples
 if post:
     d = post[-1][3]
     if abs(d - EXPECTED) > EXPECTED * 0.01:
-        fails.append(f"S2 physics: steady delta={d}, expected "
+        fails.append(f"RULE2 physics: steady delta={d}, expected "
                      f"{EXPECTED} +/- 1%")
 else:
-    fails.append("S2 physics: no post-step samples")
+    fails.append("RULE2 physics: no post-step samples")
 
 if step_ms is None:
-    fails.append("S3 detection: board never stepped the force")
+    fails.append("RULE3 detection: board never stepped the force")
 elif det_ms is None:
-    fails.append("S3 detection: firmware never detected the weight")
+    fails.append("RULE3 detection: firmware never detected the weight")
 elif not (step_ms <= det_ms <= step_ms + 10.0):
-    fails.append(f"S3 detection: detected at {det_ms}ms, step at "
+    fails.append(f"RULE3 detection: detected at {det_ms}ms, step at "
                  f"{step_ms}ms (must be within 10 ms)")
 
 if "mission complete" not in U:
-    fails.append("S4 mission: did not complete")
+    fails.append("RULE4 mission: did not complete")
 if "POWER-DOWN" in X:
-    fails.append("S4 bus: HX717 power-down (SCLK held high)")
+    fails.append("RULE4 bus: HX717 power-down (SCLK held high)")
 
 if fails:
     print(f"CHECK: FAIL ({len(fails)} rule violation(s))")

@@ -2,7 +2,7 @@
 git 531e42a (2026-09-11T07:58:43-07:00)
 Max time: 400000000 ns
 ------------------------------
-[PHASE] compilation: 6.8ms
+[PHASE] compilation: 5.7ms
 [EVENT-EDGE] ARMED mode ON: 11 input signals, 12 fanout edges
 [EVENT-EDGE] measure (timestamp): 8 edge blocks, 4 gateable, 0 gateable-with-EMPTY-data-reads, avg data-reads/gateable=3.00
 [EVENT-EDGE] SKIP mode ON (sim_time >= 0) — skipping gateable flop fires with no data-input change
@@ -23,7 +23,7 @@ Max time: 400000000 ns
 [EVENT-EDGE] would-skip 3084/12236 gateable main-clk flop-fires (25.2%) had NO data-input change since last posedge => event-driven edge could skip them
 [EVENT-EDGE] adaptive epoch-fast-exec=0 snapshot-checks=12232 healed=0
 [EVENT-EDGE] armed-fast-skips=0 shadow-checks=0
-[PROF] fallback_reason                   Expr_display: count=       3 total=     0.0ms avg=    8.7µs
+[PROF] fallback_reason                   Expr_display: count=       3 total=     0.0ms avg=   10.4µs
 [PROF] fallback_reason               SystemCall_other: count=       2 total=     0.0ms avg=    0.0µs
 [PROF] fallback_reason               Expr_Call_impure: count=      10 total=     0.0ms avg=    0.0µs
 [PROF] settle_dc=0.0ms(63038) settle_ca=0.0ms(0) settle_ab=0.0ms(0)
@@ -33,17 +33,17 @@ Max time: 400000000 ns
 [PROF] settle_writes=27035 (42.9% of evals changed a signal, 36003 quiet) dep_edges=6713 (0.2 per write)
 [PROF] two_state_evals=5906 (1 entries lowered)
 [PROF] two_state_bail warn_x=0 forced_write=0 x_read=2 run_abort=0
-[PROF] simulation_loop=59511.4ms iters=203213 avg=292.85µs/iter
+[PROF] simulation_loop=42235.4ms iters=203223 avg=207.83µs/iter
 [board] AFE measurement period = 250000.0 ns
 [scenario] t=15000000000: load raised to 4.2 A (overload)
 [board] t=15250000000: AFE opened DSG (protection trip)
 [board] t=15250000000: ALERT asserted (safety status nonzero)
 [scenario] t=40000000000: load reduced to 0.5 A
 [board] t=42500000000: AFE closed DSG (recovered)
-[renode_bridge2] firmware finished at t=147745703000
-[PHASE] simulation: 59511.8ms
-[PHASE] total: 59518.6ms
+[renode_bridge2] firmware finished at t=147754703000
+[PHASE] simulation: 42235.8ms
+[PHASE] total: 42241.5ms
 ------------------------------
 ------------------------------
-Simulation finished at time 147745703000
+Simulation finished at time 147754703000
 ($finish called)

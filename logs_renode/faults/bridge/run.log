@@ -1,6 +1,14 @@
 == firmware (ARM) ==
    text	   data	    bss	    dec	    hex	filename
-   3439	      0	     12	   3451	    d7b	fw.elf
+   3675	      4	     12	   3691	    e6b	fw.elf
+   text	   data	    bss	    dec	    hex	filename
+   4199	      8	     12	   4219	   107b	fw_qemu.elf
+   text	   data	    bss	    dec	    hex	filename
+   4199	      0	     12	   4211	   1073	fw_v2.elf
+   text	   data	    bss	    dec	    hex	filename
+   4679	      4	     28	   4711	   1267	fw_qv2.elf
+   text	   data	    bss	    dec	    hex	filename
+   3115	      4	     20	   3139	    c43	fw_spi.elf
 == bridge DPI library ==
 == xezim (background, waits for Renode)  [BR_FAULT_SDA_STUCK] ==
 == Renode (console) ==
@@ -69,8 +77,8 @@
 [renode_bridge] firmware finished at t=182021416000
 ---- cross-domain check ----
 CHECK: FAIL (5 rule violation(s))
-  R2 telemetry: firmware says c1=65535mV at t=5.3ms; board truth is 3688 +/- 5
-  R2 telemetry: firmware says i=-1mA at t=5.3ms; board truth is 1000 +/- 15
-  R4 bus: firmware reported the slave not ACKing
-  R4 plausibility: firmware flagged implausible telemetry
-  R4 mission: trip-and-recover did not complete
+  RULE2 telemetry: firmware says c1=65535mV at t=5.3ms; board truth is 3688 +/- 5
+  RULE2 telemetry: firmware says i=-1mA at t=5.3ms; board truth is 1000 +/- 15
+  RULE4 bus: firmware reported the slave not ACKing
+  RULE4 plausibility: firmware flagged implausible telemetry
+  RULE4 mission: trip-and-recover did not complete

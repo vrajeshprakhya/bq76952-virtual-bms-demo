@@ -1,17 +1,18 @@
-[11:33:09.5491] [INFO] Loaded monitor commands from: /home/vraje/renode-portable/scripts/monitor.py
+[19:25:38.5158] [INFO] Loaded monitor commands from: /home/vraje/renode-portable/scripts/monitor.py
 [0mRenode, version 1.17.0 (1.17.0+20260907gitf1dd1b4af)
 
 [91m(monitor) [0mi $CWD/cosim.resc
-[11:33:09.6882] [INFO] Including script(s): /home/vraje/bq_vboard_evidence/renode/cosim.resc
-[11:33:09.7021] [INFO] System bus created.
-[11:33:12.3561] [INFO] sysbus: Loading block of 3440 bytes length at 0x8000000.
-[11:33:12.3706] [INFO] sysbus: Loading block of 12 bytes length at 0x8000D68.
+[19:25:38.6488] [INFO] Including script(s): /home/vraje/bq_vboard_evidence/renode/cosim.resc
+[19:25:38.6629] [INFO] System bus created.
+[19:25:41.3636] [INFO] sysbus: Loading block of 3676 bytes length at 0x8000000.
+[19:25:41.3793] [INFO] sysbus: Loading block of 4 bytes length at 0x8000E5C.
+[19:25:41.3795] [INFO] sysbus: Loading block of 12 bytes length at 0x8000E60.
 running: firmware drives the xezim board over the bridge
-[11:33:12.5816] [INFO] cpu: Guessing VectorTableOffset value to be 0x8000000.
-[11:33:12.5917] [INFO] cpu: Setting initial values: PC = 0x80007FD, SP = 0x2000C000.
-[11:33:12.5933] [INFO] bms: Machine started.
-[11:33:12.6324] [INFO] bridge: connected to xezim bridge
-[11:33:13.6918] [INFO] bridge: xezim board finished
-[11:33:14.5963] [INFO] bms: Machine paused.
+[19:25:41.6330] [INFO] cpu: Guessing VectorTableOffset value to be 0x8000000.
+[19:25:41.6471] [INFO] cpu: Setting initial values: PC = 0x80008E5, SP = 0x2000C000.
+[19:25:41.6493] [INFO] bms: Machine started.
+[19:25:41.7054] [INFO] bridge: connected to xezim bridge
+[19:25:42.9491] [INFO] bridge: xezim board finished
+[19:25:43.6528] [INFO] bms: Machine paused.
 [92mR[0m[92me[0m[92mn[0m[92mo[0m[92md[0m[92me[0m[92m [0m[92mi[0m[92ms[0m[92m [0m[92mq[0m[92mu[0m[92mi[0m[92mt[0m[92mt[0m[92mi[0m[92mn[0m[92mg[0m[92m[0m[92m
-[0m[92m[0m[0m[0m[11:33:14.6477] [INFO] bms: Disposed.
+[0m[92m[0m[0m[0m[19:25:43.6928] [INFO] bms: Disposed.

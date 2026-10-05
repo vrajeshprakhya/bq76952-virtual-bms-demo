@@ -2,7 +2,7 @@
 git 531e42a (2026-09-11T07:58:43-07:00)
 Max time: 400000000 ns
 ------------------------------
-[PHASE] compilation: 30.4ms
+[PHASE] compilation: 17.7ms
 [EVENT-EDGE] ARMED mode ON: 11 input signals, 12 fanout edges
 [EVENT-EDGE] measure (timestamp): 7 edge blocks, 4 gateable, 0 gateable-with-EMPTY-data-reads, avg data-reads/gateable=3.00
 [EVENT-EDGE] SKIP mode ON (sim_time >= 0) — skipping gateable flop fires with no data-input change
@@ -22,7 +22,7 @@ Max time: 400000000 ns
 [EVENT-EDGE] would-skip 510/2016 gateable main-clk flop-fires (25.3%) had NO data-input change since last posedge => event-driven edge could skip them
 [EVENT-EDGE] adaptive epoch-fast-exec=0 snapshot-checks=2012 healed=0
 [EVENT-EDGE] armed-fast-skips=0 shadow-checks=0
-[PROF] fallback_reason                   Expr_display: count=       2 total=     0.0ms avg=   11.8µs
+[PROF] fallback_reason                   Expr_display: count=       2 total=     0.0ms avg=   10.9µs
 [PROF] fallback_reason               SystemCall_other: count=       2 total=     0.0ms avg=    0.0µs
 [PROF] fallback_reason               Expr_Call_impure: count=      10 total=     0.0ms avg=    0.0µs
 [PROF] settle_dc=0.0ms(16555) settle_ca=0.0ms(0) settle_ab=0.0ms(0)
@@ -32,14 +32,14 @@ Max time: 400000000 ns
 [PROF] settle_writes=7619 (46.0% of evals changed a signal, 8936 quiet) dep_edges=7371 (1.0 per write)
 [PROF] two_state_evals=1069 (2 entries lowered)
 [PROF] two_state_bail warn_x=0 forced_write=0 x_read=2 run_abort=0
-[PROF] simulation_loop=8394.0ms iters=34139 avg=245.88µs/iter
+[PROF] simulation_loop=9030.7ms iters=34139 avg=264.53µs/iter
 [scenario] t=15000000000: load raised to 4.2 A (overload)
 [board] t=15250000000: AFE opened DSG (protection trip)
 [scenario] t=40000000000: load reduced to 0.5 A
 [board] t=42500000000: AFE closed DSG (recovered)
 [pin_bridge] client finished at t=43699003000
-[PHASE] simulation: 8394.4ms
-[PHASE] total: 8424.8ms
+[PHASE] simulation: 9031.1ms
+[PHASE] total: 9048.8ms
 ------------------------------
 ------------------------------
 Simulation finished at time 43699003000

@@ -23,7 +23,7 @@
 [board] t=42500000000: AFE closed DSG (recovered)
 [board] t=43000000000: AFE opened DSG (protection trip)
 [board] t=43000000000: ALERT asserted (safety status nonzero)
-[renode_bridge2] firmware finished at t=43713213000
+[renode_bridge2] firmware finished at t=43712213000
 ---- cross-domain check ----
 CHECK: FAIL (1 rule violation(s))
-  R3 false-trip: DSG opened at 1.25ms, BEFORE the overload at 15ms
+  RULE3 false-trip: DSG opened at 1.25ms, BEFORE the overload at 15ms

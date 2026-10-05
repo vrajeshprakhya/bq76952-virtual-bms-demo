@@ -27,5 +27,5 @@
 [renode_bridge] firmware finished at t=52233121000
 ---- cross-domain check ----
 CHECK: FAIL (2 rule violation(s))
-  R2 telemetry: firmware says c1=26894mV at t=5.3ms; board truth is 3688 +/- 5
-  R4 plausibility: firmware flagged implausible telemetry
+  RULE2 telemetry: firmware says c1=26894mV at t=5.3ms; board truth is 3688 +/- 5
+  RULE4 plausibility: firmware flagged implausible telemetry

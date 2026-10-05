@@ -870,9 +870,9 @@ checker cross-examines are produced.
     {\texttt{xezim.log}\\the board's story};
   \node[hot, text width=84mm, align=center] (chk) at (8.1,-19.9)
     {\textbf{cross-domain checker} (\texttt{check\_cosim.py})\\
-     R1 trip within 2\,ms of overload \;$\cdot$\; R2 telemetry
-     matches physics\\R3 no trip before overload \;$\cdot$\;
-     R4 bus health and mission complete};
+     1: trip within 2\,ms of overload \;$\cdot$\; 2: telemetry
+     matches physics\\3: no trip before overload \;$\cdot$\;
+     4: bus health and mission complete};
   \draw[msg] (w1.south) -- (chk.north west);
   \draw[msg] (w2.south) -- (chk.north east);
 \end{tikzpicture}
@@ -944,10 +944,12 @@ tuned for, so the co-simulation's pass criterion is not a log grep
 but a \emph{cross-domain checker} (\texttt{check\_cosim.py}): it
 treats the firmware's UART log and the board's xezim log as two
 independent witnesses and cross-examines them under four rules, one
-per layer of the stack: R1, a real overload must open DSG within
-2\,ms; R2, chip-reported telemetry must match board physics during
-the quiet phase (3688$\pm$5\,mV, 1000$\pm$15\,mA); R3, DSG must never
-open \emph{before} an overload exists; R4, bus and mission health (no
+per layer of the stack (named RULE1 through RULE4 in the logs; the
+schematic's resistors own the R refdes): rule~1, a real overload
+must open DSG within
+2\,ms; rule~2, chip-reported telemetry must match board physics during
+the quiet phase (3688$\pm$5\,mV, 1000$\pm$15\,mA); rule~3, DSG must never
+open \emph{before} an overload exists; rule~4, bus and mission health (no
 NACKs, no implausible readings, trip-and-recover must complete).  The
 firmware itself carries defence-in-depth: NACK counting and a
 plausibility window on cell voltage, both reported on its UART.
@@ -964,13 +966,13 @@ defect into each layer.  Every fault was caught, each by a
 Run & Layer & Injected defect & Caught by \\
 \midrule
 clean     & n/a       & none                              & passes (trip $+0.25$\,ms) \\
-fw\_cfg   & FW config & OCD threshold write byte-swapped  & R1: ``overload at 15\,ms \\
+fw\_cfg   & FW config & OCD threshold write byte-swapped  & rule 1: ``overload at 15\,ms \\
           &           & (3000\,mA arms as 47\,115\,mA)    & \quad but DSG opened \emph{never}'' \\
-fw\_proto & FW protocol & cell readout off by one register & R2: ``c1=26382\,mV; board \\
+fw\_proto & FW protocol & cell readout off by one register & rule 2: ``c1=26382\,mV; board \\
           &           &                                   & \quad truth is 3688$\pm$5'' \\
-board     & analog RNM & $+2500$\,mA current-path offset  & R3: ``DSG opened at 1.25\,ms, \\
+board     & analog RNM & $+2500$\,mA current-path offset  & rule 3: ``DSG opened at 1.25\,ms, \\
           &           & (damaged sense front-end)         & \quad \emph{before} the overload'' \\
-bridge    & pin path  & SDA readback stuck at 1           & R4: slave not ACKing + \\
+bridge    & pin path  & SDA readback stuck at 1           & rule 4: slave not ACKing + \\
           &           & (pin-mux class of bug)            & \quad implausible telemetry \\
 \bottomrule
 \end{tabular}
@@ -991,7 +993,8 @@ chip's own telemetry, before any hardware exists: the class of
 board-bring-up mystery this framework was built to catch.  The
 byte-swap fault makes the complementary point: the system behaves
 \emph{perfectly} at 1\,A and betrays nothing until the day of the
-first real overload, which is why R1 watches the board's truth rather
+first real overload, which is why rule~1 watches the board's truth
+rather
 than the firmware's belief.
 
 The checker judges the two witnesses' stories, not the mechanism

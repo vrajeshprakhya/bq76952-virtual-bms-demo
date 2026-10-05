@@ -5,10 +5,10 @@
 # still passes.
 #
 #   clean       no fault                          -> CHECK: PASS
-#   fw_cfg      firmware: OCD threshold write byte-swapped       -> R1
-#   fw_proto    firmware: cell readout off-by-one register       -> R2
-#   board       RNM: +2500 mA offset in the analog current path  -> R3
-#   bridge      SDA readback stuck (pin-mux class of bug)        -> R4
+#   fw_cfg      firmware: OCD threshold write byte-swapped       -> RULE1
+#   fw_proto    firmware: cell readout off-by-one register       -> RULE2
+#   board       RNM: +2500 mA offset in the analog current path  -> RULE3
+#   bridge      SDA readback stuck (pin-mux class of bug)        -> RULE4
 #
 # Logs per run: ../logs_renode/faults/<name>/{uart,xezim,check}.log
 # Summary: ../logs_renode/faults/summary.log
@@ -45,7 +45,7 @@ run_one() {  # name expected_rule FW_FAULT XZ_DEFS BR_STUCK
   fi
   cp -f "$LDIR/uart.log"  "$FDIR/$name/uart.log"  2>/dev/null || true
   cp -f "$LDIR/xezim.log" "$FDIR/$name/xezim.log" 2>/dev/null || true
-  grep -E 'CHECK:|R[1-4] ' "$FDIR/$name/run.log" > "$FDIR/$name/check.log" || true
+  grep -E 'CHECK:|RULE[1-4] ' "$FDIR/$name/run.log" > "$FDIR/$name/check.log" || true
   cat "$FDIR/$name/check.log"
 
   local verdict
@@ -66,10 +66,10 @@ run_one() {  # name expected_rule FW_FAULT XZ_DEFS BR_STUCK
 }
 
 run_one clean    PASS ""         ""              0
-run_one fw_cfg   R1   OCD_SWAP   ""              0
-run_one fw_proto R2   REG_OFF1   ""              0
-run_one board    R3   ""         "-D FAULT_COFF" 0
-run_one bridge   R4   ""         ""              1
+run_one fw_cfg   RULE1 OCD_SWAP   ""              0
+run_one fw_proto RULE2 REG_OFF1   ""              0
+run_one board    RULE3 ""         "-D FAULT_COFF" 0
+run_one bridge   RULE4 ""         ""              1
 
 echo "=============================================================="
 echo "== campaign summary"

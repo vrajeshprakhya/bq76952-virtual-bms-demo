@@ -2,7 +2,7 @@
 git 531e42a (2026-09-11T07:58:43-07:00)
 Max time: 400000000 ns
 ------------------------------
-[PHASE] compilation: 6.7ms
+[PHASE] compilation: 6.6ms
 [EVENT-EDGE] ARMED mode ON: 11 input signals, 12 fanout edges
 [EVENT-EDGE] measure (timestamp): 8 edge blocks, 4 gateable, 0 gateable-with-EMPTY-data-reads, avg data-reads/gateable=3.00
 [EVENT-EDGE] SKIP mode ON (sim_time >= 0) — skipping gateable flop fires with no data-input change
@@ -31,14 +31,14 @@ Max time: 400000000 ns
 [PROF] settle_writes=27324 (42.9% of evals changed a signal, 36307 quiet) dep_edges=6816 (0.2 per write)
 [PROF] two_state_evals=5984 (1 entries lowered)
 [PROF] two_state_bail warn_x=0 forced_write=0 x_read=2 run_abort=0
-[PROF] simulation_loop=49177.9ms iters=176970 avg=277.89µs/iter
+[PROF] simulation_loop=37180.9ms iters=176939 avg=210.13µs/iter
 [board] AFE measurement period = 250000.0 ns
 [scenario] t=15000000000: load raised to 4.2 A (overload)
 [scenario] t=40000000000: load reduced to 0.5 A
-[renode_bridge2] firmware finished at t=123585904000
-[PHASE] simulation: 49178.3ms
-[PHASE] total: 49185.1ms
+[renode_bridge2] firmware finished at t=123557904000
+[PHASE] simulation: 37181.4ms
+[PHASE] total: 37188.0ms
 ------------------------------
 ------------------------------
-Simulation finished at time 123585904000
+Simulation finished at time 123557904000
 ($finish called)

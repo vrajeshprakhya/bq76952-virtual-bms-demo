@@ -66,5 +66,5 @@
 [renode_bridge] firmware finished at t=182021416000
 ---- cross-domain check ----
 CHECK: FAIL (2 rule violation(s))
-  R3 false-trip: DSG opened at 1.25ms, BEFORE the overload at 15ms
-  R4 mission: trip-and-recover did not complete
+  RULE3 false-trip: DSG opened at 1.25ms, BEFORE the overload at 15ms
+  RULE4 mission: trip-and-recover did not complete

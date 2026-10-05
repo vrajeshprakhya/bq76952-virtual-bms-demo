@@ -1,5 +1,5 @@
 clean    expect PASS : OK: clean setup passes
-fw_cfg   expect R1   : CAUGHT by R1
-fw_proto expect R2   : CAUGHT by R2
-board    expect R3   : CAUGHT by R3
-bridge   expect R4   : CAUGHT by R4
+fw_cfg   expect RULE1 : CAUGHT by RULE1
+fw_proto expect RULE2 : CAUGHT by RULE2
+board    expect RULE3 : CAUGHT by RULE3
+bridge   expect RULE4 : CAUGHT by RULE4

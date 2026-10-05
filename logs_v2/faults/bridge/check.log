@@ -1,6 +1,6 @@
 CHECK: FAIL (5 rule violation(s))
-  R2 telemetry: firmware says c1=65535mV at t=6.8ms; board truth is 3688 +/- 5
-  R2 telemetry: firmware says i=-1mA at t=6.8ms; board truth is 1000 +/- 15
-  R4 bus: firmware reported the slave not ACKing
-  R4 plausibility: firmware flagged implausible telemetry
-  R4 mission: trip-and-recover did not complete
+  RULE2 telemetry: firmware says c1=65535mV at t=6.8ms; board truth is 3688 +/- 5
+  RULE2 telemetry: firmware says i=-1mA at t=6.8ms; board truth is 1000 +/- 15
+  RULE4 bus: firmware reported the slave not ACKing
+  RULE4 plausibility: firmware flagged implausible telemetry
+  RULE4 mission: trip-and-recover did not complete

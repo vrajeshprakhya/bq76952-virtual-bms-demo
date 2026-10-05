@@ -2,7 +2,7 @@
 git 531e42a (2026-09-11T07:58:43-07:00)
 Max time: 600000000 ns
 ------------------------------
-[PHASE] compilation: 14.1ms
+[PHASE] compilation: 7.3ms
 [EVENT-EDGE] ARMED mode ON: 5 input signals, 5 fanout edges
 [EVENT-EDGE] measure (timestamp): 3 edge blocks, 2 gateable, 0 gateable-with-EMPTY-data-reads, avg data-reads/gateable=2.50
 [EVENT-EDGE] SKIP mode ON (sim_time >= 0) — skipping gateable flop fires with no data-input change
@@ -29,11 +29,11 @@ Max time: 600000000 ns
 [PROF] settle_calls=7411 settle_iters=7411 max_iters=1 entry_evals=10273 unresolved_entries=1/15
 [PROF] settle_writes=5557 (54.1% of evals changed a signal, 4716 quiet) dep_edges=1789 (0.3 per write)
 [PROF] two_state_evals=1 (1 entries lowered)
-[PROF] simulation_loop=23367.8ms iters=54381 avg=429.70µs/iter
+[PROF] simulation_loop=19472.5ms iters=54384 avg=358.05µs/iter
 [scenario] t=151000000000: force step to 2000 g
 [pin_bridge] client finished at t=165687651000
-[PHASE] simulation: 23368.0ms
-[PHASE] total: 23382.2ms
+[PHASE] simulation: 19472.7ms
+[PHASE] total: 19480.1ms
 ------------------------------
 ------------------------------
 Simulation finished at time 165687651000

@@ -14,8 +14,8 @@
 [fw t=9.5ms] ss=0x0 c1=3689mV i=1004mA
 [fw t=11.5ms] ss=0x0 c1=3688mV i=1004mA
 [fw t=13.5ms] ss=0x0 c1=3688mV i=998mA
-[fw t=15.5ms] ss=0x0 c1=3689mV i=104mA
-[fw t=15.9ms] *** ALERT dispatched at t=15525us ss=0x4 -- OCD TRIP seen over I2C -- current stopped by the AFE
+[fw t=15.5ms] ss=0x0 c1=3689mV i=4200mA
+[fw t=15.9ms] *** ALERT dispatched at t=15516us ss=0x4 -- OCD TRIP seen over I2C -- current stopped by the AFE
 [fw t=42.3ms] recover written (0x99=1)
 [fw t=43.7ms] ss=0x0 c1=3694mV i=495mA
 [fw t=43.7ms] *** RECOVERED: latch cleared, current flowing again (495mA)
@@ -26,8 +26,8 @@
 [board] t=15173750000: AFE opened DSG (protection trip)
 [board] t=15174000000: ALERT asserted (safety status nonzero)
 [scenario] t=40000000000: load reduced to 0.5 A
-[board] t=42536250000: AFE closed DSG (recovered)
-[renode_bridge2] firmware finished at t=43723643000
+[board] t=42287500000: AFE closed DSG (recovered)
+[renode_bridge2] firmware finished at t=43715643000
 ---- cross-domain check ----
 CHECK: PASS  (7 samples cross-checked; trip 0.17ms after overload)
 COSIM-QV2: PASS

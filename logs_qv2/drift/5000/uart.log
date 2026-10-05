@@ -7,8 +7,8 @@
 [fw t=9.5ms] ss=0x0 c1=3689mV i=1004mA
 [fw t=11.5ms] ss=0x0 c1=3688mV i=1004mA
 [fw t=13.5ms] ss=0x0 c1=3688mV i=998mA
-[fw t=15.5ms] ss=0x0 c1=3688mV i=108mA
-[fw t=15.9ms] *** ALERT dispatched at t=15514us ss=0x4 -- OCD TRIP seen over I2C -- current stopped by the AFE
+[fw t=15.5ms] ss=0x0 c1=3689mV i=0mA
+[fw t=15.9ms] *** ALERT dispatched at t=15525us ss=0x4 -- OCD TRIP seen over I2C -- current stopped by the AFE
 [fw t=42.3ms] recover written (0x99=1)
 [fw t=43.7ms] ss=0x0 c1=3695mV i=502mA
 [fw t=43.7ms] *** RECOVERED: latch cleared, current flowing again (502mA)

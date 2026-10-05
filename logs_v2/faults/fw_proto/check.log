@@ -1,3 +1,3 @@
 CHECK: FAIL (2 rule violation(s))
-  R2 telemetry: firmware says c1=26638mV at t=6.8ms; board truth is 3688 +/- 5
-  R4 plausibility: firmware flagged implausible telemetry
+  RULE2 telemetry: firmware says c1=26638mV at t=6.8ms; board truth is 3688 +/- 5
+  RULE4 plausibility: firmware flagged implausible telemetry

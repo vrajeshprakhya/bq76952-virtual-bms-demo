@@ -1,5 +1,5 @@
- -20000 ppm : trip  15190 us  isr  15516 us  CHECK: PASS  (rc=0)
-  -5000 ppm : trip  15173 us  isr  15525 us  CHECK: PASS  (rc=0)
+ -20000 ppm : trip  15190 us  isr  15524 us  CHECK: PASS  (rc=0)
+  -5000 ppm : trip  15173 us  isr  15516 us  CHECK: PASS  (rc=0)
      +0 ppm : trip  15250 us  isr  15516 us  CHECK: PASS  (rc=0)
-  +5000 ppm : trip  15075 us  isr  15514 us  CHECK: PASS  (rc=0)
+  +5000 ppm : trip  15075 us  isr  15525 us  CHECK: PASS  (rc=0)
  +20000 ppm : trip  15045 us  isr  15516 us  CHECK: PASS  (rc=0)

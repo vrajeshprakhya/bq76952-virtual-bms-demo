@@ -28,8 +28,8 @@
 [board] t=15250000000: ALERT asserted (safety status nonzero)
 [scenario] t=40000000000: load reduced to 0.5 A
 [board] t=42500000000: AFE closed DSG (recovered)
-[renode_bridge2] firmware finished at t=43715643000
+[renode_bridge2] firmware finished at t=43714643000
 ---- cross-domain check ----
 CHECK: FAIL (2 rule violation(s))
-  R2 telemetry: firmware says c1=26382mV at t=5.5ms; board truth is 3688 +/- 5
-  R4 plausibility: firmware flagged implausible telemetry
+  RULE2 telemetry: firmware says c1=26382mV at t=5.5ms; board truth is 3688 +/- 5
+  RULE4 plausibility: firmware flagged implausible telemetry

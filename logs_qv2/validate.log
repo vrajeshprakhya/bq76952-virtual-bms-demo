@@ -1,22 +1,22 @@
 === 1. determinism ===
 DETERMINISM: PASS (uart log and board events byte-identical;
-  harness finish: finished at t=43714643000 vs finished at t=43715643000)
+  harness finish: finished at t=43714643000 vs finished at t=43713643000)
 === 2. fault campaign (qv2) ===
 ==============================================================
 == campaign summary
 clean    expect PASS : OK: clean setup passes
-fw_cfg   expect R1   : CAUGHT by R1
-fw_proto expect R2   : CAUGHT by R2
-board    expect R3   : CAUGHT by R3
-bridge   expect R4   : CAUGHT by R4
+fw_cfg   expect RULE1 : CAUGHT by RULE1
+fw_proto expect RULE2 : CAUGHT by RULE2
+board    expect RULE3 : CAUGHT by RULE3
+bridge   expect RULE4 : CAUGHT by RULE4
 FAULT-CAMPAIGN: PASS (clean passes; every fault caught by its own rule)
 === 3. drift sweep (qv2) ===
  +20000 ppm : trip  15045 us  isr  15516 us  CHECK: PASS  (rc=0)
 == drift sweep summary ==
- -20000 ppm : trip  15190 us  isr  15516 us  CHECK: PASS  (rc=0)
-  -5000 ppm : trip  15173 us  isr  15525 us  CHECK: PASS  (rc=0)
+ -20000 ppm : trip  15190 us  isr  15524 us  CHECK: PASS  (rc=0)
+  -5000 ppm : trip  15173 us  isr  15516 us  CHECK: PASS  (rc=0)
      +0 ppm : trip  15250 us  isr  15516 us  CHECK: PASS  (rc=0)
-  +5000 ppm : trip  15075 us  isr  15514 us  CHECK: PASS  (rc=0)
+  +5000 ppm : trip  15075 us  isr  15525 us  CHECK: PASS  (rc=0)
  +20000 ppm : trip  15045 us  isr  15516 us  CHECK: PASS  (rc=0)
 DRIFT-SWEEP: PASS (all points green; trip phase slides with drift)
 VALIDATE-QV2: PASS

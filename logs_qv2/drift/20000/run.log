@@ -27,7 +27,7 @@
 [board] t=15045000000: ALERT asserted (safety status nonzero)
 [scenario] t=40000000000: load reduced to 0.5 A
 [board] t=42330000000: AFE closed DSG (recovered)
-[renode_bridge2] firmware finished at t=43714643000
+[renode_bridge2] firmware finished at t=43715643000
 ---- cross-domain check ----
 CHECK: PASS  (7 samples cross-checked; trip 0.04ms after overload)
 COSIM-QV2: PASS

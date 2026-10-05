@@ -2,7 +2,7 @@
 git 531e42a (2026-09-11T07:58:43-07:00)
 Max time: 400000000 ns
 ------------------------------
-[PHASE] compilation: 34.3ms
+[PHASE] compilation: 9.2ms
 [EVENT-EDGE] ARMED mode ON: 11 input signals, 12 fanout edges
 [EVENT-EDGE] measure (timestamp): 8 edge blocks, 4 gateable, 0 gateable-with-EMPTY-data-reads, avg data-reads/gateable=3.00
 [EVENT-EDGE] SKIP mode ON (sim_time >= 0) — skipping gateable flop fires with no data-input change
@@ -22,7 +22,7 @@ Max time: 400000000 ns
 [EVENT-EDGE] would-skip 118/577 gateable main-clk flop-fires (20.5%) had NO data-input change since last posedge => event-driven edge could skip them
 [EVENT-EDGE] adaptive epoch-fast-exec=0 snapshot-checks=573 healed=0
 [EVENT-EDGE] armed-fast-skips=0 shadow-checks=0
-[PROF] fallback_reason                   Expr_display: count=       5 total=     0.2ms avg=   31.5µs
+[PROF] fallback_reason                   Expr_display: count=       5 total=     0.0ms avg=    6.3µs
 [PROF] fallback_reason               SystemCall_other: count=       2 total=     0.0ms avg=    0.0µs
 [PROF] fallback_reason               Expr_Call_impure: count=      10 total=     0.0ms avg=    0.0µs
 [PROF] settle_dc=0.0ms(3286) settle_ca=0.0ms(0) settle_ab=0.0ms(0)
@@ -32,7 +32,7 @@ Max time: 400000000 ns
 [PROF] settle_writes=1446 (44.0% of evals changed a signal, 1840 quiet) dep_edges=402 (0.3 per write)
 [PROF] two_state_evals=320 (1 entries lowered)
 [PROF] two_state_bail warn_x=0 forced_write=0 x_read=2 run_abort=0
-[PROF] simulation_loop=16235.9ms iters=50087 avg=324.15µs/iter
+[PROF] simulation_loop=8730.7ms iters=50087 avg=174.31µs/iter
 [board] AFE measurement period = 250000.0 ns
 [board] t=1750000000: AFE opened DSG (protection trip)
 [board] t=1750000000: ALERT asserted (safety status nonzero)
@@ -42,8 +42,8 @@ Max time: 400000000 ns
 [board] t=43000000000: AFE opened DSG (protection trip)
 [board] t=43000000000: ALERT asserted (safety status nonzero)
 [renode_bridge2] firmware finished at t=44431213000
-[PHASE] simulation: 16236.8ms
-[PHASE] total: 16271.2ms
+[PHASE] simulation: 8731.1ms
+[PHASE] total: 8740.3ms
 ------------------------------
 ------------------------------
 Simulation finished at time 44431213000
