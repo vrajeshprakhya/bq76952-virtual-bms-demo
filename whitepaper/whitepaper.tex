@@ -815,8 +815,11 @@ checker cross-examines are produced.
   \draw[msg] (w1.south) -- (chk.north west);
   \draw[msg] (w2.south) -- (chk.north east);
 \end{tikzpicture}
-\caption{The trip-and-recover mission as a timeline.  Left lane: the
-firmware, whose executed instructions are the only source of board
+\caption{The trip-and-recover mission as a timeline.  Board time
+flows top to bottom (ordering is to scale, spacing is not; durations
+are in the annotations), the grey frame is a repeating phase, and
+the log boxes and checker at the bottom are the post-run act.  Left
+lane: the firmware, whose executed instructions are the only source of board
 time (solid arrows carry pin edges, dashed arrows carry time
 beacons).  Right lane: the board, whose measurement loop, protection
 trip and scenario events are its own.  Neither side is instrumented
