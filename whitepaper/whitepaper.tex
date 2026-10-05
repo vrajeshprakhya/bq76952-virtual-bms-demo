@@ -1157,9 +1157,9 @@ Everything in this paper lives in one repository~\cite{repo}:
 \end{center}
 
 The toolchain installs without administrator rights (the
-\texttt{renode/get\_*.sh} scripts fetch portable QEMU, the ARM
+\texttt{cosim/get\_*.sh} scripts fetch portable QEMU, the ARM
 cross-compiler and SystemC), each co-simulation is one script
-(\texttt{renode/run\_cosim*.sh}), and every number quoted in this
+(\texttt{cosim/run\_cosim*.sh}), and every number quoted in this
 paper maps to a committed log: the mission transcripts, the
 fault-campaign verdicts, the drift sweep, and the determinism
 record.  The layout:
@@ -1170,7 +1170,7 @@ design/            the virtual board and its original bench
   rnm/             SV-RNM: pack, AFE, board (the models of Sec. 3)
   rnm_lc/          the load-cell chain (second protocol, Sec. 7)
   tb/, fw/, mcu/   UVM-MS bench, host logic, tick-shim MCU (rung one)
-renode/            co-simulation (rung two)
+cosim/             co-simulation (rung two)
   fw_arm/          the ARM missions and HALs (bit-bang, driver, SPI)
   bridge/          the pin-level bridges, incl. the generic pin vector
   tlm_shim/        the IEEE 1666 TLM-2.0 target (Sec. 8)

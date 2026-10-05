@@ -59,7 +59,7 @@ kicad/         fabrication-grade KiCad schematic (ERC-clean):
 logs_ngspice/  ngspice.log, sweep_load.dat, tran_trip.dat, version
 logs_xezim/    smoke.log, regress.log (13 scenarios, seed 1),
                xezim_cov.json (functional coverage), version
-renode/        SoC-emulator <-> xezim CO-SIMULATION, two backends:
+cosim/        SoC-emulator <-> xezim CO-SIMULATION, two backends:
                real bare-metal ARM firmware on an emulated MCU drives
                the SV-RNM board over a lockstep TCP bridge.
                Backend 1 (run_cosim.sh): Renode, STM32G0 (Cortex-M0+,
@@ -112,7 +112,7 @@ renode/        SoC-emulator <-> xezim CO-SIMULATION, two backends:
                because execution cost is real.  fw_arm/main_v2.c +
                startup_v2.c (full vector table), top_v2.sv,
                bridge/*2.* -- v1 untouched.
-logs_renode/   uart.log (the firmware's own account of the trip-and-
+logs_cosim/   uart.log (the firmware's own account of the trip-and-
                recover mission), xezim.log, renode.log
                TLM-2.0 SHIM (run_cosim_tlm.sh, tlm_shim/shim.cpp):
                the RNM board presented as a STANDARD IEEE 1666
@@ -215,13 +215,13 @@ Tool versions are recorded in `logs_*/**version*`.
 | The FAB SCHEMATIC itself is simulatable | `logs_ngspice/fab_sim.log`: ngspice on the kicad-cli export -- 4 asserted operating points (incl. the 100R-filter balancing droop derived from the sheet's own values), a 4.2 A trip TRANSIENT (waveform in `fab_trip.dat`), and an AC sweep of the kelvin filter (fc = 7957.7 Hz measured vs 7957.7 analytic; response in `fab_kelvin_ac.dat`) |
 | Functional coverage over corner x response | `logs_xezim/xezim_cov.json` |
 | Bring-up bugs (START edge, array args, A-vs-mA) | fix-site comments in `design/rnm/bq76952_rnm.sv`, `design/tb/bq_proxy_pkg.sv`/`bq_bridge.sv`, and the whitepaper's Results section |
-| Injected defects in ANY layer are caught, each by a different rule | `logs_renode/faults/`: five-run campaign — clean passes; a byte-swapped OCD threshold (firmware config) trips RULE1 protection-missing; an off-by-one cell-register read (firmware protocol) trips RULE2 telemetry-vs-board-truth; a +2.5 A analog current-path offset (RNM) trips RULE3 false-trip; a stuck SDA readback (bridge/pin mux) trips RULE4 bus health — per-run logs + `summary.log` |
+| Injected defects in ANY layer are caught, each by a different rule | `logs_cosim/faults/`: five-run campaign — clean passes; a byte-swapped OCD threshold (firmware config) trips RULE1 protection-missing; an off-by-one cell-register read (firmware protocol) trips RULE2 telemetry-vs-board-truth; a +2.5 A analog current-path offset (RNM) trips RULE3 false-trip; a stuck SDA readback (bridge/pin mux) trips RULE4 bus health — per-run logs + `summary.log` |
 | The framework transports to other protocols | `logs_spi/`: the HX717 load-cell chain (SPI-family) on the generic pin-vector bridge; 2000 g step = 1,718,241 counts vs 1,717,987 physics, detected 2.10 ms after the board's step, same checker discipline |
 | The production I2C driver stack is verified, not just the conversation | `logs_i2cdrv/`: firmware drives the real STM32 G0 I2C1 controller (CR2/START/TXIS/RXNE/STOPF); a harness slave turns each byte into pin-level edges on the same board; same mission, trip at 15.25 ms, checker PASS |
 | Under quantum coupling, firmware compute costs board time and interrupts land at the event | `logs_v2/uart.log`: ALERT ISR at t=15250us (the assert quantum, vs 18.6 ms polled in v1); the firmware's 1.66 ms main-loop service latency becomes a measured property; same checker passes |
 | The board is a standard IEEE 1666 TLM-2.0 target | `logs_tlm/`: the same mission crosses a genuine SystemC TLM-2.0 socket (14,439 generic-payload transactions, sc_time locked to board time), board ends at t=52233121000 exactly, same checker PASS -- any TLM initiator can drive the same board |
 | The co-sim is emulator-agnostic: mainline QEMU reproduces the board timeline byte-for-byte | `logs_qemu/`: the same mission firmware on unmodified QEMU 9.2.4 (STM32F405, bridge over a USART TCP chardev) finishes at t=52233121000 exactly, same samples, same checker PASS, ~8 s wall |
-| REAL firmware on an emulated SoC drives the RNM board | `logs_renode/uart.log`: ARM firmware (Renode STM32G0, the schematic's U2 family) configures the AFE over bit-banged I2C, reads 3688 mV / ~1000 mA, sees the OCD trip (3701 mV, 1 mA), recovers the latch, confirms 3694 mV / 499 mA -- every number consistent with the xezim, ngspice and UVM domains |
+| REAL firmware on an emulated SoC drives the RNM board | `logs_cosim/uart.log`: ARM firmware (Renode STM32G0, the schematic's U2 family) configures the AFE over bit-banged I2C, reads 3688 mV / ~1000 mA, sees the OCD trip (3701 mV, 1 mA), recovers the latch, confirms 3694 mV / 499 mA -- every number consistent with the xezim, ngspice and UVM domains |
 
 Provenance note: the design was authored for this demonstrator; the
 architecture is modelled on the open 6S-BMS project (STM32G0B1 +
