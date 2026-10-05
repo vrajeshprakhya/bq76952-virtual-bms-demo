@@ -733,7 +733,7 @@ checker cross-examines are produced.
   % ---- what each side is doing at t = 0, before any traffic ----
   \node[fev] at (4.6,-1.0) {};
   \node[probe, anchor=east] at (3.9,-1.0)
-    {t = 0: firmware boots [UART]};
+    {t = 0: firmware boots};
   \node[side, anchor=west] at (11.9,-1.45)
     {live from t = 0: 1\,A steady,\\AFE measuring; protection
      unarmed};
@@ -777,7 +777,7 @@ checker cross-examines are produced.
   \node[ev] at (11.6,-7.8) {};
   \node[probe, anchor=west] at (11.9,-7.8)
     {15.25\,ms: AFE measures 4200\,mA $>$ 3000, opens DSG, latches
-     ALERT [board log]};
+     ALERT};
 
   % torn read
   \node[align=center, draw, rounded corners, text width=60mm]
@@ -791,7 +791,7 @@ checker cross-examines are produced.
     node[midway, above, note] {next ack carries ALERT = 1};
   \node[fev] at (4.6,-10.0) {};
   \node[probe, anchor=east] at (3.9,-10.7)
-    {15.516\,ms: dispatch: ss = 0x4, print TRIP [UART log]
+    {15.516\,ms: dispatch: ss = 0x4, print TRIP
      (266\,$\mu$s after the event)};
 
   % ---- recovery wait ----
@@ -812,14 +812,14 @@ checker cross-examines are produced.
     node[midway, above, note] {\iic{} write: recover (0x99 = 1)};
   \node[ev] at (11.6,-13.9) {};
   \node[probe, anchor=west] at (11.9,-13.9)
-    {42.75\,ms: DSG closes [board log]};
+    {42.75\,ms: DSG closes};
   \draw[msg] (4.6,-14.7) -- (11.6,-14.7)
     node[midway, above, note]
     {poll: 3694\,mV, 495\,mA\\($= 3700 - 0.5\,\mathrm{A} \times
      12\,\mathrm{m}\Omega$)};
   \node[fev] at (4.6,-15.3) {};
   \node[probe, anchor=east] at (3.9,-15.3)
-    {43.7\,ms: RECOVERED [UART log]};
+    {43.7\,ms: RECOVERED};
   \draw[msg] (4.6,-16.1) -- (11.6,-16.1)
     node[midway, above, note] {\texttt{F}: end of mission};
 
