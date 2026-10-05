@@ -29,9 +29,13 @@ else
 fi
 
 echo "=== 2. fault campaign (qv2) ==="
-BACKEND=qv2 bash run_faults.sh | tail -8 || overall=1
+if BACKEND=qv2 bash run_faults.sh > /tmp/qv2_faults.log 2>&1; then :;
+else overall=1; fi
+tail -8 /tmp/qv2_faults.log
 
 echo "=== 3. drift sweep (qv2) ==="
-BACKEND=qv2 bash run_drift.sh | tail -8 || overall=1
+if BACKEND=qv2 bash run_drift.sh > /tmp/qv2_drift.log 2>&1; then :;
+else overall=1; fi
+tail -8 /tmp/qv2_drift.log
 
 if [ $overall -eq 0 ]; then echo "VALIDATE-QV2: PASS"; else echo "VALIDATE-QV2: FAIL"; exit 1; fi

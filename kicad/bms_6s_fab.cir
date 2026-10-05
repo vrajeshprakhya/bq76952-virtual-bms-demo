@@ -1,54 +1,55 @@
 .title KiCad schematic
 .include "//wsl.localhost/Ubuntu/home/vraje/bq_vboard_evidence/kicad/bms_fab_models.lib"
 .op
-R13 +3V3 /SCL 4.7k
 R14 +3V3 /+3V3_SWD 0
+R13 +3V3 /SCL 4.7k
 R12 +3V3 /SDA 4.7k
-R15 /LED /LEDK 1k
-C11 /VREFP GND 100n
+XU2 unconnected-_U2-PC13-Pad1_ unconnected-_U2-PC14-Pad2_ unconnected-_U2-PC15-Pad3_ +3V3 /VREFP +3V3 GND unconnected-_U2-PF0-Pad8_ unconnected-_U2-PF1-Pad9_ /NRST /ALERT unconnected-_U2-PA1-Pad12_ /UART_TX /UART_RX unconnected-_U2-PA4-Pad15_ /LED unconnected-_U2-PA6-Pad17_ unconnected-_U2-PA7-Pad18_ unconnected-_U2-PB0-Pad19_ unconnected-_U2-PB1-Pad20_ unconnected-_U2-PB2-Pad21_ unconnected-_U2-PB10-Pad22_ unconnected-_U2-PB11-Pad23_ unconnected-_U2-PB12-Pad24_ unconnected-_U2-PB13-Pad25_ unconnected-_U2-PB14-Pad26_ unconnected-_U2-PB15-Pad27_ unconnected-_U2-PA8-Pad28_ unconnected-_U2-PA9/UCPD1_DBCC1-Pad29_ unconnected-_U2-PC6-Pad30_ unconnected-_U2-PC7-Pad31_ unconnected-_U2-PA10/UCPD1_DBCC2-Pad32_ unconnected-_U2-PA9/PA11-Pad33_ unconnected-_U2-PA10/PA12-Pad34_ /SWDIO /SWCLK unconnected-_U2-PA15-Pad37_ unconnected-_U2-PD0-Pad38_ unconnected-_U2-PD1-Pad39_ unconnected-_U2-PD2-Pad40_ unconnected-_U2-PD3-Pad41_ unconnected-_U2-PB3-Pad42_ unconnected-_U2-PB4-Pad43_ unconnected-_U2-PB5-Pad44_ /SCL /SDA unconnected-_U2-PB8-Pad47_ unconnected-_U2-PB9-Pad48_ STM32_STUB
+C12 /NRST GND 100n
 R11 +3V3 /VREFP 0
+C11 /VREFP GND 100n
+C8 +3V3 GND 100n
 C10 +3V3 GND 4.7u
 C9 +3V3 GND 100n
-C8 +3V3 GND 100n
 R9 /CHG /CHG_G 100
 R10 /CHG_G /PACK_M 1Meg
-C12 /NRST GND 100n
-XU2 unconnected-_U2-PC13-Pad1_ unconnected-_U2-PC14-Pad2_ unconnected-_U2-PC15-Pad3_ +3V3 /VREFP +3V3 GND unconnected-_U2-PF0-Pad8_ unconnected-_U2-PF1-Pad9_ /NRST /ALERT unconnected-_U2-PA1-Pad12_ unconnected-_U2-PA2-Pad13_ unconnected-_U2-PA3-Pad14_ unconnected-_U2-PA4-Pad15_ /LED unconnected-_U2-PA6-Pad17_ unconnected-_U2-PA7-Pad18_ unconnected-_U2-PB0-Pad19_ unconnected-_U2-PB1-Pad20_ unconnected-_U2-PB2-Pad21_ unconnected-_U2-PB10-Pad22_ unconnected-_U2-PB11-Pad23_ unconnected-_U2-PB12-Pad24_ unconnected-_U2-PB13-Pad25_ unconnected-_U2-PB14-Pad26_ unconnected-_U2-PB15-Pad27_ unconnected-_U2-PA8-Pad28_ unconnected-_U2-PA9/UCPD1_DBCC1-Pad29_ unconnected-_U2-PC6-Pad30_ unconnected-_U2-PC7-Pad31_ unconnected-_U2-PA10/UCPD1_DBCC2-Pad32_ unconnected-_U2-PA9/PA11-Pad33_ unconnected-_U2-PA10/PA12-Pad34_ /SWDIO /SWCLK unconnected-_U2-PA15-Pad37_ unconnected-_U2-PD0-Pad38_ unconnected-_U2-PD1-Pad39_ unconnected-_U2-PD2-Pad40_ unconnected-_U2-PD3-Pad41_ unconnected-_U2-PB3-Pad42_ unconnected-_U2-PB4-Pad43_ unconnected-_U2-PB5-Pad44_ /SCL /SDA unconnected-_U2-PB8-Pad47_ unconnected-_U2-PB9-Pad48_ STM32_STUB
+R15 /LED /LEDK 1k
+R5 /SRP_K /SRP 100
+R6 /SRN_K /SRN 100
+XRS1 GND /SRN_K /SRP_K /SRB SHUNT_1M
+XJ4 /UART_TX /UART_RX GND UART_OPEN
+R7 /DSG /DSG_G 100
+XQ2 /FETMID /CHG_G /PACK_M NFET40
+XQ1 /FETMID /DSG_G /SRB NFET40
+R8 /DSG_G /SRB 1Meg
+C7 /SRN /SRP 100n
+XJ2 /B6 /PACK_M LOADBOX
+RF1 /VC1F /B1 100
+RF0 /VC0F GND 100
+CF2 /VC2F /VC1F 1u
+CF1 /VC1F /VC0F 1u
+XJ1 GND /B1 /B2 /B3 /B4 /B5 /B6 PACK6S
+C6 /TS1 GND 100n
+XJ3 /+3V3_SWD /SWDIO /SWCLK /NRST GND SWD_OPEN
+XD1 GND /LEDK LED_G
+XU1 /DSG /CHG GND /SDA /SCL /TS1 /CAP1 /+3V3REG /REGSRC /VC5BF unconnected-_U1-NC_CAP2_-Pad11_ unconnected-_U1-NC_CAP2_-Pad12_ unconnected-_U1-TS2-Pad13_ /CAP2 /BATRC /VC8F /VC8F /VC8F /VC7F /VC6F /VC5BF /VC3F /VC3F /VC3F /VC2F /VC1F /VC0F /SRP /SRN /ALERT BQ76930_BEH
+C5 /CAP2 GND 1u
+C4 /CAP1 GND 1u
+XTH1 /TS1 GND NTC10K
 C3 /+3V3REG GND 1u
+CF6 /VC8F /VC7F 1u
+C2 GND /REGSRC 1u
+R2 /REGSRC /B6 100
+RF7 /VC8F /B6 100
+C1 GND /BATRC 1u
+R1 /BATRC /B6 100
 RF6 /VC7F /B5 100
 RF5 /VC6F /B4 100
 CF5 /VC7F /VC6F 1u
-CF6 /VC8F /VC7F 1u
-R1 /BATRC /B6 100
-R2 /REGSRC /B6 100
-C2 GND /REGSRC 1u
-RF7 /VC8F /B6 100
 CF4 /VC6F /VC5BF 1u
-C1 GND /BATRC 1u
 R3 /+3V3REG +3V3 0
-XU1 /DSG /CHG GND /SDA /SCL /TS1 /CAP1 /+3V3REG /REGSRC /VC5BF unconnected-_U1-NC_CAP2_-Pad11_ unconnected-_U1-NC_CAP2_-Pad12_ unconnected-_U1-TS2-Pad13_ /CAP2 /BATRC /VC8F /VC8F /VC8F /VC7F /VC6F /VC5BF /VC3F /VC3F /VC3F /VC2F /VC1F /VC0F /SRP /SRN /ALERT BQ76930_BEH
-CF3 /VC3F /VC2F 1u
-C4 /CAP1 GND 1u
-RF1 /VC1F /B1 100
-RF0 /VC0F GND 100
-CF1 /VC1F /VC0F 1u
-XJ1 GND /B1 /B2 /B3 /B4 /B5 /B6 PACK6S
-CF2 /VC2F /VC1F 1u
-XRS1 GND /SRN_K /SRP_K /SRB SHUNT_1M
-R5 /SRP_K /SRP 100
-R6 /SRN_K /SRN 100
-C7 /SRN /SRP 100n
-XJ2 /B6 /PACK_M LOADBOX
-XQ1 /FETMID /DSG_G /SRB NFET40
-R8 /DSG_G /SRB 1Meg
-XQ2 /FETMID /CHG_G /PACK_M NFET40
-R7 /DSG /DSG_G 100
-XJ3 /+3V3_SWD /SWDIO /SWCLK /NRST GND SWD_OPEN
-C5 /CAP2 GND 1u
-XD1 GND /LEDK LED_G
-C6 /TS1 GND 100n
-XTH1 /TS1 GND NTC10K
 RF3 /VC3F /B3 100
 RF4 /VC5BF /B3 100
+CF3 /VC3F /VC2F 1u
 RF2 /VC2F /B2 100
 .end
