@@ -225,6 +225,23 @@ the subject of a companion paper; here they are simply the board.
 The fabrication schematic itself, including the SWD (J3) and UART
 console (J4) headers, is reproduced in Appendix~\ref{app:sch}.)
 
+Why model the parts this way instead of keeping them in a circuit
+simulator?  Because the firmware can only sense the board through
+two keyholes: the numbers in the chip's registers and the levels on
+its pins.  The RNM reproduces the board at exactly that fidelity,
+which is what makes it fast enough to run thousands of scenarios a
+night; a SPICE transient of the same mission costs tens of seconds
+per run and knows nothing of register maps or bus protocols.  SPICE
+still owns the electrons: the circuit simulator signs off the
+board's electrical design and confirms the RNM's numbers, and
+whenever it finds an effect large enough for the firmware to feel
+(a cell reading that droops during balancing, ripple that survives
+a filter), that effect is promoted into an RNM parameter, so the
+fast model carries the slow model's physics.  The rule of thumb: a
+behaviour belongs in the RNM if the firmware can perceive it
+through a register or a pin, and stays in SPICE if it only matters
+below that threshold.
+
 \begin{figure}[htbp]
 \centering
 \begin{circuitikz}[scale=0.92, transform shape, font=\small]
