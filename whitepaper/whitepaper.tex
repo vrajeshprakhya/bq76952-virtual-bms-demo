@@ -680,8 +680,9 @@ the firmware's own UART log:
 Every number is physically consistent: 3688\,mV is the 1\,A IR sag,
 and 3694\,mV is exactly $3700 - 0.5\,\mathrm{A} \times
 12\,\mathrm{m}\Omega$ after recovery at the reduced load.  The first
-line is the firmware checking its own ruler (a 1000-iteration spin
-measured in SysTick ticks of virtual time).  The timeline now tells
+line is the firmware testing its own timebase before trusting it
+(a 1000-iteration spin measured in SysTick ticks of virtual time:
+the self-test every latency below depends on).  The timeline now tells
 a time-costed story: configuring the AFE takes 2.1\,ms because every
 bit-banged \iic{} edge is paid for in executed instructions, and
 each telemetry poll costs its true ${\sim}1.4$\,ms of bus and
@@ -732,7 +733,7 @@ checker cross-examines are produced.
   % ---- what each side is doing at t = 0, before any traffic ----
   \node[fev] at (4.6,-1.0) {};
   \node[probe, anchor=east] at (3.9,-1.0)
-    {t = 0 boot: ruler self-check [UART]};
+    {t = 0 boot: timebase self-test [UART]};
   \node[side, anchor=west] at (11.9,-1.45)
     {live from t = 0: 1\,A steady,\\AFE measuring; protection
      unarmed};
