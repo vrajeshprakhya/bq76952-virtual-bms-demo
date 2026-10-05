@@ -759,8 +759,8 @@ checker cross-examines are produced.
   \node[side, anchor=east, gray] at (3.9,-2.9) {every 2\,ms:};
   \draw[msg] (4.6,-3.3) -- (11.6,-3.3)
     node[midway, above, note]
-    {read status, cell\,1, current\\(${\sim}1.4$\,ms of executed
-     edges)};
+    {three \iic{} reads: status, cell\,1, current\\(costs
+     ${\sim}1.4$\,ms of real execution)};
   \draw[msg, dashed] (4.6,-4.2) -- (11.6,-4.2)
     node[midway, above, note]
     {wait: \texttt{A 10000} per 10\,$\mu$s of\\execution
