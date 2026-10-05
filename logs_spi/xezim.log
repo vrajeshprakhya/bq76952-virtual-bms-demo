@@ -1,0 +1,40 @@
+=== xezim 0.10.5 ===
+git 531e42a (2026-09-11T07:58:43-07:00)
+Max time: 600000000 ns
+------------------------------
+[PHASE] compilation: 14.1ms
+[EVENT-EDGE] ARMED mode ON: 5 input signals, 5 fanout edges
+[EVENT-EDGE] measure (timestamp): 3 edge blocks, 2 gateable, 0 gateable-with-EMPTY-data-reads, avg data-reads/gateable=2.50
+[EVENT-EDGE] SKIP mode ON (sim_time >= 0) — skipping gateable flop fires with no data-input change
+[xezim-bridge-g] listening on 127.0.0.1:43604
+[xezim-bridge-g] client connected
+[PROF] settle=0.0ms edges=0.0ms nba=0.0ms process=0.0ms snap=0.0ms sched=0.0ms
+[PROF] edge_waiters=0.0ms edge_cg=0.0ms waiter_iters=0
+[PROF] clocks_only_detect=0 nba_elided=0 (iters with clocks-only scan / NBAs dropped at eval because value matched signal_table)
+[PROF] edge_detect=0.0ms edge_exec=0.0ms edges_fired=2653 insns=798765 ns_per_insn=0.0 fallbacks=1325
+[FUSE] array-read-NBA fusions (static sites): 0
+[FUSE] packed-loop NBA copies (static sites): 0
+[FUSE] packed blocking fills (dynamic executions): 0
+[FUSE] const-operand ALU fusions (static sites): Add=0 Eq=0 CaseEq=0 Xor=0 total=0
+[FUSE] Move-into-assign forwards (static sites): 0
+[FUSE] provably-unsigned scrubs elided (static sites): 4
+[FUSE] AddC2 superinstructions (static sites): 0
+[EVENT-EDGE] would-skip 1325/1328 gateable main-clk flop-fires (99.8%) had NO data-input change since last posedge => event-driven edge could skip them
+[EVENT-EDGE] adaptive epoch-fast-exec=0 snapshot-checks=1 healed=0
+[EVENT-EDGE] armed-fast-skips=1325 shadow-checks=0
+[PROF] fallback_reason               SystemCall_other: count=    1325 total=     0.0ms avg=    0.0µs
+[PROF] settle_dc=0.0ms(10273) settle_ca=0.0ms(0) settle_ab=0.0ms(0)
+[PROF] engine=event
+[PROF] clock_tree: roots=0 entries=0 eager_evals=0
+[PROF] settle_calls=7411 settle_iters=7411 max_iters=1 entry_evals=10273 unresolved_entries=1/15
+[PROF] settle_writes=5557 (54.1% of evals changed a signal, 4716 quiet) dep_edges=1789 (0.3 per write)
+[PROF] two_state_evals=1 (1 entries lowered)
+[PROF] simulation_loop=23367.8ms iters=54381 avg=429.70µs/iter
+[scenario] t=151000000000: force step to 2000 g
+[pin_bridge] client finished at t=165687651000
+[PHASE] simulation: 23368.0ms
+[PHASE] total: 23382.2ms
+------------------------------
+------------------------------
+Simulation finished at time 165687651000
+($finish called)

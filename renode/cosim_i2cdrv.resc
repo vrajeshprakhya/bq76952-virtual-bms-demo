@@ -1,0 +1,20 @@
+:name: xezim co-simulation, I2C driver rung
+:description: STM32G0 firmware drives the REAL I2C1 controller model; a harness slave executes every byte as pin-level edges on the SV-RNM board
+
+using sysbus
+
+emulation SetGlobalQuantum "0.00002"
+mach create "bms3"
+machine LoadPlatformDescription @platforms/cpus/stm32g0.repl
+
+include @Bridge3.cs
+machine LoadPlatformDescriptionFromString "pinmaster: XezimPinMaster @ sysbus 0x60000200 { quantumUs: 10; port: 43605 }"
+machine LoadPlatformDescriptionFromString "afe: XezimI2CSlave @ i2c1 0x08 { master: pinmaster; address: 0x08 }"
+
+sysbus LoadELF @fw_arm/fw_i2cdrv.elf
+
+usart2 CreateFileBackend $CWD/uart_i2cdrv.log true
+
+echo "running: real-I2C-driver firmware against the pin-level board"
+emulation RunFor "0.3"
+quit

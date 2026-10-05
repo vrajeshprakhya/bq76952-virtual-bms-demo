@@ -146,6 +146,30 @@ logs_renode/   uart.log (the firmware's own account of the trip-and-
                sweep.  Faults + drift re-validated on this backend
                (logs_qv2/faults, logs_qv2/drift).  This is the
                backend the whitepaper presents.
+               GENERIC PIN-VECTOR BRIDGE (bridge/xezim_bridge_g.c +
+               bridge/pin_bridge.sv): the bridge is protocol-blind --
+               up to 32 firmware-driven and 32 board-driven pins as
+               hex masks, same three verbs (S pins / A ns / F), acks
+               carry the input pins + ALERT.  Pin maps live in the SV
+               top and the firmware HAL.  Two proofs ride on it:
+               1) TRANSPORTABILITY, run_cosim_spi.sh: a second
+                  protocol end-to-end -- the HX717-class load-cell
+                  ADC (SPI-family: SCLK out, DOUT in) from the
+                  loadcell demo (design/rnm_lc/), bench-like time on
+                  mainline QEMU+icount.  A 2000 g step lands at its
+                  physics: steady delta 1,718,241 vs 1,717,987
+                  expected (inside the 1 uV noise), detected 2.10 ms
+                  after the board's step; checker check_spi.py, same
+                  two-witness discipline (logs_spi/).
+               2) I2C DRIVER RUNG, run_cosim_i2cdrv.sh: the firmware
+                  uses the STM32 G0's REAL I2C1 controller (Renode's
+                  STM32F7_I2C model; production register sequence:
+                  CR2, START, TXIS, RXNE, STOPF), and Bridge3.cs's
+                  harness slave executes every byte transaction as
+                  pin-level edges on the unchanged BMS board -- the
+                  bus-functional model moved from firmware to
+                  harness, where it belongs.  Same mission, same
+                  checker PASS, trip at 15.25 ms (logs_i2cdrv/).
 logs_v2/       the quantum-coupled run: uart.log shows "ALERT IRQ:
                isr at t=15250us" -- interrupt delivery at the assert
                quantum -- plus the same telemetry the checker grades
@@ -192,6 +216,8 @@ Tool versions are recorded in `logs_*/**version*`.
 | Functional coverage over corner x response | `logs_xezim/xezim_cov.json` |
 | Bring-up bugs (START edge, array args, A-vs-mA) | fix-site comments in `design/rnm/bq76952_rnm.sv`, `design/tb/bq_proxy_pkg.sv`/`bq_bridge.sv`, and the whitepaper's Results section |
 | Injected defects in ANY layer are caught, each by a different rule | `logs_renode/faults/`: five-run campaign — clean passes; a byte-swapped OCD threshold (firmware config) trips R1 protection-missing; an off-by-one cell-register read (firmware protocol) trips R2 telemetry-vs-board-truth; a +2.5 A analog current-path offset (RNM) trips R3 false-trip; a stuck SDA readback (bridge/pin mux) trips R4 bus health — per-run logs + `summary.log` |
+| The framework transports to other protocols | `logs_spi/`: the HX717 load-cell chain (SPI-family) on the generic pin-vector bridge; 2000 g step = 1,718,241 counts vs 1,717,987 physics, detected 2.10 ms after the board's step, same checker discipline |
+| The production I2C driver stack is verified, not just the conversation | `logs_i2cdrv/`: firmware drives the real STM32 G0 I2C1 controller (CR2/START/TXIS/RXNE/STOPF); a harness slave turns each byte into pin-level edges on the same board; same mission, trip at 15.25 ms, checker PASS |
 | Under quantum coupling, firmware compute costs board time and interrupts land at the event | `logs_v2/uart.log`: ALERT ISR at t=15250us (the assert quantum, vs 18.6 ms polled in v1); the firmware's 1.66 ms main-loop service latency becomes a measured property; same checker passes |
 | The board is a standard IEEE 1666 TLM-2.0 target | `logs_tlm/`: the same mission crosses a genuine SystemC TLM-2.0 socket (14,439 generic-payload transactions, sc_time locked to board time), board ends at t=52233121000 exactly, same checker PASS -- any TLM initiator can drive the same board |
 | The co-sim is emulator-agnostic: mainline QEMU reproduces the board timeline byte-for-byte | `logs_qemu/`: the same mission firmware on unmodified QEMU 9.2.4 (STM32F405, bridge over a USART TCP chardev) finishes at t=52233121000 exactly, same samples, same checker PASS, ~8 s wall |

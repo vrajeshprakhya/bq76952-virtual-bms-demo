@@ -25,3 +25,7 @@ renode/fw_arm/fw_v2.elf
 renode/uart_tlm.log
 renode/uart_qv2.log
 renode/fw_arm/fw_qv2.elf
+renode/uart_spi.log
+renode/uart_i2cdrv.log
+renode/fw_arm/fw_spi.elf
+renode/fw_arm/fw_i2cdrv.elf

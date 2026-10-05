@@ -7,9 +7,21 @@ ifneq ($(FAULT),)
 CFLAGS += -DFAULT_$(FAULT)
 endif
 
-.PHONY: all fw.elf fw_qemu.elf fw_v2.elf fw_qv2.elf clean
+.PHONY: all fw.elf fw_qemu.elf fw_v2.elf fw_qv2.elf fw_spi.elf clean
 
-all: fw.elf fw_qemu.elf fw_v2.elf fw_qv2.elf
+all: fw.elf fw_qemu.elf fw_v2.elf fw_qv2.elf fw_spi.elf
+
+# load-cell (HX717, SPI-family) mission, bench-like QEMU + icount
+fw_spi.elf: main_spi.c startup.c link.ld
+	$(CC) $(CFLAGS) -mcpu=cortex-m4 $(LDFLAGS) \
+	  -o $@ main_spi.c startup.c -lgcc
+	$(SIZE) $@
+
+# I2C DRIVER RUNG: real G0 I2C1 controller, Renode backend
+fw_i2cdrv.elf: main_i2cdrv.c startup.c link.ld
+	$(CC) $(CFLAGS) -mcpu=cortex-m0plus $(LDFLAGS) \
+	  -o $@ main_i2cdrv.c startup.c -lgcc
+	$(SIZE) $@
 
 # mainline QEMU + icount, BENCH-LIKE time (self-metered via SysTick)
 fw_qv2.elf: main_qv2.c startup.c link.ld

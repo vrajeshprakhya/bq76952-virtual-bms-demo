@@ -1,0 +1,58 @@
+
+[fw] load-cell mission (HX717, SPI-family) on QEMU+icount; board = SV-RNM in xezim
+[fw t=3.1ms] n=0 counts=4231 (taring)
+[fw t=6.3ms] n=1 counts=4676 (taring)
+[fw t=9.4ms] n=2 counts=3876 (taring)
+[fw t=12.5ms] n=3 counts=3871 (taring)
+[fw t=15.6ms] n=4 counts=4446 delta=284
+[fw t=18.8ms] n=5 counts=3983 delta=-179
+[fw t=21.9ms] n=6 counts=4443 delta=281
+[fw t=25.0ms] n=7 counts=4024 delta=-138
+[fw t=28.1ms] n=8 counts=4250 delta=88
+[fw t=31.3ms] n=9 counts=3989 delta=-173
+[fw t=34.4ms] n=10 counts=4682 delta=520
+[fw t=37.5ms] n=11 counts=3920 delta=-242
+[fw t=40.6ms] n=12 counts=4233 delta=71
+[fw t=43.8ms] n=13 counts=3905 delta=-257
+[fw t=46.9ms] n=14 counts=3972 delta=-190
+[fw t=50.0ms] n=15 counts=4542 delta=380
+[fw t=53.1ms] n=16 counts=4529 delta=367
+[fw t=56.3ms] n=17 counts=4259 delta=97
+[fw t=59.4ms] n=18 counts=4544 delta=382
+[fw t=62.5ms] n=19 counts=4455 delta=293
+[fw t=65.6ms] n=20 counts=4145 delta=-17
+[fw t=68.8ms] n=21 counts=3936 delta=-226
+[fw t=71.9ms] n=22 counts=4530 delta=368
+[fw t=75.0ms] n=23 counts=4394 delta=232
+[fw t=78.1ms] n=24 counts=4405 delta=243
+[fw t=81.3ms] n=25 counts=4450 delta=288
+[fw t=84.4ms] n=26 counts=4617 delta=455
+[fw t=87.5ms] n=27 counts=4553 delta=391
+[fw t=90.6ms] n=28 counts=3972 delta=-190
+[fw t=93.8ms] n=29 counts=4508 delta=346
+[fw t=96.9ms] n=30 counts=3946 delta=-216
+[fw t=100.0ms] n=31 counts=3881 delta=-281
+[fw t=103.1ms] n=32 counts=4087 delta=-75
+[fw t=106.3ms] n=33 counts=3951 delta=-211
+[fw t=109.4ms] n=34 counts=4586 delta=424
+[fw t=112.5ms] n=35 counts=3923 delta=-239
+[fw t=115.6ms] n=36 counts=3943 delta=-219
+[fw t=118.8ms] n=37 counts=4185 delta=23
+[fw t=121.9ms] n=38 counts=4676 delta=514
+[fw t=125.0ms] n=39 counts=4429 delta=267
+[fw t=128.1ms] n=40 counts=3936 delta=-226
+[fw t=131.3ms] n=41 counts=4216 delta=54
+[fw t=134.4ms] n=42 counts=3975 delta=-187
+[fw t=137.5ms] n=43 counts=4663 delta=501
+[fw t=140.6ms] n=44 counts=3919 delta=-243
+[fw t=143.8ms] n=45 counts=4277 delta=115
+[fw t=146.9ms] n=46 counts=4420 delta=258
+[fw t=150.0ms] n=47 counts=4719 delta=557
+[fw t=153.1ms] n=48 counts=1722709 delta=1718547
+[fw t=153.1ms] *** WEIGHT detected: delta=1718547 counts
+[fw t=156.3ms] n=49 counts=1722598 delta=1718436
+[fw t=159.4ms] n=50 counts=1722115 delta=1717953
+[fw t=162.5ms] n=51 counts=1722143 delta=1717981
+[fw t=165.6ms] n=52 counts=1722403 delta=1718241
+[fw t=165.6ms] *** steady at delta=1718241 counts -- mission complete
+[fw] done; stopping the board sim

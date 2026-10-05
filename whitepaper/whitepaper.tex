@@ -605,7 +605,37 @@ line protocol (\texttt{S}~set pins; \texttt{A}~time beacons carrying
 the firmware's own measured execution; \texttt{F}~finish; each
 acknowledged with the settled SDA and the board's ALERT level)
 through the UART's data register, the bolt-onto-a-spare-port pattern
-such teams use for HIL and model channels.  The schematic's U2 is an
+such teams use for HIL and model channels.
+
+Driving the bus pin by pin from the mission code is a deliberate
+layering, not a shortcut, and it is worth defending once.  The
+pin-by-pin driver is a bus-functional model written in C, the same
+role verification benches have always filled at this altitude (and a
+production technique in its own right: Linux ships a GPIO \iic{}
+driver used on real products).  Pin level is where mixed-signal bugs
+live: the one-edge protocol defect of Section~\ref{sec:cosim}'s
+bring-up list, the stuck-SDA fault of the campaign, the torn read
+below are all invisible to a byte-level model, and the AFE receives
+byte-identical traffic from a hardware controller or a careful
+bit-bang, so nothing verified here is invalidated by the driver
+swap.  The production \emph{driver stack} is then verified on its
+own rung: the same mission runs with the firmware programming the
+STM32~G0's real \texttt{I2C1} controller through its production
+register sequence (\texttt{CR2}, START, \texttt{TXIS},
+\texttt{RXNE}, \texttt{STOPF}), on an emulator backend that models
+the controller (mainline QEMU carries no STM32 \iic{} model; the
+Section~\ref{sec:related} fork path applies), while a harness-side
+slave executes every byte transaction as pin-level edges on the
+same board: same checker, same 15.25\,ms trip, the bus-functional
+model relocated from firmware to harness, where it belongs.  And
+the bridge itself is protocol-blind, a pin vector of up to 32 wires
+each way: the repository demonstrates the identical flow on a
+second protocol, an HX717-class load-cell ADC (SPI-family, SCLK out
+and DOUT in), where a 2000\,g step lands within 254 counts of its
+physics (1{,}718{,}241 measured vs 1{,}717{,}987 expected) and is
+detected 2.10\,ms after the board's own event.
+
+The schematic's U2 is an
 STM32G0B1, a part mainline QEMU does not model; the mission firmware
 is core-agnostic behind a five-function platform HAL
 (\texttt{hal.h}), and a G0B1 machine model is precisely the kind of
