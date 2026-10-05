@@ -745,7 +745,8 @@ checker cross-examines are produced.
     {6 register writes, bit-banged \iic{}:\\every edge an
      \texttt{S}, every gap paid};
   \draw[ret] (11.6,-2.1) -- (4.6,-2.1)
-    node[midway, below, note] {each message acked: SDA + ALERT};
+    node[midway, below, note]
+    {answers carry SDA + ALERT levels};
   \node[side, anchor=east] at (3.9,-1.8)
     {$0 \to 2.1$\,ms: firmware configures the AFE's protection};
 
