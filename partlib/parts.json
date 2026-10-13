@@ -1,0 +1,76 @@
+{
+  "_doc": [
+    "Part library for the BMS board. Keys are the SPICE model names the schematic's parts are bound to (the X card's last token).",
+    "pins: schematic pin -> [[module port, kind]]. Kinds: analog_in, analog_out, digital_in, digital_out (push-pull), od_pull (1 = pull the net low), od_drive (a level; low pulls).",
+    "power: how the part sits in the board's current path. role source/load/element; an element's a->b / b->a say when current may flow that way through it: always, on (its on_port is high), or never.",
+    "module null: no behavioural model (an unpopulated header, an indicator); its pins are reported, not driven.",
+    "Files resolve against this directory, then spice2rnm's own board/partlib."
+  ],
+  "requires": ["../design/rnm/bq_types_pkg.sv", "../design/rnm/bq76952_rnm.sv"],
+  "parts": {
+    "BQ76930_BEH": {
+      "module": "part_bq76930_6s",
+      "file": "part_bq76930_6s.sv",
+      "params": {"TEMP_C": "25.0"},
+      "pins": {
+        "vc0":  [["vc0", "analog_in"]],
+        "vc1":  [["vc1", "analog_in"]],
+        "vc2":  [["vc2", "analog_in"]],
+        "vc3":  [["vc3", "analog_in"]],
+        "vc5b": [["vc5b", "analog_in"]],
+        "vc6":  [["vc6", "analog_in"]],
+        "vc7":  [["vc7", "analog_in"]],
+        "vc8":  [["vc8", "analog_in"]],
+        "srp":  [["srp", "analog_in"]],
+        "srn":  [["srn", "analog_in"]],
+        "dsg":  [["dsg", "analog_out"]],
+        "chg":  [["chg", "analog_out"]],
+        "regout": [["regout", "analog_out"]],
+        "scl":  [["scl", "digital_in"]],
+        "sda":  [["sda_pull", "od_pull"], ["sda_bus", "digital_in"]],
+        "alert": [["alert", "digital_out"]]
+      }
+    },
+    "PACK6S": {
+      "module": "part_pack6s",
+      "file": "part_pack6s.sv",
+      "scenario_params": ["OCV", "RINT"],
+      "pins": {
+        "p2": [["n1", "analog_out"]],
+        "p3": [["n2", "analog_out"]],
+        "p4": [["n3", "analog_out"]],
+        "p5": [["n4", "analog_out"]],
+        "p6": [["n5", "analog_out"]],
+        "p7": [["n6", "analog_out"]]
+      },
+      "power": {"role": "source", "pos": "p7", "neg": "p1", "current_port": "i_pack"}
+    },
+    "LOADBOX": {
+      "module": null,
+      "note": "the test load: its current comes from the scenario",
+      "power": {"role": "load", "pos": "n1", "neg": "n2"}
+    },
+    "SHUNT_1M": {
+      "module": null,
+      "note": "current-sense shunt; its Kelvin taps are passive networks",
+      "power": {"role": "element", "a": "n4", "b": "n1", "ohms": 0.001,
+                "conducts": {"a->b": "always", "b->a": "always"}}
+    },
+    "NFET40": {
+      "module": "part_nfet_switch",
+      "file": "part_nfet_switch.sv",
+      "params": {"VTO": "2.0"},
+      "pins": {
+        "g": [["g", "analog_in"]],
+        "s": [["s", "analog_in"]]
+      },
+      "power": {"role": "element", "a": "d", "b": "s", "ohms": 0.0,
+                "on_port": "on",
+                "conducts": {"a->b": "on", "b->a": "always"},
+                "why": {"b->a": "body diode, source to drain"}}
+    },
+    "SWD_OPEN":  {"module": null, "note": "debug header, nothing attached"},
+    "UART_OPEN": {"module": null, "note": "console header, nothing attached"},
+    "LED_G":     {"module": null, "note": "indicator LED, not modelled"}
+  }
+}

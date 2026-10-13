@@ -29,3 +29,4 @@ cosim/uart_spi.log
 cosim/uart_i2cdrv.log
 cosim/fw_arm/fw_spi.elf
 cosim/fw_arm/fw_i2cdrv.elf
+cosim/uart_bench.log

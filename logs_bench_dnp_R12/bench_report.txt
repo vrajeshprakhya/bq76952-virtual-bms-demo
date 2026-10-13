@@ -1,0 +1,43 @@
+spice2rnm bench: /home/vraje/bq_vboard_evidence/cosim/../kicad/bms_6s_fab.cir   [DNP: R12]
+
+passive networks: board mode, PASS
+
+parts:
+  u_Q2       Q2 (NFET40)
+  u_Q1       Q1 (NFET40)
+  u_J1       J1 (PACK6S)
+  u_U1       U1 (BQ76930_BEH)
+  u_U2       U2, the MCU, through the emulator bridge
+  (no model) RS1 (SHUNT_1M): current-sense shunt; its Kelvin taps are passive networks
+  (no model) J4 (UART_OPEN): console header, nothing attached
+  (no model) J2 (LOADBOX): the test load: its current comes from the scenario
+  (no model) J3 (SWD_OPEN): debug header, nothing attached
+  (no model) D1 (LED_G): indicator LED, not modelled
+
+MCU pin contract (firmware's signals vs the schematic):
+  pad 45  I2C SCL (PB6)          -> /SCL     shared with U1.scl
+  pad 46  I2C SDA (PB7)          -> /SDA     shared with U1.sda
+  pad 11  ALERT interrupt (PA0)  -> /ALERT   shared with U1.alert
+
+open-drain nets:
+  /SCL     pulled low by U2.scl
+           pulled up by passive network net_SCL [R13]
+  /SDA     pulled low by U1.sda_pull, U2.sda_pull
+           NO PULL-UP ON THE BOARD: this net can never read high
+
+current path (walked on the schematic, load to source):
+  J2.n2 (/PACK_M)
+    -> Q2 s->d: always conducts (body diode, source to drain)
+  /FETMID
+    -> Q1 d->s: conducts only when on
+  /SRB
+    -> RS1 n4->n1: always conducts
+  0
+  only Q1 can interrupt this path
+
+read but driven by nothing on the board (held at 0 V):
+  /LEDK
+  /SDA
+
+generated: /home/vraje/bq_vboard_evidence/cosim/build/bench_dnp_R12/bench_top.sv
+file list: /home/vraje/bq_vboard_evidence/cosim/build/bench_dnp_R12/bench.f

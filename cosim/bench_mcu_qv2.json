@@ -1,0 +1,12 @@
+{
+  "_doc": "Which MCU pads the firmware's signals live on, and how the emulator bridge presents them. The bench generator checks every pad against the schematic before wiring anything.",
+  "refdes": "U2",
+  "module": "renode_bridge2",
+  "file": "bridge/renode_bridge2.sv",
+  "params": {"PORT": "43602"},
+  "pads": {
+    "45": {"signal": "I2C SCL (PB6)", "ports": [["scl", "od_drive"]]},
+    "46": {"signal": "I2C SDA (PB7)", "ports": [["sda_pull", "od_pull"], ["sda_bus", "digital_in"]]},
+    "11": {"signal": "ALERT interrupt (PA0)", "ports": [["alert", "digital_in"]]}
+  }
+}

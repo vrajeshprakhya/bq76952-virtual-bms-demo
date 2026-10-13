@@ -1,0 +1,67 @@
+
+[fw] bench-like time on QEMU+icount; 1000-spin = 8073 systick ticks
+[fw t=2.1ms] AFE protection configured (CUV 2800mV COV 4250mV OCD 3000mA)
+[fw t=2.1ms] ALERT dispatch armed; polling for telemetry only
+[fw t=5.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=5.5ms] *** TELEMETRY FAULT: implausible c1=0mV
+[fw t=7.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=9.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=11.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=13.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=15.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=17.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=19.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=21.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=23.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=25.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=27.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=29.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=31.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=33.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=35.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=37.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=39.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=41.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=43.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=45.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=47.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=49.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=51.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=53.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=55.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=57.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=59.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=61.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=63.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=65.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=67.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=69.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=71.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=73.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=75.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=77.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=79.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=81.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=83.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=85.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=87.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=89.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=91.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=93.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=95.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=97.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=99.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=101.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=103.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=105.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=107.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=109.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=111.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=113.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=115.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=117.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=119.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=121.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=123.5ms] ss=0x0 c1=0mV i=0mA
+[fw t=123.5ms] !!! mission incomplete
+[fw] done; stopping the board sim

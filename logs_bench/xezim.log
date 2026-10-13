@@ -1,0 +1,47 @@
+=== xezim 0.10.5 ===
+git 531e42a (2026-09-11T07:58:43-07:00)
+Max time: 400000000 ns
+------------------------------
+[PHASE] compilation: 9.6ms
+[EVENT-EDGE] ARMED mode ON: 6 input signals, 7 fanout edges
+[EVENT-EDGE] measure (timestamp): 7 edge blocks, 3 gateable, 0 gateable-with-EMPTY-data-reads, avg data-reads/gateable=2.33
+[EVENT-EDGE] SKIP mode ON (sim_time >= 0) — skipping gateable flop fires with no data-input change
+[xezim-bridge2] listening on 127.0.0.1:43602
+[xezim-bridge2] Renode connected
+[PROF] settle=0.0ms edges=0.0ms nba=0.0ms process=0.0ms snap=0.0ms sched=0.0ms
+[PROF] edge_waiters=0.0ms edge_cg=0.0ms waiter_iters=0
+[PROF] clocks_only_detect=0 nba_elided=0 (iters with clocks-only scan / NBAs dropped at eval because value matched signal_table)
+[PROF] edge_detect=0.0ms edge_exec=0.0ms edges_fired=3008 insns=12591163 ns_per_insn=0.0 fallbacks=15
+[FUSE] array-read-NBA fusions (static sites): 0
+[FUSE] packed-loop NBA copies (static sites): 0
+[FUSE] packed blocking fills (dynamic executions): 0
+[FUSE] const-operand ALU fusions (static sites): Add=0 Eq=1 CaseEq=6 Xor=0 total=7
+[FUSE] Move-into-assign forwards (static sites): 0
+[FUSE] provably-unsigned scrubs elided (static sites): 1
+[FUSE] AddC2 superinstructions (static sites): 0
+[EVENT-EDGE] would-skip 472/1819 gateable main-clk flop-fires (25.9%) had NO data-input change since last posedge => event-driven edge could skip them
+[EVENT-EDGE] adaptive epoch-fast-exec=0 snapshot-checks=1816 healed=0
+[EVENT-EDGE] armed-fast-skips=0 shadow-checks=0
+[PROF] fallback_reason                   Expr_display: count=       3 total=     0.0ms avg=    7.7µs
+[PROF] fallback_reason               SystemCall_other: count=       2 total=     0.0ms avg=    0.0µs
+[PROF] fallback_reason               Expr_Call_impure: count=      10 total=     0.0ms avg=    0.0µs
+[PROF] settle_dc=0.0ms(4379533) settle_ca=0.0ms(0) settle_ab=0.0ms(15)
+[PROF] engine=event
+[PROF] clock_tree: roots=0 entries=0 eager_evals=0
+[PROF] settle_calls=2149263 settle_iters=2149268 max_iters=2 entry_evals=4379548 unresolved_entries=1/86
+[PROF] settle_writes=4232258 (96.6% of evals changed a signal, 147290 quiet) dep_edges=3175230 (0.8 per write)
+[PROF] two_state_evals=161 (0 entries lowered)
+[PROF] simulation_loop=62258.7ms iters=884547 avg=70.38µs/iter
+[board] AFE measurement period = 250000.0 ns
+[scenario] t=15000000000: load raised to 4.2 A (overload)
+[board] t=15250000000: AFE opened DSG (protection trip)
+[board] t=15250000000: ALERT asserted (safety status nonzero)
+[scenario] t=40000000000: load reduced to 0.5 A
+[board] t=42500000000: AFE closed DSG (recovered)
+[renode_bridge2] firmware finished at t=43715643000
+[PHASE] simulation: 62259.1ms
+[PHASE] total: 62268.8ms
+------------------------------
+------------------------------
+Simulation finished at time 43715643000
+($finish called)

@@ -1,0 +1,14 @@
+{
+  "_doc": "The trip-and-recover mission's board scenario. params: per-part module parameters by reference designator. loads: each load connector's current schedule, [time ns, amps, message or null].",
+  "params": {
+    "J1": {"OCV": "3.7", "RINT": "0.012"},
+    "U1": {"TEMP_C": "25.0"}
+  },
+  "loads": {
+    "J2": [
+      [0,        1.0, null],
+      [15000000, 4.2, "load raised to 4.2 A (overload)"],
+      [40000000, 0.5, "load reduced to 0.5 A"]
+    ]
+  }
+}

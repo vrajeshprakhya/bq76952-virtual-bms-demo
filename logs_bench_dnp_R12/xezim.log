@@ -1,0 +1,42 @@
+=== xezim 0.10.5 ===
+git 531e42a (2026-09-11T07:58:43-07:00)
+Max time: 400000000 ns
+------------------------------
+[PHASE] compilation: 7.7ms
+[EVENT-EDGE] ARMED mode ON: 6 input signals, 7 fanout edges
+[EVENT-EDGE] measure (timestamp): 7 edge blocks, 3 gateable, 0 gateable-with-EMPTY-data-reads, avg data-reads/gateable=2.33
+[EVENT-EDGE] SKIP mode ON (sim_time >= 0) — skipping gateable flop fires with no data-input change
+[xezim-bridge2] listening on 127.0.0.1:43602
+[xezim-bridge2] Renode connected
+[PROF] settle=0.0ms edges=0.0ms nba=0.0ms process=0.0ms snap=0.0ms sched=0.0ms
+[PROF] edge_waiters=0.0ms edge_cg=0.0ms waiter_iters=0
+[PROF] clocks_only_detect=0 nba_elided=0 (iters with clocks-only scan / NBAs dropped at eval because value matched signal_table)
+[PROF] edge_detect=0.0ms edge_exec=0.0ms edges_fired=16233 insns=8724456 ns_per_insn=0.0 fallbacks=1
+[FUSE] array-read-NBA fusions (static sites): 0
+[FUSE] packed-loop NBA copies (static sites): 0
+[FUSE] packed blocking fills (dynamic executions): 0
+[FUSE] const-operand ALU fusions (static sites): Add=0 Eq=1 CaseEq=6 Xor=0 total=7
+[FUSE] Move-into-assign forwards (static sites): 0
+[FUSE] provably-unsigned scrubs elided (static sites): 1
+[FUSE] AddC2 superinstructions (static sites): 0
+[EVENT-EDGE] would-skip 8106/8117 gateable main-clk flop-fires (99.9%) had NO data-input change since last posedge => event-driven edge could skip them
+[EVENT-EDGE] adaptive epoch-fast-exec=0 snapshot-checks=9 healed=0
+[EVENT-EDGE] armed-fast-skips=8106 shadow-checks=0
+[PROF] fallback_reason               SystemCall_other: count=       1 total=     0.0ms avg=    0.0µs
+[PROF] settle_dc=0.0ms(2310335) settle_ca=0.0ms(0) settle_ab=0.0ms(10)
+[PROF] engine=event
+[PROF] clock_tree: roots=0 entries=0 eager_evals=0
+[PROF] settle_calls=1066379 settle_iters=1066383 max_iters=2 entry_evals=2310345 unresolved_entries=1/84
+[PROF] settle_writes=2076768 (89.9% of evals changed a signal, 233577 quiet) dep_edges=1786025 (0.9 per write)
+[PROF] two_state_evals=1 (0 entries lowered)
+[PROF] simulation_loop=213566.9ms iters=2523612 avg=84.63µs/iter
+[board] AFE measurement period = 250000.0 ns
+[scenario] t=15000000000: load raised to 4.2 A (overload)
+[scenario] t=40000000000: load reduced to 0.5 A
+[renode_bridge2] firmware finished at t=123558904000
+[PHASE] simulation: 213567.4ms
+[PHASE] total: 213575.1ms
+------------------------------
+------------------------------
+Simulation finished at time 123558904000
+($finish called)
